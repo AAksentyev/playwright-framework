@@ -1,5 +1,4 @@
-import { Logger } from "@utils/logger.ts";
-
+import { Logger } from '@utils/logger.ts';
 
 /**
  * Options for the Retry decorator.

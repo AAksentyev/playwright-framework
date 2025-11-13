@@ -3,7 +3,6 @@ import { BasePage } from '@pages/base/BasePage.ts';
 import { expect, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 
-
 /**
  * Example Page Object Model using the Playwright site
  * Provides examples on how to implement base classes and decorators
@@ -43,13 +42,15 @@ export class PlaywrightHomePage extends BasePage {
     /**
      * Example method that will always fail.
      * The `@Retry` decorator will automatically retry this method a given number of attempts
-     * After *each* retry it will also execute the passed onRetry callback 
+     * After *each* retry it will also execute the passed onRetry callback
      */
     @Retry({
         attempts: 2,
         delay: 500,
         onRetry(error, attempt) {
-            Logger.warn(`This message is being logged from the @Retry callback! doSomethingElse has failed. Attempt: ${attempt}`);
+            Logger.warn(
+                `This message is being logged from the @Retry callback! doSomethingElse has failed. Attempt: ${attempt}`
+            );
         },
     })
     public async exampleRetryWithCallback(): Promise<void> {
