@@ -22,7 +22,28 @@ export default defineConfig({
     /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 1 : 1,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: 'html',
+    reporter: [
+        ['line'],
+        ['junit', { outputFile: `results-${process.env.PW_TAG || 'all'}.xml` }], // for TeamCity
+        [
+            'html',
+            {
+                outputFolder: `playwright-reports/playwright-report-${process.env.PW_TAG || 'all'}`,
+                open: 'never',
+            },
+        ], // optional artifact
+        /*[
+            'allure-playwright',
+            {
+                environmentInfo: {
+                    os_platform: os.platform(),
+                    os_release: os.release(),
+                    os_version: os.version(),
+                    node_version: process.version
+                }
+            }
+        ]*/
+    ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('')`. */
@@ -39,7 +60,7 @@ export default defineConfig({
             use: { ...devices['Desktop Chrome'] },
         },
 
-        {
+        /*{
             name: 'firefox',
             use: { ...devices['Desktop Firefox'] },
         },
@@ -47,7 +68,7 @@ export default defineConfig({
         {
             name: 'webkit',
             use: { ...devices['Desktop Safari'] },
-        },
+        },*/
 
         /* Test against mobile viewports. */
         // {

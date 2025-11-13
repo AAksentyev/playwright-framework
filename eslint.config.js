@@ -19,6 +19,8 @@ export default [
         Buffer: "readonly",
         __dirname: "readonly",
         __filename: "readonly",
+        console: "readonly",
+        setTimeout: "readonly"
       },
     },
     plugins: {

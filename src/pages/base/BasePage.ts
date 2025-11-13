@@ -9,7 +9,7 @@ import { BaseLocator } from './BaseLocator.ts';
  *
  */
 export abstract class BasePage extends BaseLocator {
-    constructor(private page: Page) {
+    constructor(protected page: Page) {
         super();
     }
 
@@ -67,6 +67,7 @@ export abstract class BasePage extends BaseLocator {
         }
 
         await this.page.goto(this.url);
+        await this.waitForPageLoad();
     }
 
     /**

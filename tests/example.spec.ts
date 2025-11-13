@@ -1,19 +1,56 @@
+import { PlaywrightHomePage } from '@pages/example/PlaywrightHomePage.ts';
+import { SideNavigationMenuComponent } from '@pages/example/SideNavigationMenuComponent.ts';
+import { TopNavigationMenuComponent } from '@pages/example/TopNavigationMenuComponent.ts';
 import { test } from '@playwright/test';
-import { expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
-    await page.goto('https://playwright.dev/');
 
-    // Expect a title "to contain" a substring.
-    await expect(page).toHaveTitle(/Playwright/);
+test('Retry without callback', async ({ page }) => {
+    const playwrightPage = new PlaywrightHomePage(page);
+    // navigate to the URL defined in the POM
+    await test.step('Navigate to the URL', async()=>{
+        await playwrightPage.navigateToByUrl();
+    })
+    
+    // click on an element that does not exist
+    // this will cause the retry mechanism in the decorator to retry the click x number of times
+    await test.step('Click on a missing element', async()=>{
+        await playwrightPage.exampleRetryWithoutCallback();
+    })
+    
 });
 
-test('get started link', async ({ page }) => {
-    await page.goto('https://playwright.dev/');
+test('Retry with callback', async ({ page }) => {
+    const playwrightPage = new PlaywrightHomePage(page);
+    
+    // navigate to the URL defined in the POM
+    await test.step('Navigate to the URL', async()=>{
+        await playwrightPage.navigateToByUrl();
+    })
+    
+    // fill an element that does not exist
+    // this will cause the retry mechanism in the decorator to retry the click x number of times
+    // since the decorator also had a callback supplied, every retry will have an additional example log displayed
+    await test.step('Fill a missing element', async()=>{
+        await playwrightPage.exampleRetryWithCallback();
+    })
+});
 
-    // Click the get started link.
-    await page.getByRole('link', { name: 'Get started' }).click();
+test('Component interactions', async ({ page }) => {
+    const playwrightPage = new PlaywrightHomePage(page);
+    const topMenu = new TopNavigationMenuComponent(page);
+    const sideMenu = new SideNavigationMenuComponent(page);
 
-    // Expects page to have a heading with the name of Installation.
-    await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+    // navigate to the URL defined in the POM
+    await test.step('Navigate to the URL', async()=>{
+        await playwrightPage.navigateToByUrl();
+    })
+    
+    await test.step('Navigate to the Docs page via Top nav menu', async()=>{
+        await topMenu.clickMenuOption('Docs');
+    })
+
+    await test.step('Side nav menu should now be visible. Wait for it to load', async()=>{
+        await sideMenu.waitForComponentLoad();
+    })
+    
 });

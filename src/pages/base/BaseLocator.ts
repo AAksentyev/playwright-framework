@@ -50,6 +50,17 @@ export abstract class BaseLocator {
     }
 
     /**
+     * Hovers the locator after waiting for it to be visible.
+     * Ensures that the element is interactable before hovering.
+     * @param locator - locator that is being hovered
+     */
+    protected async safeHover(locator: Locator, timeout: number = 5000) {
+        await expect(locator, 'Locator being hovered is not visible').toBeVisible({ timeout });
+        await expect(locator, 'Locator being hovered is not enabled').toBeEnabled({ timeout });
+        await locator.hover();
+    }
+
+    /**
      * Fills the locator with the specified value after ensuring it is visible and enabled.
      * @param locator - Locator that is being filled
      * @param value - Value to fill the locator with
@@ -61,4 +72,23 @@ export abstract class BaseLocator {
         // perform the fill action
         await locator.fill(value);
     }
+
+    /**
+     * Waits for locator to become visible
+     * @param locator - Locator to wait for
+     * @param timeout - optional override for the time (default 10s)
+     */
+    protected async waitForVisible(locator:Locator, timeout:number=10000){
+        await locator.waitFor({state:'visible', timeout})
+    }
+
+    /**
+     * Waits for locator to become hidden
+     * @param locator - Locator to wait for
+     * @param timeout - optional override for the time (default 10s)
+     */
+    protected async waitForHidden(locator:Locator, timeout:number=10000){
+        await locator.waitFor({state:'hidden', timeout})
+    }
+
 }
