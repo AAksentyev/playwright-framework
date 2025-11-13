@@ -67,7 +67,7 @@ export abstract class BaseComponent extends BaseLocator {
 
     /**
      * Sets the root locator based on whether a string or Locator was provided.
-     * @returns 
+     * @returns
      */
     private setRootLocator(): Locator {
         if (typeof this.rootLocator === 'string') {

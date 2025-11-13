@@ -78,8 +78,8 @@ export abstract class BaseLocator {
      * @param locator - Locator to wait for
      * @param timeout - optional override for the time (default 10s)
      */
-    protected async waitForVisible(locator:Locator, timeout:number=10000){
-        await locator.waitFor({state:'visible', timeout})
+    protected async waitForVisible(locator: Locator, timeout: number = 10000) {
+        await locator.waitFor({ state: 'visible', timeout });
     }
 
     /**
@@ -87,8 +87,7 @@ export abstract class BaseLocator {
      * @param locator - Locator to wait for
      * @param timeout - optional override for the time (default 10s)
      */
-    protected async waitForHidden(locator:Locator, timeout:number=10000){
-        await locator.waitFor({state:'hidden', timeout})
+    protected async waitForHidden(locator: Locator, timeout: number = 10000) {
+        await locator.waitFor({ state: 'hidden', timeout });
     }
-
 }
