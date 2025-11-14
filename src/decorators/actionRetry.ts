@@ -1,3 +1,4 @@
+import { config } from '@config';
 import { Logger } from '@utils/logger.ts';
 
 /**
@@ -43,9 +44,6 @@ export function Retry(options: RetryOptions = {}) {
     // extract options with defaults
     const { attempts = 1, delay = 0, onRetry } = options;
 
-    // determine if retry is enabled via environment variable
-    const enabled = 'true' === 'true'; // toggle from env //rocess.env.RETRY_ENABLED === "true"
-
     // Return the actual decorator function
     return function decorator(target: Function, context: ClassMethodDecoratorContext) {
         if (context.kind !== 'method') {
@@ -63,7 +61,7 @@ export function Retry(options: RetryOptions = {}) {
         // Return the replacement method with retry logic
         return async function replacementMethod(this: any, ...args: any[]) {
             // If retry is not enabled, call the original method directly
-            if (!enabled) {
+            if (! config.RETRY_ENABLED ) {
                 return originalMethod.apply(this, args);
             }
 

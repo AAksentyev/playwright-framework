@@ -9,8 +9,11 @@ import { BaseLocator } from './BaseLocator.ts';
  *
  */
 export abstract class BasePage extends BaseLocator {
-    constructor(protected page: Page) {
-        super();
+    constructor(
+        protected page: Page,
+        protected pageName: string
+    ) {
+        super(page, pageName);
     }
 
     /**

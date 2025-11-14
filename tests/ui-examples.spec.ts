@@ -1,15 +1,18 @@
+import { config } from '@config';
 import { PlaywrightHomePage } from '@pages/example/PlaywrightHomePage.ts';
 import { SideNavigationMenuComponent } from '@pages/example/SideNavigationMenuComponent.ts';
 import { TopNavigationMenuComponent } from '@pages/example/TopNavigationMenuComponent.ts';
 import { expect, test } from '@playwright/test';
+import { generateHeatmaps } from '@utils/generateHeatmaps.ts';
+
 
 /**
  * Examples for the `@Retry` method decorator.
- * 
+ *
  * Both `exampleRetryWithoutCallback` and `exampleRetryWithCallback` have a @Retry decorator applied to them
  * These tests will both fail by design to demonstrate the retrying of class method on failure
  */
-test.describe('Retry decorator examples', async()=>{
+test.describe('Retry decorator examples', async () => {
     test('Retry without callback', async ({ page }) => {
         const playwrightPage = new PlaywrightHomePage(page);
         // navigate to the URL defined in the POM
@@ -39,9 +42,9 @@ test.describe('Retry decorator examples', async()=>{
             await playwrightPage.exampleRetryWithCallback();
         });
     });
-})
+});
 
-test.describe('Component and Page Object Models', async()=>{
+test.describe('Component and Page Object Models', async () => {
     test('Component interactions', async ({ page }) => {
         // initialize the home page object model
         const playwrightPage = new PlaywrightHomePage(page);
@@ -69,8 +72,13 @@ test.describe('Component and Page Object Models', async()=>{
         // the side menu component should now be visible
         await test.step('Side nav menu should now be visible. Wait for it to load', async () => {
             await sideMenu.waitForComponentLoad();
-
         });
     });
+});
 
+// after tests complete, run a heatmap report if toggled on.
+// TODO - move this to a global teardown script
+test.afterAll(async () => {
+    if ( config.RUN_HEATMAP_REPORT )
+        await generateHeatmaps();
 });

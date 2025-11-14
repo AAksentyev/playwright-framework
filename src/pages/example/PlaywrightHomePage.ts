@@ -10,7 +10,7 @@ import { Logger } from '@utils/logger.ts';
  */
 export class PlaywrightHomePage extends BasePage {
     constructor(protected page: Page) {
-        super(page);
+        super(page, 'PlaywrightHomePage');
     }
 
     /**

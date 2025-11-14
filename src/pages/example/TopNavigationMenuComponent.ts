@@ -3,7 +3,11 @@ import { Locator, Page } from '@playwright/test';
 
 export class TopNavigationMenuComponent extends BaseComponent {
     constructor(protected page: Page) {
-        super(page, page.getByRole('navigation', { name: 'Main' }));
+        super(
+            page, 
+            'TopNavigationMenuComponent', 
+            page.getByRole('navigation', { name: 'Main' })
+        );
     }
 
     private get dropdownMenu(): Locator {

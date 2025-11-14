@@ -58,9 +58,10 @@ export abstract class BaseComponent extends BaseLocator {
 
     constructor(
         protected page: Page,
+        protected readonly componentName: string,
         private rootLocator: string | Locator
     ) {
-        super();
+        super(page, componentName);
         // initialize the root component
         this.root = this.setRootLocator();
     }
@@ -70,11 +71,10 @@ export abstract class BaseComponent extends BaseLocator {
      * @returns
      */
     private setRootLocator(): Locator {
-        if (typeof this.rootLocator === 'string') {
-            return this.page.locator(this.rootLocator);
-        } else {
-            return this.rootLocator;
-        }
+        
+        return typeof this.rootLocator === 'string' 
+                ? this.page.locator(this.rootLocator) 
+                : this.rootLocator;
     }
 
     /**
