@@ -18,7 +18,7 @@ export class PlaywrightHomePage extends BasePage {
      * Allows the use of `this.navigateToByUrl()` when using this POM
      */
     protected get url(): string | null {
-        return 'https://playwright.dev/';
+        return '/';
     }
 
     /**

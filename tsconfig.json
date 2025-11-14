@@ -23,7 +23,8 @@
       "@pages/*":["./src/pages/*"],
       "@utils/*":["./src/utils/*"],
       "@api/*":["./src/api/*"],
-      "@testdata/*":["./test-data/*"]
+      "@testdata/*":["./test-data/*"],
+      "@config": ["./config.ts"]
     },
     // For nodejs:
     // "lib": ["esnext"],
