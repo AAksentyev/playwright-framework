@@ -1,7 +1,7 @@
 {
   "name": "playwright_framework",
   "version": "1.0.0",
-  "description": "A portable plug-and-play Playwright framework. Includes a library of decorators, API testing support, logging,",
+  "description": "A portable plug-and-play Playwright framework. Includes a library of decorators, API testing support, reporting, and more.",
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
