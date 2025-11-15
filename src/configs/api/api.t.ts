@@ -6,6 +6,7 @@ export type RequestType = 'get' | 'post' | 'patch' | 'delete';
 export type RouteDetails = {
     route: string; // route relative to the configured base url  (example: my/test/route)
     description?: string; // route description (strictly informational)
+    schema?: any;
     config?: { [key: string]: any }; // playwright option request override
 };
 

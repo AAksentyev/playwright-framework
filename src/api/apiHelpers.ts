@@ -1,15 +1,20 @@
+import { config } from '@config';
 import { API_ENDPOINTS, GetEndpointKeys, PostEndpointKeys } from '@configs/api/api.routes.ts';
 import { RequestType, RouteDetails } from '@configs/api/api.t.ts';
+import { APIRetry } from '@decorators/apiRetry.ts';
 import { APIRequestContext, APIResponse } from '@playwright/test';
+import { Logger } from '@utils/logger.ts';
 import { vsprintf } from 'sprintf-js';
 
-interface Response<T> {
-    response: APIResponse;
-    body: T;
+export interface Response<T> {
+    response: APIResponse; // full api response object from the request
+    body: T; // parsed response body of given type (response.json()) and typecast to the expect type
+    expectedSchema: any; // schema object (if configured for the route) that is expected
+    duration: number; // request duration
 }
 
-export class APIHelpers {
-    private static readonly BASE_URL = 'https://vpic.nhtsa.dot.gov/api/'; //process.env.API_URL
+export abstract class APIHelpers {
+    private static readonly BASE_URL = config.API_URL;
     /**
      * a standardized function for GET requests to the server.
      * leverages aliases and configuration defined in api.routes.ts to
@@ -21,20 +26,42 @@ export class APIHelpers {
      * @param callback - optional callback to execute upon completion
      * @returns
      */
-    static async doGetData<T>(
+    @APIRetry({
+        attempts: 2, // override default API_RETRY_MAX_ATTEMPTS
+        onRetry(error, attempt) {
+            Logger.info(`RETRYING doGetData - ${attempt}`);
+        },
+    })
+    protected static async doGetData<T>(
         request: APIRequestContext,
         alias: GetEndpointKeys,
         values: any[] = [],
         config?: object
     ): Promise<Response<T>> {
+        // get the endpoint
         const ENDPOINT = this.getEndpoint('get', alias);
+        // ensure the parameters that were passed match what's expected
         this.verifyInterpolationCount(ENDPOINT.route, values);
+        // execute the request
+        const start = performance.now();
         const response: APIResponse = await request.get(
             `${this.BASE_URL}${vsprintf(ENDPOINT.route, values)}`,
             this.getConfig(ENDPOINT.config, config)
         );
+        const duration = performance.now() - start;
 
-        return { response, body: (await response.json()) as T };
+        // parse the body (handle the error if it's not a parseable json)
+        let body: any = {};
+        try {
+            body = await response.json();
+        } catch (e: any) {
+            throw new Error(
+                `Failed to parse response body. It may not be a valid json: ${e.message}`
+            );
+        }
+
+        // return the response and the body
+        return { response, body: body as T, duration, expectedSchema: ENDPOINT.schema };
     }
 
     /**
@@ -49,7 +76,7 @@ export class APIHelpers {
      * @param callback - optional callback to execute upon completion
      * @returns
      */
-    static async doPostData(
+    protected static async doPostData(
         request: APIRequestContext,
         alias: PostEndpointKeys,
         values: any[] = [],

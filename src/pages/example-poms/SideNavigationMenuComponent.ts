@@ -3,7 +3,11 @@ import { expect, Page } from '@playwright/test';
 
 export class SideNavigationMenuComponent extends BaseComponent {
     constructor(protected page: Page) {
-        super(page, page.getByRole('navigation', { name: 'Docs sidebar' }));
+        super(
+            page,
+            'SideNavigationMenuComponent',
+            page.getByRole('navigation', { name: 'Docs sidebar' })
+        );
     }
 
     public async expandMenu(label: string, state: boolean = true) {

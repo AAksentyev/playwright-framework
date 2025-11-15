@@ -1,12 +1,13 @@
 {
   "name": "playwright_framework",
   "version": "1.0.0",
-  "description": "A portable plug-and-play Playwright framework. Includes a library of decorators, API testing support, logging,",
+  "description": "A portable plug-and-play Playwright framework. Includes a library of decorators, API testing support, reporting, and more.",
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug",
+    "test:api": "npx playwright test --grep \"@api\"",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write ."
@@ -33,6 +34,7 @@
     "@typescript-eslint/parser": "^8.46.4",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "dotenv": "^17.2.3",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.3.0",

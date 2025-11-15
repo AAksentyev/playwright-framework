@@ -1,4 +1,5 @@
-import { expect, Locator } from '@playwright/test';
+import { Interaction } from '@decorators/interaction.ts';
+import { expect, Locator, Page } from '@playwright/test';
 
 /**
  * BaseLocator class provides common locator actions with built-in safety checks.
@@ -36,16 +37,22 @@ import { expect, Locator } from '@playwright/test';
  * ```
  */
 export abstract class BaseLocator {
-    constructor() {}
+    constructor(
+        protected page: Page,
+        protected readonly pageObjectName: string
+    ) {}
 
     /**
      * Clicks the locator after waiting for it to be visible.
      * Ensures that the element is interactable before clicking.
      * @param locator - locator that is being clicked
      */
+    @Interaction('click')
     protected async safeClick(locator: Locator, timeout: number = 5000) {
         await expect(locator, 'Locator being clicked is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being clicked is not enabled').toBeEnabled({ timeout });
+
+        // perform the click action
         await locator.click();
     }
 
@@ -54,9 +61,12 @@ export abstract class BaseLocator {
      * Ensures that the element is interactable before hovering.
      * @param locator - locator that is being hovered
      */
+    @Interaction('hover')
     protected async safeHover(locator: Locator, timeout: number = 5000) {
         await expect(locator, 'Locator being hovered is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being hovered is not enabled').toBeEnabled({ timeout });
+
+        // perform the hover action
         await locator.hover();
     }
 
@@ -65,6 +75,7 @@ export abstract class BaseLocator {
      * @param locator - Locator that is being filled
      * @param value - Value to fill the locator with
      */
+    @Interaction('fill')
     protected async safeFill(locator: Locator, value: string, timeout: number = 5000) {
         await expect(locator, 'Locator being filled is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being filled is not enabled').toBeEnabled({ timeout });
