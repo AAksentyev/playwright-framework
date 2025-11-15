@@ -1,17 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { APIHelpers } from '@api/apiHelpers.ts';
 import { assertSchema, validateSchema } from '@api/schemaValidator.ts';
-import { GetAllMakesResponse, getAllMakesSchema } from '@testdata/schemas/getAllMakes.schema.ts';
-import {
-    GetModelsForMakeResponse,
-    getModelsForMakeSchema,
-} from '@testdata/schemas/getModelsForMake.schema.ts';
-import {
-    GetMakesByManufacturerAndYearResponse,
-    getMakesByManufacturerAndYearSchema,
-} from '@testdata/schemas/getMakesByManufacturerAndYear.schema.ts';
 import { TAG } from '@constants/tags.ts';
-
+import { API } from '@api/apiRequests.ts';
 
 test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.API] }, async () => {
     /**
@@ -19,15 +9,12 @@ test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.A
      */
     test('API test example with schema validation (no params example)', async ({ request }) => {
         // execute the request
-        const { body, response } = await APIHelpers.doGetData<GetAllMakesResponse>(
-            request,
-            'getAllMakes'
-        );
+        const { body, response, expectedSchema } = await API.getAllMakes(request);
 
         // verify the response code
         expect(response.status()).toBe(200);
         // verify the schema. assertSchema throws if there is a mismatch
-        assertSchema(body, getAllMakesSchema);
+        assertSchema(body, expectedSchema);
         // perform any validation on the repsonse body
         expect(body.Count).toBeGreaterThan(0);
     });
@@ -36,16 +23,12 @@ test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.A
      * Example test showing a request that needs one variable in the URL
      */
     test('API test example with schema validation (one param example)', async ({ request }) => {
-        const { body, response } = await APIHelpers.doGetData<GetModelsForMakeResponse>(
-            request,
-            'getModelsForMake',
-            ['honda']
-        );
+        const { body, response, expectedSchema } = await API.getModelsForMake(request, ['honda']);
 
         // verify the response code
         expect(response.status()).toBe(200);
         // verify the schema. assertSchema throws if there is a mismatch
-        assertSchema(body, getModelsForMakeSchema);
+        assertSchema(body, expectedSchema);
         // perform any validation on the repsonse body
         expect(body.Count).toBeGreaterThan(0);
     });
@@ -56,17 +39,27 @@ test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.A
     test('API test example with schema validation (multiple params example)', async ({
         request,
     }) => {
-        const { body, response } =
-            await APIHelpers.doGetData<GetMakesByManufacturerAndYearResponse>(
-                request,
-                'GetMakesByManufacturerAndYear',
-                ['merc', 2013]
-            );
+        const { body, response, expectedSchema } = await API.getMakesByManufacturerAndYear(
+            request,
+            ['merc', 2013]
+        );
 
         // verify the response code
         expect(response.status()).toBe(200);
         // verify the schema. assertSchema throws if there is a mismatch
-        assertSchema(body, getMakesByManufacturerAndYearSchema);
+        assertSchema(body, expectedSchema);
+        // perform any validation on the repsonse body
+        expect(body.Count).toBeGreaterThan(0);
+    });
+
+    test('API test example without schema configured for route', async ({ request }) => {
+        // execute the request
+        const { body, response, expectedSchema } = await API.getAllMakesNoSchema(request);
+
+        // verify the response code
+        expect(response.status()).toBe(200);
+        // since no schema is configured for this route, assertion will pass but a warning will be logged
+        assertSchema(body, expectedSchema);
         // perform any validation on the repsonse body
         expect(body.Count).toBeGreaterThan(0);
     });
@@ -76,11 +69,8 @@ test.describe('API Retries (tests will fail)', { tag: TAG.API }, async () => {
     test(`API that will return 404 and automatically retry (failing test)`, async ({ request }) => {
         // execute an API call that does not exist
         // there's no verification or expects in this test.
-        // This is just to showcase the API retry decorator attached to doGetData
-        await APIHelpers.doGetData<GetMakesByManufacturerAndYearResponse>(
-            request,
-            'routeThatReturns404'
-        );
+        // This is just to showcase the API retry decorator attached to doGetData method
+        await API.apiCallThatReturns404(request);
     });
 });
 
@@ -102,17 +92,15 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
         for (const { year, manufacturer, expectedRecordCount } of scenarioExamples) {
             test(`Datadriven test for '${manufacturer} - ${year}'`, async ({ request }) => {
                 // execute the request
-                const { body, response } =
-                    await APIHelpers.doGetData<GetMakesByManufacturerAndYearResponse>(
-                        request,
-                        'GetMakesByManufacturerAndYear',
-                        [manufacturer, year]
-                    );
+                const { body, response, expectedSchema } = await API.getMakesByManufacturerAndYear(
+                    request,
+                    [manufacturer, year]
+                );
 
                 // verify the response code first
                 expect(response.status()).toBe(200);
                 // verify the schema. assertSchema throws if there is a mismatch
-                assertSchema(body, getMakesByManufacturerAndYearSchema);
+                assertSchema(body, expectedSchema);
 
                 // perform any validation on the response body
                 expect(body.Count).toEqual(expectedRecordCount);
@@ -137,12 +125,10 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
         test(`Datadriven test for Manufacturers + years`, async ({ request }) => {
             // loop over each example and execute the request
             for (const { year, manufacturer, expectedRecordCount } of scenarioExamples) {
-                const { body, response } =
-                    await APIHelpers.doGetData<GetMakesByManufacturerAndYearResponse>(
-                        request,
-                        'GetMakesByManufacturerAndYear',
-                        [manufacturer, year]
-                    );
+                const { body, response, expectedSchema } = await API.getMakesByManufacturerAndYear(
+                    request,
+                    [manufacturer, year]
+                );
 
                 // verify the response status
                 expect
@@ -157,7 +143,7 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 if (response.status() !== 200) continue;
 
                 // once the response code check passes, validate the schema
-                const validated = validateSchema(body, getMakesByManufacturerAndYearSchema);
+                const validated = validateSchema(body, expectedSchema);
                 expect
                     .soft(
                         validated.valid,
@@ -172,5 +158,25 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 expect.soft(body.Count).toEqual(expectedRecordCount);
             }
         });
+    });
+});
+
+test.describe('Response Time Thresholds', { tag: TAG.API }, async () => {
+    // These APIs have the @ResponseThreshold decorator attached to them.
+    // If the threshold exceeds, the decorator can be configured to either hard fail the test
+    // or simply log a warning
+
+    test(`API that will exceed threshold and hard fail (failing test)`, async ({ request }) => {
+        // execute an API call that does not exist
+        // there's no verification or expects in this test.
+        // This is just to showcase the API retry decorator attached to doGetData method
+        await API.apiThatExceedsResponseThresholdHard(request);
+    });
+
+    test(`API that will exceed threshold and not fail (passing test)`, async ({ request }) => {
+        // execute an API call that does not exist
+        // there's no verification or expects in this test.
+        // This is just to showcase the API retry decorator attached to doGetData method
+        await API.apiThatExceedsResponseThresholdSoft(request);
     });
 });

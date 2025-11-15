@@ -1,4 +1,5 @@
 import { MAX_SCHEMA_ERRORS } from '@configs/api/api.config.ts';
+import { Logger } from '@utils/logger.ts';
 import { Ajv, ErrorObject, JSONSchemaType, ValidateFunction } from 'ajv';
 import formatsPlugin from 'ajv-formats';
 
@@ -50,6 +51,11 @@ export function validateSchema<T>(
     errors: ErrorObject[] | null | undefined;
     message: string;
 } {
+    if (schema == null) {
+        Logger.warn('No schema was configured for the route. Skipping validation');
+        return { valid: true, errors: [], message: '' };
+    }
+
     // Reuse compiled schema if available
     let validateFn = validatorCache.get(schema) as ValidateFunction<T> | undefined;
 

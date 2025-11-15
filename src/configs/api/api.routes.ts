@@ -3,20 +3,29 @@
  * the keys are aliases that are used by doGetData/doPostData in DataHandlerService
  * if you want the api call to not auto-extend the user session, add config: {headers: sessionRefreshBlockHeader }
  * to the object (see getSysLog for an example). The interceptor will handle the blocking of session extend
+ *
  */
 
+import * as schemas from '@testdata/schemas/index.ts';
 import { RouteDetails, RouteMap } from './api.t.ts';
 
 // GET request route configuration
 const GET_ROUTES = {
-    getAllMakes: { route: 'vehicles/GetAllMakes?format=json' },
-    GetMakesByManufacturerAndYear: {
+    getAllMakes: {
+        route: 'vehicles/GetAllMakes?format=json',
+        schema: schemas.getAllMakesSchema,
+    },
+    getAllMakesNoSchema: {
+        route: 'vehicles/GetAllMakes?format=json',
+    },
+    getMakesByManufacturerAndYear: {
         route: '/vehicles/GetMakesForManufacturerAndYear/%s?year=%d&format=json',
         description: `get model listing for given make of the car
              parameters:
                 - manufacturer (string) (ex: 'honda')
                 - year (integer) (ex: 2000)
             `,
+        schema: schemas.getMakesByManufacturerAndYearSchema,
     },
     getModelsForMake: {
         route: 'vehicles/GetModelsForMake/%s?format=json',
@@ -24,6 +33,7 @@ const GET_ROUTES = {
              parameters:
                 - make of the car (string) (ex: 'honda')           
             `,
+        schema: schemas.getModelsForMakeSchema,
     },
     routeThatReturns404: {
         route: 'this/is/a/missing/route',

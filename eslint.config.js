@@ -20,7 +20,8 @@ export default [
         __dirname: "readonly",
         __filename: "readonly",
         console: "readonly",
-        setTimeout: "readonly"
+        setTimeout: "readonly",
+        performance: "readonly"
       },
     },
     plugins: {

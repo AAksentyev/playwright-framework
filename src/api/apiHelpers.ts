@@ -6,12 +6,14 @@ import { APIRequestContext, APIResponse } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { vsprintf } from 'sprintf-js';
 
-interface Response<T> {
-    response: APIResponse;
-    body: T;
+export interface Response<T> {
+    response: APIResponse; // full api response object from the request
+    body: T; // parsed response body of given type (response.json()) and typecast to the expect type
+    expectedSchema: any; // schema object (if configured for the route) that is expected
+    duration: number; // request duration
 }
 
-export class APIHelpers {
+export abstract class APIHelpers {
     private static readonly BASE_URL = config.API_URL;
     /**
      * a standardized function for GET requests to the server.
@@ -25,12 +27,12 @@ export class APIHelpers {
      * @returns
      */
     @APIRetry({
-        attempts: 3,
+        attempts: 2, // override default API_RETRY_MAX_ATTEMPTS
         onRetry(error, attempt) {
             Logger.info(`RETRYING doGetData - ${attempt}`);
         },
     })
-    static async doGetData<T>(
+    protected static async doGetData<T>(
         request: APIRequestContext,
         alias: GetEndpointKeys,
         values: any[] = [],
@@ -41,10 +43,12 @@ export class APIHelpers {
         // ensure the parameters that were passed match what's expected
         this.verifyInterpolationCount(ENDPOINT.route, values);
         // execute the request
+        const start = performance.now();
         const response: APIResponse = await request.get(
             `${this.BASE_URL}${vsprintf(ENDPOINT.route, values)}`,
             this.getConfig(ENDPOINT.config, config)
         );
+        const duration = performance.now() - start;
 
         // parse the body (handle the error if it's not a parseable json)
         let body: any = {};
@@ -57,7 +61,7 @@ export class APIHelpers {
         }
 
         // return the response and the body
-        return { response, body: body as T };
+        return { response, body: body as T, duration, expectedSchema: ENDPOINT.schema };
     }
 
     /**
@@ -72,7 +76,7 @@ export class APIHelpers {
      * @param callback - optional callback to execute upon completion
      * @returns
      */
-    static async doPostData(
+    protected static async doPostData(
         request: APIRequestContext,
         alias: PostEndpointKeys,
         values: any[] = [],

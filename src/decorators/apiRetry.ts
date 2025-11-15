@@ -1,6 +1,6 @@
 // decorators/apiRetry.ts
 import { config } from '@config';
-import { API_RETRY_DELAY_MS, API_RETRY_MAX } from '@configs/api/api.config.ts';
+import { API_RETRY_DELAY_MS, API_RETRY_MAX_ATTEMPTS } from '@configs/api/api.config.ts';
 import { Logger } from '@utils/logger.ts';
 
 export interface APIRetryOptions {
@@ -22,7 +22,7 @@ export interface APIRetryOptions {
 
 export function APIRetry(options: APIRetryOptions = {}) {
     const {
-        attempts = API_RETRY_MAX, // use default number of retries
+        attempts = API_RETRY_MAX_ATTEMPTS, // use default number of retries
         delay = API_RETRY_DELAY_MS, // use default delay between retries
         onRetry,
         onSuccess,
