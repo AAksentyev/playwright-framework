@@ -10,8 +10,10 @@ import {
     GetMakesByManufacturerAndYearResponse,
     getMakesByManufacturerAndYearSchema,
 } from '@testdata/schemas/getMakesByManufacturerAndYear.schema.ts';
+import { TAG } from '@constants/tags.ts';
 
-test.describe('Standalone tests showing parameter usage examples', async () => {
+
+test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.API] }, async () => {
     /**
      * Example test showing usage of a request that does not require any variables in the path
      */
@@ -70,7 +72,19 @@ test.describe('Standalone tests showing parameter usage examples', async () => {
     });
 });
 
-test.describe('Datadriven examples', async () => {
+test.describe('API Retries (tests will fail)', { tag: TAG.API }, async () => {
+    test(`API that will return 404 and automatically retry (failing test)`, async ({ request }) => {
+        // execute an API call that does not exist
+        // there's no verification or expects in this test.
+        // This is just to showcase the API retry decorator attached to doGetData
+        await APIHelpers.doGetData<GetMakesByManufacturerAndYearResponse>(
+            request,
+            'routeThatReturns404'
+        );
+    });
+});
+
+test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
     // sample scenarios with different parameters to interpolate into the request
     // these can be externalized to a separate file
     // Note: We'll use these examples for both dynamically generated tests and a single test

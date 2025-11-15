@@ -4,10 +4,10 @@ import { InteractionLog, interactionLogs } from './interactionLogger.ts';
 import { screenshotTracker } from './screenshot.ts';
 
 type HeatmapPoints = {
-  x:number;
-  y:number;
-  value:number;
-}
+    x: number;
+    y: number;
+    value: number;
+};
 
 /**
  * A report generator for page and component interaction heatmap
@@ -29,7 +29,6 @@ export async function generateHeatmaps() {
 
     // loop over each page object for which we have data for
     for (const [pageObjectName, logs] of grouped) {
-
         // create the folder for the page we don't have it yet
         const dir = path.join('reports/heatmap', pageObjectName);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -61,9 +60,9 @@ export async function generateHeatmaps() {
 /**
  * Helper to group the logs by given property by pivoting it to
  * `Record`
- * @param arr 
- * @param key 
- * @returns 
+ * @param arr
+ * @param key
+ * @returns
  */
 function groupLogsBy(arr: InteractionLog[], key: keyof InteractionLog) {
     return Object.entries(
@@ -78,8 +77,8 @@ function groupLogsBy(arr: InteractionLog[], key: keyof InteractionLog) {
 
 /**
  * returns the final generated HTML report to be written to drive
- * @param points 
- * @returns 
+ * @param points
+ * @returns
  */
 function createHeatmapHTML(points: HeatmapPoints[]) {
     return `

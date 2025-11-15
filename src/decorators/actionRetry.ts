@@ -61,7 +61,7 @@ export function Retry(options: RetryOptions = {}) {
         // Return the replacement method with retry logic
         return async function replacementMethod(this: any, ...args: any[]) {
             // If retry is not enabled, call the original method directly
-            if (! config.RETRY_ENABLED ) {
+            if (!config.RETRY_ENABLED) {
                 return originalMethod.apply(this, args);
             }
 

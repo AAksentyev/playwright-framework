@@ -71,10 +71,9 @@ export abstract class BaseComponent extends BaseLocator {
      * @returns
      */
     private setRootLocator(): Locator {
-        
-        return typeof this.rootLocator === 'string' 
-                ? this.page.locator(this.rootLocator) 
-                : this.rootLocator;
+        return typeof this.rootLocator === 'string'
+            ? this.page.locator(this.rootLocator)
+            : this.rootLocator;
     }
 
     /**

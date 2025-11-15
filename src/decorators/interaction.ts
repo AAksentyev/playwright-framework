@@ -9,40 +9,30 @@ export function Interaction(type: 'click' | 'fill' | 'hover') {
             throw new Error(`@Interaction can only be applied to methods. Got: ${context.kind}`);
         }
 
-        const callerMethod = `${String(context.name)}`;
+        //const callerMethod = `${String(context.name)}`;
         const originalMethod = target;
 
         return async function replacementMethod(this: any, ...args: any[]) {
-            
-            // attempt to invoke the original method. If the interaction succeeds, we'll get the interaction logged
+            // Execute original method
+            // If it throws → jump to catch → skip success logic
+            const result = await originalMethod.apply(this, args);
 
-            try {
-                // Execute original method
-                // If it throws → jump to catch → skip success logic
-                const result = await originalMethod.apply(this, args);
+            // SUCCESS-ONLY LOGIC. We only log the interaction if it was successful
+            // and if we have heatmap report toggled on
+            if (config.RUN_HEATMAP_REPORT) {
+                // if a screenshot for this page/component is already taken, skip taking it
+                if (!(this.pageObjectName in screenshotTracker))
+                    await takeHeatmapScreenshot(this.root ?? this.page, this.pageObjectName);
 
-                // SUCCESS-ONLY LOGIC. We only log the interaction if it was successful
-                // and if we have heatmap report toggled on
-                if ( config.RUN_HEATMAP_REPORT ) {
-                    // if a screenshot for this page/component is already taken, skip taking it
-                    if (! (this.pageObjectName in screenshotTracker) )
-                        await takeHeatmapScreenshot(this.root ?? this.page, this.pageObjectName);
-
-                    // log the interaction
-                    await logInteraction(
-                        args[0],         // locator
-                        type,            // interaction type
-                        this.pageObjectName
-                    );
-                }
-
-                return result;
+                // log the interaction
+                await logInteraction(
+                    args[0], // locator
+                    type, // interaction type
+                    this.pageObjectName
+                );
             }
 
-            catch (error) {
-                // Rethrow error so Playwright sees the failure
-                throw error;
-            }
+            return result;
         };
     };
 }
