@@ -1,13 +1,19 @@
 import fs from 'fs';
 import path from 'path';
-import { InteractionLog, interactionLogs } from './interactionLogger.ts';
-import { screenshotTracker } from './screenshot.ts';
+import {
+    aggregateInteractions,
+    aggregateScreenshots,
+    InteractionLog,
+} from './interactionLogger.ts';
+import { ScreenshotTracker } from '../../screenshot.ts';
 
 type HeatmapPoints = {
     x: number;
     y: number;
     value: number;
 };
+
+const REPORT_DIR = 'reports/heatmap';
 
 /**
  * A report generator for page and component interaction heatmap
@@ -24,8 +30,25 @@ type HeatmapPoints = {
  *
  */
 export async function generateHeatmaps() {
+    // aggregate all of the page/component interactions from different workers into a single file
+    aggregateInteractions();
+    aggregateScreenshots();
+    // read and parse the merged interactions file
+    const rawInteractions = fs.readFileSync(
+        path.join(REPORT_DIR, 'interactions-merged.json'),
+        'utf-8'
+    );
+    const aggReport = JSON.parse(rawInteractions) as InteractionLog[];
+
+    // read and parse the merged screenshot tracker file that contains our offsets
+    const rawScreenshots = fs.readFileSync(
+        path.join(REPORT_DIR, 'screenshots-merged.json'),
+        'utf-8'
+    );
+    const aggScreenshots = JSON.parse(rawScreenshots) as Record<string, ScreenshotTracker>;
+
     // group our data by the object name
-    const grouped = groupLogsBy(interactionLogs, 'pageObjectName');
+    const grouped = groupLogsBy(aggReport, 'pageObjectName');
 
     // loop over each page object for which we have data for
     for (const [pageObjectName, logs] of grouped) {
@@ -42,7 +65,7 @@ export async function generateHeatmaps() {
          * so the heatmap point needs to be moved relative to the
          * __component location__ on the page
          */
-        const offsets = screenshotTracker[pageObjectName]?.boundingBox;
+        const offsets = aggScreenshots[pageObjectName]?.boundingBox;
 
         // process the data points and create our final heatmap object
         const points: HeatmapPoints[] = logs.map((log) => ({

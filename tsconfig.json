@@ -19,7 +19,6 @@
       "@fixtures/*":["./src/fixtures/*"],
       "@constants/*":["./src/constants/*"],
       "@configs/*":["./src/configs/*"],
-      "@framework/*":["./src/framework/*"],
       "@pages/*":["./src/pages/*"],
       "@utils/*":["./src/utils/*"],
       "@api/*":["./src/api/*"],
@@ -60,5 +59,10 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src/**/*", "test-data/**/*.ts", "tests/**/*.ts", "playwright.config.ts"]
+  "include": [
+    "src/**/*", 
+    "test-data/**/*.ts", 
+    "tests/**/*.ts", 
+    "playwright.config.ts"
+  ]
 }

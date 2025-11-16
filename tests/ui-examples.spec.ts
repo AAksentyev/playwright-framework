@@ -1,10 +1,9 @@
-import { config } from '@config';
 import { TAG } from '@constants/tags.ts';
 import { PlaywrightHomePage } from '@pages/example-poms/PlaywrightHomePage.ts';
 import { SideNavigationMenuComponent } from '@pages/example-poms/SideNavigationMenuComponent.ts';
 import { TopNavigationMenuComponent } from '@pages/example-poms/TopNavigationMenuComponent.ts';
-import { expect, test } from '@playwright/test';
-import { generateHeatmaps } from '@utils/generateHeatmaps.ts';
+import { expect, test } from '@fixtures/base.ts';
+import { mockRequest, unmockRequest } from '@api/apiMocking.ts';
 
 /**
  * Examples for the `@Retry` method decorator.
@@ -71,13 +70,72 @@ test.describe('Component and Page Object Models', { tag: [TAG.UI] }, async () =>
 
         // the side menu component should now be visible
         await test.step('Side nav menu should now be visible. Wait for it to load', async () => {
-            await sideMenu.waitForComponentLoad();
+            await sideMenu.clickMenuOption('Writing tests');
         });
     });
 });
 
-// after tests complete, run a heatmap report if toggled on.
-// TODO - move this to a global teardown script
-test.afterAll(async () => {
-    if (config.RUN_HEATMAP_REPORT) await generateHeatmaps();
-});
+test.describe(
+    'Tests that will have failed network requests attached to logs',
+    { tag: [TAG.UI] },
+    async () => {
+        test('Test with a failed network request', async ({ page }) => {
+            const playwrightPage = new PlaywrightHomePage(page);
+            const topMenu = new TopNavigationMenuComponent(page);
+            const MOCK_RESOURCE = '**/Browsers.png';
+
+            // let's mock an API request to simulate a failure. The Browsers image resource will now return 404 error
+            mockRequest(page, MOCK_RESOURCE, {
+                status: 404,
+                contentType: 'text/plain',
+                body: 'This request will fail and be attached as failed network request',
+            });
+
+            await test.step('Navigate to the URL', async () => {
+                await playwrightPage.navigateToByUrl();
+            });
+
+            /** Navigate back and forth between two pages to trigger the 'failed' network requests */
+            for (const i of Array(3)) {
+                await test.step('Navigate to the Docs page via Top nav menu', async () => {
+                    await topMenu.clickMenuOption('Docs');
+                });
+
+                await test.step('Navigate back to home page', async () => {
+                    await topMenu.clickMenuOption('Playwright logo Playwright');
+                });
+            }
+
+            /** Unmock the request so it succeeds again and toggle back and forth again to simulate a successful call */
+            unmockRequest(page, MOCK_RESOURCE);
+
+            await test.step('Navigate to the Docs again', async () => {
+                await topMenu.clickMenuOption('Docs');
+            });
+
+            await test.step('Navigate back to home page', async () => {
+                await topMenu.clickMenuOption('Playwright logo Playwright');
+            });
+
+            /** This test will have an attachment in the report that will show the count of successful and failed tests 
+         *  For each failed request, it will it will display the test name and the response code.
+         *  At the end of the test run, all details from every test are aggregated and combined into a single
+         * combined report showing the total number of successes and failures for each request through the test run.
+         * 
+         * This can help analyze either broken resources or flaky behavior.
+         * Note: There is only 1 success showing because the Playwright site retrieves the successfully loaded resource from cache
+         * But if it's a request 
+        {
+            "https://playwright.dev/img/logos/Browsers.png":
+                { "success":1,"fail":4,
+                    "failures":[
+                        {"testName":"Test with a failed network request","responseCode":404},
+                        {"testName":"Test with a failed network request","responseCode":404},
+                        {"testName":"Test with a failed network request","responseCode":404},
+                        {"testName":"Test with a failed network request","responseCode":404}
+                    ]
+                }
+        }*/
+        });
+    }
+);

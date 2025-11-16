@@ -1,8 +1,19 @@
 // decorators/Interaction.ts
-import { logInteraction } from '@utils/interactionLogger.ts';
+import { logInteraction } from '@utils/reporters/heatmap/interactionLogger.ts';
 import { screenshotTracker, takeHeatmapScreenshot } from '@utils/screenshot.ts';
 import { config } from '@config';
 
+/**
+ * Decorator that tracks interactions with locators from the BaseLocator class
+ * For each interaction, it takes a screenshot of a component/page object (IF ONE WAS NOT ALREADY TAKEN)
+ * and logs the interaction with the locator
+ *
+ * These interactions are then used to generate a heatmap report over the screenshots taken to indiciate
+ * where there interactions took place
+ *
+ * @param type Interaction type
+ * @returns
+ */
 export function Interaction(type: 'click' | 'fill' | 'hover') {
     return function decorator(target: Function, context: ClassMethodDecoratorContext) {
         if (context.kind !== 'method') {
@@ -14,7 +25,7 @@ export function Interaction(type: 'click' | 'fill' | 'hover') {
 
         return async function replacementMethod(this: any, ...args: any[]) {
             // Execute original method
-            // If it throws → jump to catch → skip success logic
+            // If it throws, skip success logic
             const result = await originalMethod.apply(this, args);
 
             // SUCCESS-ONLY LOGIC. We only log the interaction if it was successful

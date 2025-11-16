@@ -2,7 +2,7 @@ import { Locator, Page } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
-interface ScreenshotTracker {
+export interface ScreenshotTracker {
     screenshotPath: string;
     boundingBox: {
         x: number;

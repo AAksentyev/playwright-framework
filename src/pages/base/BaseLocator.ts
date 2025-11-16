@@ -54,6 +54,7 @@ export abstract class BaseLocator {
 
         // perform the click action
         await locator.click();
+        await this.page.waitForLoadState('networkidle');
     }
 
     /**

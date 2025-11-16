@@ -12,6 +12,7 @@ dotenv.config({ debug: true, path: `.env` }); //.${process.env.ENV || 'qa'}
  */
 export default defineConfig({
     testDir: './tests',
+    globalTeardown: './src/global/globalTeardown.ts',
     /* Run tests in files in parallel */
     fullyParallel: true,
     /* Fail the build on CI if you accidentally left test.only in the source code. */
