@@ -1,6 +1,22 @@
 import { Interaction } from '@decorators/interaction.ts';
 import { expect, Locator, Page } from '@playwright/test';
 
+
+interface ClickOptions {
+    button?: "left" | "right" | "middle";
+    clickCount?: number;
+    delay?: number;
+    force?: boolean;
+    modifiers?: ("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[];
+    noWaitAfter?: boolean;
+    position?: {
+        x: number;
+        y: number;
+    };
+    timeout?: number;
+    trial?: boolean;
+}
+
 /**
  * BaseLocator class provides common locator actions with built-in safety checks.
  * Extends Playwright's Locator functionalities to include visibility and enablement checks
@@ -48,12 +64,27 @@ export abstract class BaseLocator {
      * @param locator - locator that is being clicked
      */
     @Interaction('click')
-    protected async safeClick(locator: Locator, timeout: number = 5000) {
+    protected async safeClick(locator: Locator, options?: ClickOptions, timeout: number = 5000) {
         await expect(locator, 'Locator being clicked is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being clicked is not enabled').toBeEnabled({ timeout });
 
         // perform the click action
-        await locator.click();
+        await locator.click(options);
+        await this.page.waitForLoadState('networkidle');
+    }
+
+    /**
+     * double-click the locator after waiting for it to be visible.
+     * Ensures that the element is interactable before clicking.
+     * @param locator - locator that is being clicked
+     */
+    @Interaction('doubleclick')
+    protected async safeDoubleClick(locator: Locator, options?: ClickOptions, timeout: number = 5000) {
+        await expect(locator, 'Locator being clicked is not visible').toBeVisible({ timeout });
+        await expect(locator, 'Locator being clicked is not enabled').toBeEnabled({ timeout });
+
+        // perform the click action
+        await locator.dblclick(options);
         await this.page.waitForLoadState('networkidle');
     }
 
@@ -83,6 +114,51 @@ export abstract class BaseLocator {
 
         // perform the fill action
         await locator.fill(value);
+    }
+
+    /**
+     * check the locator. if it's a checkbox/radio button
+     * @param locator - Locator that is being filled
+     * @param value - Value to fill the locator with
+     */
+    @Interaction('check')
+    protected async safeCheck(locator: Locator, timeout: number = 5000) {
+        await expect(locator, 'Locator being checked is not visible').toBeVisible({ timeout });
+        await expect(locator, 'Locator being checked is not enabled').toBeEnabled({ timeout });
+
+        // perform the check action
+        await locator.check();
+    }
+
+    /**
+     * uncheck the locator. if it's a checkbox/radio button
+     * @param locator - Locator that is being unchecked
+     * @param value - Value to fill the locator with
+     */
+    @Interaction('uncheck')
+    protected async safeUncheck(locator: Locator, timeout: number = 5000) {
+        await expect(locator, 'Locator being checked is not visible').toBeVisible({ timeout });
+        await expect(locator, 'Locator being checked is not enabled').toBeEnabled({ timeout });
+
+        // perform the check action
+        await locator.uncheck();
+    }
+
+    /**
+     * uncheck the locator. if it's a checkbox/radio button
+     * @param locator - Locator that is being unchecked
+     * @param value - Value to fill the locator with
+     */
+    @Interaction('dragdrop')
+    protected async safeDragDrop(locatorDragged: Locator, locatorTarget:Locator, timeout: number = 5000) {
+        await expect(locatorDragged, 'Locator being dragged is not visible').toBeVisible({ timeout });
+        await expect(locatorDragged, 'Locator being dragged is not enabled').toBeEnabled({ timeout });
+
+        await expect(locatorTarget, 'Destinating locator is not visible').toBeVisible({ timeout });
+        await expect(locatorTarget, 'Destinating locator is not enabled').toBeEnabled({ timeout });
+
+        // perform the check action
+        await locatorDragged.dragTo(locatorTarget);
     }
 
     /**

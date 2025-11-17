@@ -1,5 +1,6 @@
 import { config } from '@config';
 import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
+import { InteractionType } from '@decorators/interaction.t.ts';
 import { Locator } from '@playwright/test';
 import { ScreenshotTracker, screenshotTracker } from '@utils/screenshot.ts';
 import fs from 'fs';
@@ -8,11 +9,10 @@ import path from 'path';
 
 /**
  *  Interaction log interface
- * @todo make type strongly typed
  */
 export interface InteractionLog {
     //locator: Locator; // locator being interacted with
-    type: string; // the type of interaction ('fill' | 'click' | 'hover')
+    type: InteractionType; // the type of interaction ('fill' | 'click' | 'hover')
     pageObjectName: string;
     timestamp: number;
     boundingBox: { x: number; y: number; width: number; height: number };
@@ -31,9 +31,8 @@ export const interactionLogs: InteractionLog[] = [];
  * @param type type of interaction (fill, click, etc)
  * @param pageObjectName the name of the page/component class where the action took place
  * @returns
- * @todo make type strongly typed
  */
-export async function logInteraction(locator: Locator, type: string, pageObjectName: string) {
+export async function logInteraction(locator: Locator, type: InteractionType, pageObjectName: string) {
     const box = await locator.boundingBox();
     if (!box) return;
 
@@ -87,8 +86,7 @@ export function aggregateInteractions() {
     // collect worker files
     const interactionFiles = fs
         .readdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)
-        .filter((f) => f.startsWith('worker-') && f.endsWith('-interactions.json'))
-        .sort();
+        .filter((f) => f.startsWith('worker-') && f.endsWith('-interactions.json'));
 
     // no files? return
     if (!interactionFiles.length) return;
@@ -123,11 +121,12 @@ export function aggregateInteractions() {
 export function aggregateScreenshots() {
     if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) return;
 
+    // collect worker files
     const screenshotFiles = fs
         .readdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)
-        .filter((f) => f.startsWith('worker-') && f.endsWith('-screenshots.json'))
-        .sort();
+        .filter((f) => f.startsWith('worker-') && f.endsWith('-screenshots.json'));
 
+    // no files? return
     if (!screenshotFiles.length) return;
 
     const aggregatedScreenshots: Record<string, ScreenshotTracker> = {};

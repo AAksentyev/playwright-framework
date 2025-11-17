@@ -2,6 +2,7 @@
 import { logInteraction } from '@utils/reporters/heatmap/interactionLogger.ts';
 import { screenshotTracker, takeHeatmapScreenshot } from '@utils/screenshot.ts';
 import { config } from '@config';
+import { InteractionType } from './interaction.t.ts';
 
 /**
  * Decorator that tracks interactions with locators from the BaseLocator class
@@ -14,7 +15,7 @@ import { config } from '@config';
  * @param type Interaction type
  * @returns
  */
-export function Interaction(type: 'click' | 'fill' | 'hover') {
+export function Interaction(type: InteractionType) {
     return function decorator(target: Function, context: ClassMethodDecoratorContext) {
         if (context.kind !== 'method') {
             throw new Error(`@Interaction can only be applied to methods. Got: ${context.kind}`);
