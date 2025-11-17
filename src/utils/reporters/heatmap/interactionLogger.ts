@@ -1,10 +1,11 @@
 import { config } from '@config';
+import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
 import { Locator } from '@playwright/test';
 import { ScreenshotTracker, screenshotTracker } from '@utils/screenshot.ts';
 import fs from 'fs';
 import path from 'path';
 
-const REPORT_DIR = 'reports/heatmap';
+
 /**
  *  Interaction log interface
  * @todo make type strongly typed
@@ -61,15 +62,16 @@ export async function logInteraction(locator: Locator, type: string, pageObjectN
 export function saveInteractionsToDisk(workerIndex: number) {
     if (!config.RUN_HEATMAP_REPORT) return;
 
-    if (!fs.existsSync(REPORT_DIR)) fs.mkdirSync(REPORT_DIR, { recursive: true });
+    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) 
+        fs.mkdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
 
     fs.writeFileSync(
-        path.join(REPORT_DIR, `worker-${workerIndex}-screenshots.json`),
+        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}-screenshots.json`),
         JSON.stringify(screenshotTracker, null, 2)
     );
 
     fs.writeFileSync(
-        path.join(REPORT_DIR, `worker-${workerIndex}-interactions.json`),
+        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}-interactions.json`),
         JSON.stringify(interactionLogs, null, 2)
     );
 }
@@ -80,11 +82,11 @@ export function saveInteractionsToDisk(workerIndex: number) {
  * @returns
  */
 export function aggregateInteractions() {
-    if (!fs.existsSync(REPORT_DIR)) return;
+    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) return;
 
     // collect worker files
     const interactionFiles = fs
-        .readdirSync(REPORT_DIR)
+        .readdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)
         .filter((f) => f.startsWith('worker-') && f.endsWith('-interactions.json'))
         .sort();
 
@@ -95,19 +97,19 @@ export function aggregateInteractions() {
 
     // read and parse each file and push to a combined list
     for (const file of interactionFiles) {
-        const raw = fs.readFileSync(path.join(REPORT_DIR, file), 'utf-8');
+        const raw = fs.readFileSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file), 'utf-8');
         const entries = JSON.parse(raw) as InteractionLog[];
 
         // append to aggregated list
         aggregatedInteractions.push(...entries);
 
         // delete worker file after processing. We only want the final combined file
-        fs.unlinkSync(path.join(REPORT_DIR, file));
+        fs.unlinkSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file));
     }
 
     // write the merged result
     fs.writeFileSync(
-        path.join(REPORT_DIR, 'interactions-merged.json'),
+        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.INTERACTIONS_FILENAME),
         JSON.stringify(aggregatedInteractions, null, 2)
     );
 }
@@ -119,10 +121,10 @@ export function aggregateInteractions() {
  * @returns
  */
 export function aggregateScreenshots() {
-    if (!fs.existsSync(REPORT_DIR)) return;
+    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) return;
 
     const screenshotFiles = fs
-        .readdirSync(REPORT_DIR)
+        .readdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)
         .filter((f) => f.startsWith('worker-') && f.endsWith('-screenshots.json'))
         .sort();
 
@@ -130,7 +132,7 @@ export function aggregateScreenshots() {
 
     const aggregatedScreenshots: Record<string, ScreenshotTracker> = {};
     for (const file of screenshotFiles) {
-        const raw = fs.readFileSync(path.join(REPORT_DIR, file), 'utf-8');
+        const raw = fs.readFileSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file), 'utf-8');
         const entries = JSON.parse(raw) as any;
 
         // append to aggregated list
@@ -141,12 +143,12 @@ export function aggregateScreenshots() {
         }
 
         // delete worker file after processing
-        fs.unlinkSync(path.join(REPORT_DIR, file));
+        fs.unlinkSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file));
     }
 
     // write the merged result
     fs.writeFileSync(
-        path.join(REPORT_DIR, 'screenshots-merged.json'),
+        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.SCREENSHOTS_FILENAME),
         JSON.stringify(aggregatedScreenshots, null, 2)
     );
 }

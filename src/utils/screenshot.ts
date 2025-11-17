@@ -1,3 +1,4 @@
+import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
 import { Locator, Page } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
@@ -27,7 +28,7 @@ export async function takeHeatmapScreenshot(
     if (!(pageObjectName in screenshotTracker)) {
         const screenshotPath: string = await takeScreenshot(
             element,
-            `reports/heatmap/${pageObjectName}`,
+            path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, pageObjectName),
             'screenshot.png'
         );
 

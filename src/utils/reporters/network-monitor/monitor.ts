@@ -1,8 +1,7 @@
+import { TRAFFIC_CONFIG } from '@configs/reports/reporters.config.ts';
 import { Page, TestInfo } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-
-const dir = path.join('reports/network-traffic');
 
 type RequestStats = {
     success: number;
@@ -85,14 +84,15 @@ export async function handleTestResults(testInfo: TestInfo) {
  */
 export function saveWorkerTraffic(workerIndex: number) {
     // create the directory if it doesn't exiset
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    if (!fs.existsSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH)) 
+        fs.mkdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
 
     // serialize the map so it can be saved as json
     const serialized = Object.fromEntries(requestTracker.entries());
 
     // save the file
     fs.writeFileSync(
-        path.join(dir, `worker-${workerIndex}.json`),
+        path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}.json`),
         JSON.stringify(serialized, null, 2)
     );
 }
@@ -156,15 +156,17 @@ function mergeRequestMaps(maps: RequestMap[]): RequestMap {
  * Combine all of worker logs into a single report file
  */
 export function aggregateWorkerNetworkLogs() {
+    console.log('...Aggregating network traffic logs...');
     // collect the list of files we'll be working with
-    const files = fs.readdirSync(dir).filter((f) => f.startsWith('worker-') && f.endsWith('.json'));
+    const files = fs.readdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH)
+                    .filter((f) => f.startsWith('worker-') && f.endsWith('.json'));
 
     // read every worker file we have and convert the contents of the file to a map
     const allMaps: RequestMap[] = files.map((file) => {
-        const raw = fs.readFileSync(path.join(dir, file), 'utf-8');
+        const raw = fs.readFileSync(path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, file), 'utf-8');
         const obj = JSON.parse(raw) as Record<string, RequestStats>;
         // delete the file after reading it. Since we're aggregating them all, we don't need it
-        fs.unlinkSync(path.join(dir, file));
+        fs.unlinkSync(path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, file));
         return new Map(Object.entries(obj)); // convert to Map and return
     });
 
@@ -172,7 +174,7 @@ export function aggregateWorkerNetworkLogs() {
     const mergedMap = mergeRequestMaps(allMaps);
     // write the merged file to disk after serializing the Map back to an Object
     fs.writeFileSync(
-        path.join(dir, 'network-traffic-merged.json'),
+        path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, TRAFFIC_CONFIG.JSON_OUTPUT_NAME),
         JSON.stringify(Object.fromEntries(mergedMap.entries()), null, 2)
     );
 }
