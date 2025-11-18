@@ -28,7 +28,9 @@ export function Interaction(type: InteractionType) {
         return async function replacementMethod(this: any, ...args: any[]) {
             // let's capture our locator's bounding box (or null if it's not visible)
             const targetLocator = args[0] as Locator;
-            const boundingBox = await targetLocator.boundingBox();
+            let boundingBox = null;
+            if ( await targetLocator.isVisible() )
+                boundingBox = await targetLocator.boundingBox();
 
             // we need to take our screenshot before we perform our action on the page
             if (config.RUN_HEATMAP_REPORT) {
