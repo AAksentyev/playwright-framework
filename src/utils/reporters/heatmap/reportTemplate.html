@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Heatmap</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/heatmap.js/2.0.2/heatmap.min.js"></script>
+<style>
+    html, body {
+    margin: 0;
+    padding: 0;
+    }
+</style>
+</head>
+<body>
+<div id="container" style="position:relative; width:100%; height:100%;">
+    <img id="screenshot" src="./screenshot.png" style="width:auto; height:auto; position:absolute;">
+    <div id="heatmap" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
+</div>
+
+<script>
+    const img = document.getElementById("screenshot");
+
+    img.onload = () => {
+        const heatmapDiv = document.getElementById("heatmap");
+        heatmapDiv.style.width = img.naturalWidth + "px";
+        heatmapDiv.style.height = img.naturalHeight + "px";
+
+        const heatmapInstance = h337.create({
+            container: heatmapDiv,
+            radius: {{radius}},
+            maxOpacity: {{maxOpacity}},
+            minOpacity: {{minOpacity}},
+            blur: {{blur}}
+        });
+
+        heatmapInstance.setData({
+            max: {{maxPoints}},
+            data: {{points}}
+        });
+    };
+</script>
+</body>
+</html>

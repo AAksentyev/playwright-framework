@@ -71,11 +71,19 @@ function formatLog(level: LogLevel, msg: any, ...args: any[]): string {
  *
  */
 export const Logger = {
-    info: (msg: string, ...args: any[]) => console.info(formatLog('INFO', msg, ...args)),
-    debug: (msg: string, ...args: any[]) => {
+    info: async (msg: string, ...args: any[]) => {
+        console.info(formatLog('INFO', msg, ...args));
+    },
+    debug: async (msg: string, ...args: any[]) => {
         if (DEBUG_ENABLED) console.debug(formatLog('DEBUG', msg, ...args));
     },
-    error: (msg: string, ...args: any[]) => console.error(formatLog('ERROR', msg, ...args)),
-    warn: (msg: string, ...args: any[]) => console.warn(formatLog('WARN', msg, ...args)),
-    success: (msg: string, ...args: any[]) => console.log(formatLog('PASS', msg, ...args)),
+    error: async (msg: string, ...args: any[]) => {
+        console.error(formatLog('ERROR', msg, ...args));
+    },
+    warn: async (msg: string, ...args: any[]) => {
+        console.warn(formatLog('WARN', msg, ...args));
+    },
+    success: async (msg: string, ...args: any[]) => {
+        console.log(formatLog('PASS', msg, ...args));
+    },
 };

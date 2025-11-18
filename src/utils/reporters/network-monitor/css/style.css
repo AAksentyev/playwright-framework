@@ -1,0 +1,68 @@
+body { font-family: Arial, sans-serif; padding: 20px; background: #f7f7fb; }
+h1, h2 { margin-bottom: 15px; }
+.section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px;
+         box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+td { 
+    padding: 10px;
+    border-bottom: 
+    1px solid #ccc;
+    text-align: left;
+}
+thead { background: #36304a; color: white; }
+tbody tr:hover { background: #eee; }
+details { margin: 10px 0; padding: 10px; background: white; border-radius: 6px; }
+summary { font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+th {
+  padding: 10px;
+  border-bottom: 
+  1px solid #ccc;
+  text-align: left;
+  position: relative;       /* required for absolute tooltip positioning */
+  overflow: visible;        /* important so tooltip can overflow */
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* Tooltip text */
+.tooltiptext {
+  visibility: hidden;
+  max-width: 250px;         /* adjust to fit long URLs */
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 8px;
+  border-radius: 6px;
+  position: absolute;
+  bottom: 100%;             /* directly above parent */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  white-space: normal;
+  word-wrap: break-word;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Show tooltip on hover */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Tooltip arrow */
+.tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;                /* arrow points down from tooltip */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}

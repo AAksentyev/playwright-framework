@@ -1,7 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import { InteractionLog, interactionLogs } from './interactionLogger.ts';
-import { screenshotTracker } from './screenshot.ts';
+import {
+    aggregateInteractions,
+    aggregateScreenshots,
+    InteractionLog,
+} from './interactionLogger.ts';
+import { ScreenshotTracker } from '../../screenshot.ts';
+import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
 
 type HeatmapPoints = {
     x: number;
@@ -24,13 +29,31 @@ type HeatmapPoints = {
  *
  */
 export async function generateHeatmaps() {
+    console.log('...Generating heatmap report...');
+    // aggregate all of the page/component interactions from different workers into a single file
+    aggregateInteractions();
+    aggregateScreenshots();
+    // read and parse the merged interactions file
+    const rawInteractions = fs.readFileSync(
+        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.INTERACTIONS_FILENAME),
+        'utf-8'
+    );
+    const aggReport = JSON.parse(rawInteractions) as InteractionLog[];
+
+    // read and parse the merged screenshot tracker file that contains our offsets
+    const rawScreenshots = fs.readFileSync(
+        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.SCREENSHOTS_FILENAME),
+        'utf-8'
+    );
+    const aggScreenshots = JSON.parse(rawScreenshots) as Record<string, ScreenshotTracker>;
+
     // group our data by the object name
-    const grouped = groupLogsBy(interactionLogs, 'pageObjectName');
+    const grouped = groupLogsBy(aggReport, 'pageObjectName');
 
     // loop over each page object for which we have data for
     for (const [pageObjectName, logs] of grouped) {
         // create the folder for the page we don't have it yet
-        const dir = path.join('reports/heatmap', pageObjectName);
+        const dir = path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, pageObjectName);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
         /**
@@ -42,7 +65,7 @@ export async function generateHeatmaps() {
          * so the heatmap point needs to be moved relative to the
          * __component location__ on the page
          */
-        const offsets = screenshotTracker[pageObjectName]?.boundingBox;
+        const offsets = aggScreenshots[pageObjectName]?.boundingBox;
 
         // process the data points and create our final heatmap object
         const points: HeatmapPoints[] = logs.map((log) => ({
@@ -52,8 +75,17 @@ export async function generateHeatmaps() {
         }));
 
         // generate our final html report file and save it
-        const html = createHeatmapHTML(points);
-        fs.writeFileSync(path.join(dir, 'heatmap.html'), html);
+        const template = loadTemplate(HEATMAP_CONFIG.TEMPLATE_PATH);
+
+        const html = renderTemplate(template, {
+            points,
+            maxPoints: HEATMAP_CONFIG.MAX_POINTS,
+            blur: HEATMAP_CONFIG.BLUR,
+            radius: HEATMAP_CONFIG.RADIUS,
+            minOpacity: HEATMAP_CONFIG.MIN_OPACITY,
+            maxOpacity: HEATMAP_CONFIG.MAX_OPACITY,
+        });
+        fs.writeFileSync(path.join(dir, HEATMAP_CONFIG.REPORT_NAME), html);
     }
 }
 
@@ -75,55 +107,12 @@ function groupLogsBy(arr: InteractionLog[], key: keyof InteractionLog) {
     );
 }
 
-/**
- * returns the final generated HTML report to be written to drive
- * @param points
- * @returns
- */
-function createHeatmapHTML(points: HeatmapPoints[]) {
-    return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <title>Heatmap</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/heatmap.js/2.0.2/heatmap.min.js"></script>
-    <style>
-        html, body {
-        margin: 0;
-        padding: 0;
-        }
-    </style>
-    </head>
-    <body>
-    <div id="container" style="position:relative; width:100%; height:100%;">
-        <img id="screenshot" src="./screenshot.png" style="width:auto; height:auto; position:absolute;">
-        <div id="heatmap" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
-    </div>
+function loadTemplate(templatePath: string): string {
+    return fs.readFileSync(templatePath, 'utf-8');
+}
 
-    <script>
-        const img = document.getElementById("screenshot");
-
-        // wait until the image is loaded
-        img.onload = () => {
-            const heatmapDiv = document.getElementById("heatmap");
-            
-            // set the canvas size to the image natural size
-            heatmapDiv.style.width = img.naturalWidth + "px";
-            heatmapDiv.style.height = img.naturalHeight + "px";
-
-            // heatmap settings. 
-            // TODO - adjust these or make them configurable (low priority for now)
-            const heatmapInstance = h337.create({
-                container: heatmapDiv,
-                radius: 10,
-                maxOpacity: 0.5,
-                minOpacity: 0,
-                blur: 0.75
-            });
-
-            heatmapInstance.setData({ max: 10, data: ${JSON.stringify(points)} });
-        }
-    </script>
-    </body>
-    </html>`;
+function renderTemplate(template: string, variables: Record<string, any>): string {
+    return Object.entries(variables).reduce((html, [key, value]) => {
+        return html.replace(new RegExp(`{{${key}}}`, 'g'), JSON.stringify(value));
+    }, template);
 }
