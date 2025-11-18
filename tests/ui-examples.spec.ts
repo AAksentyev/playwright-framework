@@ -6,7 +6,7 @@ import { mockRequest, unmockRequest } from '@api/apiMocking.ts';
 import { HomePage } from '@pages/example-poms/HomePage.ts';
 import { ResourcesPage } from '@pages/example-poms/ResourcesPage.ts';
 import { TextInputPage } from '@pages/example-poms/TextInputPage.ts';
-import { AjaxDataPage } from '@pages/example-poms/AJAXDataPage.ts';
+import { AjaxDataPage } from '@pages/example-poms/AjaxDataPage.ts';
 
 /**
  * Examples for the `@Retry` method decorator.

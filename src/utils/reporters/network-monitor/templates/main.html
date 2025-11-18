@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Network Traffic Report</title>
+  <style>
+    {{style}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>📊 Network Request Report</h1>
+
+  <!-- Sections will be injected here -->
+  {{chartSection}}
+  {{summarySection}}
+  {{domainSection}}
+  {{pivotSection}}
+
+  <script>{{chartJs}}</script>
+  <script>{{sortJs}}</script>
+</body>
+</html>
