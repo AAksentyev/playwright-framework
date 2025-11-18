@@ -7,6 +7,12 @@ import fs from 'fs';
 import path from 'path';
 
 
+interface BoundingBox {
+    x: number; 
+    y: number; 
+    width: number; 
+    height: number
+}
 /**
  *  Interaction log interface
  */
@@ -15,7 +21,7 @@ export interface InteractionLog {
     type: InteractionType; // the type of interaction ('fill' | 'click' | 'hover')
     pageObjectName: string;
     timestamp: number;
-    boundingBox: { x: number; y: number; width: number; height: number };
+    boundingBox: BoundingBox;
 }
 
 /**
@@ -32,21 +38,16 @@ export const interactionLogs: InteractionLog[] = [];
  * @param pageObjectName the name of the page/component class where the action took place
  * @returns
  */
-export async function logInteraction(locator: Locator, type: InteractionType, pageObjectName: string) {
-    const box = await locator.boundingBox();
-    if (!box) return;
+export async function logInteraction(locator: Locator, boundingBox: BoundingBox | null, type: InteractionType, pageObjectName: string) {
+
+    if (!boundingBox) return;
 
     interactionLogs.push({
         //locator,
         type,
         pageObjectName,
         timestamp: new Date().getTime(),
-        boundingBox: {
-            x: box.x,
-            y: box.y,
-            width: box.width,
-            height: box.height,
-        },
+        boundingBox,
     });
 }
 

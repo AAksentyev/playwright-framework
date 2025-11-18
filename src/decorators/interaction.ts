@@ -3,6 +3,7 @@ import { logInteraction } from '@utils/reporters/heatmap/interactionLogger.ts';
 import { screenshotTracker, takeHeatmapScreenshot } from '@utils/screenshot.ts';
 import { config } from '@config';
 import { InteractionType } from './interaction.t.ts';
+import { Locator } from '@playwright/test';
 
 /**
  * Decorator that tracks interactions with locators from the BaseLocator class
@@ -25,6 +26,18 @@ export function Interaction(type: InteractionType) {
         const originalMethod = target;
 
         return async function replacementMethod(this: any, ...args: any[]) {
+
+            // let's capture our locator's bounding box (or null if it's not visible)
+            const targetLocator = args[0] as Locator;
+            const boundingBox = await targetLocator.boundingBox();
+
+            // we need to take our screenshot before we perform our action on the page
+            if (config.RUN_HEATMAP_REPORT) {
+                // if a screenshot for this page/component is already taken, skip taking it
+                if (!(this.pageObjectName in screenshotTracker))
+                    await takeHeatmapScreenshot(this.root ?? this.page, this.pageObjectName);
+            }
+
             // Execute original method
             // If it throws, skip success logic
             const result = await originalMethod.apply(this, args);
@@ -32,13 +45,11 @@ export function Interaction(type: InteractionType) {
             // SUCCESS-ONLY LOGIC. We only log the interaction if it was successful
             // and if we have heatmap report toggled on
             if (config.RUN_HEATMAP_REPORT) {
-                // if a screenshot for this page/component is already taken, skip taking it
-                if (!(this.pageObjectName in screenshotTracker))
-                    await takeHeatmapScreenshot(this.root ?? this.page, this.pageObjectName);
 
                 // log the interaction
                 await logInteraction(
                     args[0], // locator
+                    boundingBox, //locator boundingBox
                     type, // interaction type
                     this.pageObjectName
                 );
