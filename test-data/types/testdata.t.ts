@@ -1,0 +1,1 @@
+export interface ManufacturerYearTest {manufacturer: string, year: number, expectedRecordCount:number}
