@@ -7,14 +7,13 @@ const externalLinks = {
     W3SCHOOLS: {
         linkLabel: 'w3schools.com',
         siteUrl: 'https://www.w3schools.com/',
-        siteName: 'W3Schools Online Web Tutorials'
+        siteName: 'W3Schools Online Web Tutorials',
     },
     MDN: {
         linkLabel: 'w3schools.com',
         siteUrl: 'https://developer.mozilla.org/en-US/',
-        siteName: 'MDN Web Docs'
-
-    }
+        siteName: 'MDN Web Docs',
+    },
 } as const;
 
 /**
@@ -23,10 +22,8 @@ const externalLinks = {
  *
  */
 export class ResourcesPage extends BasePage {
-
     constructor(protected page: Page) {
         super(page, 'ResourcesPage');
-
     }
 
     /**
@@ -49,11 +46,15 @@ export class ResourcesPage extends BasePage {
      * Click the external link on the Resources page and wait for the page to be redirected to the expected page
      * @param key - key of predefined available URLs
      */
-    public async clickExternalLink(key:keyof typeof externalLinks): Promise<void> {
+    public async clickExternalLink(key: keyof typeof externalLinks): Promise<void> {
         const link = externalLinks[key];
 
         Logger.debug(`Navigating to Resources page link '${link.linkLabel}'`);
-        await this.safeClick(this.page.locator('div.container').getByRole('link', { name: link.linkLabel, exact:true }));
+        await this.safeClick(
+            this.page
+                .locator('div.container')
+                .getByRole('link', { name: link.linkLabel, exact: true })
+        );
         await expect(this.page).toHaveTitle(link.siteName);
         await expect(this.page).toHaveURL(link.siteUrl);
     }

@@ -6,6 +6,7 @@ import { mockRequest, unmockRequest } from '@api/apiMocking.ts';
 import { HomePage } from '@pages/example-poms/HomePage.ts';
 import { ResourcesPage } from '@pages/example-poms/ResourcesPage.ts';
 import { TextInputPage } from '@pages/example-poms/TextInputPage.ts';
+import { AjaxDataPage } from '@pages/example-poms/AJAXDataPage.ts';
 
 /**
  * Examples for the `@Retry` method decorator.
@@ -85,7 +86,7 @@ test.describe('Component and Page Object Models', { tag: [TAG.UI] }, async () =>
         const homePage = new HomePage(page);
         const textInputPage = new TextInputPage(page);
         const myNewValue = 'This is my new value';
-        
+
         // navigate to the URL defined in the POM
         await test.step('Navigate to the URL', async () => {
             await homePage.navigateToByUrl();
@@ -93,7 +94,7 @@ test.describe('Component and Page Object Models', { tag: [TAG.UI] }, async () =>
 
         // navigate to the text input page using the link on the home page
         await test.step('Navigate to the Text Input page', async () => {
-            await homePage.clickPageLink("Text Input");
+            await homePage.clickPageLink('Text Input');
             await textInputPage.waitForPageLoad();
         });
 
@@ -107,7 +108,34 @@ test.describe('Component and Page Object Models', { tag: [TAG.UI] }, async () =>
         await test.step('Button text should change', async () => {
             expect(await textInputPage.getButtonText()).toEqual(myNewValue);
         });
+    });
 
+    test('Verify asynchronously loaded data', async ({ page }) => {
+        // initialize the home page object model
+        const homePage = new HomePage(page);
+        const ajaxDataPage = new AjaxDataPage(page);
+
+        // navigate to the URL defined in the POM
+        await test.step('Navigate to the URL', async () => {
+            await homePage.navigateToByUrl();
+        });
+
+        // navigate to the Ajax data page using the link on the home page
+        await test.step('Navigate to the Ajax Data page', async () => {
+            await homePage.clickPageLink('AJAX Data');
+            await ajaxDataPage.waitForPageLoad();
+        });
+
+        // fill the textbox and click the button
+        await test.step('Fill the textbox and click the button', async () => {
+            await ajaxDataPage.clickAjaxButton();
+            await ajaxDataPage.waitForAjaxData();
+        });
+
+        // verify that the asynchronously loaded data is correct
+        await test.step('Button text should change', async () => {
+            await expect(ajaxDataPage.ajaxDataContents).toHaveText('Data loaded with AJAX get request.');
+        });
     });
 });
 

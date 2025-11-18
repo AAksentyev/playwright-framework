@@ -6,12 +6,11 @@ import { ScreenshotTracker, screenshotTracker } from '@utils/screenshot.ts';
 import fs from 'fs';
 import path from 'path';
 
-
 interface BoundingBox {
-    x: number; 
-    y: number; 
-    width: number; 
-    height: number
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 /**
  *  Interaction log interface
@@ -38,8 +37,12 @@ export const interactionLogs: InteractionLog[] = [];
  * @param pageObjectName the name of the page/component class where the action took place
  * @returns
  */
-export async function logInteraction(locator: Locator, boundingBox: BoundingBox | null, type: InteractionType, pageObjectName: string) {
-
+export async function logInteraction(
+    locator: Locator,
+    boundingBox: BoundingBox | null,
+    type: InteractionType,
+    pageObjectName: string
+) {
     if (!boundingBox) return;
 
     interactionLogs.push({
@@ -62,7 +65,7 @@ export async function logInteraction(locator: Locator, boundingBox: BoundingBox 
 export function saveInteractionsToDisk(workerIndex: number) {
     if (!config.RUN_HEATMAP_REPORT) return;
 
-    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) 
+    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH))
         fs.mkdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
 
     fs.writeFileSync(

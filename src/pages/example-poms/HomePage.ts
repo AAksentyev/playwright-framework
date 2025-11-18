@@ -3,8 +3,13 @@ import { BasePage } from '@pages/base/BasePage.ts';
 import { expect, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 
-type AvailableLinks = 'Dynamic ID' | 'AJAX Data' | 'Click' | 'Text Input' | 
-                    'Load Delay' | 'Mouse Over';
+type AvailableLinks =
+    | 'Dynamic ID'
+    | 'AJAX Data'
+    | 'Click'
+    | 'Text Input'
+    | 'Load Delay'
+    | 'Mouse Over';
 /**
  * Example Page Object Model using the Playwright site
  * Provides examples on how to implement base classes and decorators
@@ -28,7 +33,9 @@ export class HomePage extends BasePage {
      * Automatically invoked when using `this.navigateToByUrl()`
      */
     public async waitForPageLoad(): Promise<void> {
-        await expect(this.page.getByRole('heading', { name: 'UI Test Automation Playground' })).toBeVisible();
+        await expect(
+            this.page.getByRole('heading', { name: 'UI Test Automation Playground' })
+        ).toBeVisible();
     }
 
     /**
@@ -59,9 +66,10 @@ export class HomePage extends BasePage {
         await this.safeFill(this.page.getByRole('textbox', { name: 'missing textbox' }), 'value');
     }
 
-
     @Retry({ attempts: 2, delay: 1000 })
-    public async clickPageLink(linkName:AvailableLinks): Promise<void> {
-        await this.safeClick(this.page.locator('div.container').getByRole('link', { name: linkName, exact:true }));
+    public async clickPageLink(linkName: AvailableLinks): Promise<void> {
+        await this.safeClick(
+            this.page.locator('div.container').getByRole('link', { name: linkName, exact: true })
+        );
     }
 }

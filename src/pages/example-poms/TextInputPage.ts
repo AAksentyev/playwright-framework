@@ -2,16 +2,13 @@ import { BasePage } from '@pages/base/BasePage.ts';
 import { expect, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 
-
 /**
  * Example Page Object Model with the text input
  *
  */
 export class TextInputPage extends BasePage {
-
     constructor(protected page: Page) {
         super(page, 'TextInputPage');
-
     }
 
     /**
@@ -23,12 +20,12 @@ export class TextInputPage extends BasePage {
     }
 
     /** Locator for the textbox on the page */
-    private get textboxLocator(){
+    private get textboxLocator() {
         return this.page.getByRole('textbox', { name: 'Set New Button Name' });
     }
 
     /** Locator for the button on the page */
-    private get buttonLocator(){
+    private get buttonLocator() {
         return this.page.locator('#updatingButton');
     }
     /**
@@ -41,26 +38,26 @@ export class TextInputPage extends BasePage {
 
     /**
      *  Enter the value in the textbox on the page
-     * @param value 
+     * @param value
      */
-    public async fillTextbox(value:string) {
-        Logger.debug(`Entering value '${value}' into textbox on the Text Input page`)
-        await this.safeFill(this.textboxLocator, value)
+    public async fillTextbox(value: string) {
+        Logger.debug(`Entering value '${value}' into textbox on the Text Input page`);
+        await this.safeFill(this.textboxLocator, value);
     }
 
     /**
-     * Click the button on the page that changes 
+     * Click the button on the page that changes
      * its label based on the value entered in the textbox
      */
-    public async clickButton(){
+    public async clickButton() {
         await this.safeClick(this.buttonLocator);
     }
 
     /**
      * Get the text of the button
-     * @returns 
+     * @returns
      */
-    public async getButtonText():Promise<string>{
+    public async getButtonText(): Promise<string> {
         return this.buttonLocator.innerText();
     }
 }

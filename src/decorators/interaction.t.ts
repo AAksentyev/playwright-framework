@@ -1,1 +1,8 @@
-export type InteractionType = 'click' | 'doubleclick' | 'fill' | 'hover' | 'check' | 'uncheck' | 'dragdrop';
+export type InteractionType =
+    | 'click'
+    | 'doubleclick'
+    | 'fill'
+    | 'hover'
+    | 'check'
+    | 'uncheck'
+    | 'dragdrop';

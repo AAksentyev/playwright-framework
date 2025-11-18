@@ -1,13 +1,12 @@
 import { Interaction } from '@decorators/interaction.ts';
 import { expect, Locator, Page } from '@playwright/test';
 
-
 interface ClickOptions {
-    button?: "left" | "right" | "middle";
+    button?: 'left' | 'right' | 'middle';
     clickCount?: number;
     delay?: number;
     force?: boolean;
-    modifiers?: ("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[];
+    modifiers?: ('Alt' | 'Control' | 'ControlOrMeta' | 'Meta' | 'Shift')[];
     noWaitAfter?: boolean;
     position?: {
         x: number;
@@ -79,7 +78,11 @@ export abstract class BaseLocator {
      * @param locator - locator that is being clicked
      */
     @Interaction('doubleclick')
-    protected async safeDoubleClick(locator: Locator, options?: ClickOptions, timeout: number = 5000) {
+    protected async safeDoubleClick(
+        locator: Locator,
+        options?: ClickOptions,
+        timeout: number = 5000
+    ) {
         await expect(locator, 'Locator being clicked is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being clicked is not enabled').toBeEnabled({ timeout });
 
@@ -150,9 +153,17 @@ export abstract class BaseLocator {
      * @param value - Value to fill the locator with
      */
     @Interaction('dragdrop')
-    protected async safeDragDrop(locatorDragged: Locator, locatorTarget:Locator, timeout: number = 5000) {
-        await expect(locatorDragged, 'Locator being dragged is not visible').toBeVisible({ timeout });
-        await expect(locatorDragged, 'Locator being dragged is not enabled').toBeEnabled({ timeout });
+    protected async safeDragDrop(
+        locatorDragged: Locator,
+        locatorTarget: Locator,
+        timeout: number = 5000
+    ) {
+        await expect(locatorDragged, 'Locator being dragged is not visible').toBeVisible({
+            timeout,
+        });
+        await expect(locatorDragged, 'Locator being dragged is not enabled').toBeEnabled({
+            timeout,
+        });
 
         await expect(locatorTarget, 'Destinating locator is not visible').toBeVisible({ timeout });
         await expect(locatorTarget, 'Destinating locator is not enabled').toBeEnabled({ timeout });

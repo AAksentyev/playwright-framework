@@ -108,11 +108,11 @@ function groupLogsBy(arr: InteractionLog[], key: keyof InteractionLog) {
 }
 
 function loadTemplate(templatePath: string): string {
-    return fs.readFileSync(templatePath, "utf-8");
+    return fs.readFileSync(templatePath, 'utf-8');
 }
 
 function renderTemplate(template: string, variables: Record<string, any>): string {
     return Object.entries(variables).reduce((html, [key, value]) => {
-        return html.replace(new RegExp(`{{${key}}}`, "g"), JSON.stringify(value));
+        return html.replace(new RegExp(`{{${key}}}`, 'g'), JSON.stringify(value));
     }, template);
 }

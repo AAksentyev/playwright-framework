@@ -1,12 +1,14 @@
 import { BrowserContext, Page } from '@playwright/test';
-//import { config } from '@config';
 import { Logger } from '@utils/logger.ts';
-import { SESSION_CHECK_INTERVAL_MS, SESSION_LIFETIME_MS, SESSION_STORAGE_FILE } from '@configs/auth/session.ts';
+import {
+    SESSION_CHECK_INTERVAL_MS,
+    SESSION_LIFETIME_MS,
+    SESSION_STORAGE_FILE,
+} from '@configs/auth/session.ts';
 import { hasCookie, setCookies } from './cookieHelper.js';
 import fs from 'fs';
-import { config } from '@config';
 
-/** User session information */ 
+/** User session information */
 interface SessionState {
     username: string;
     startTime: number;
@@ -33,24 +35,26 @@ interface MultiUserStorage {
 export class SessionManager {
     private static readonly SESSION_CHECK_INTERVAL = SESSION_CHECK_INTERVAL_MS; // 5 minutes
     private static readonly SESSION_LIFETIME = SESSION_LIFETIME_MS; // 55 minutes (refresh before 1 hour expiry)
-    
+
     /** Stores multiple user sessions keyed by username */
     private sessions: Record<string, SessionState> = {};
 
-    constructor(private readonly context: BrowserContext, private readonly page: Page) {
+    constructor(
+        private readonly context: BrowserContext,
+        private readonly page: Page
+    ) {
         this.validateClassCanBeUsed();
     }
 
     /**
      * Ensure criteria is met for usage of this class
-     * constants are pre-set, but certain environment-specific variables 
+     * constants are pre-set, but certain environment-specific variables
      * should be configured to be able to use this.
-     * 
-     * 
+     *
+     *
      * For example, check for presence of auth cookie configuration
      */
-    private validateClassCanBeUsed(){
-
+    private validateClassCanBeUsed() {
         //if (! config.SESSION_COOKIE_NAME.length)
         //    throw new Error(`process.env.SESSION_COOKIE_NAME is not configured. Session cannot be tracked.`);
     }
@@ -59,12 +63,11 @@ export class SessionManager {
      * @param username User's username
      */
     private initializeSession(username: string): void {
-        
         this.sessions[username] = {
             username,
             startTime: Date.now(),
             lastChecked: Date.now(),
-            isValid: true
+            isValid: true,
         };
         Logger.info(`Session initialized for user: ${username}`);
     }
@@ -73,7 +76,7 @@ export class SessionManager {
      * Check if the current session is valid and request a refresh
      * @returns true if session is valid, false if needs re-authentication
      */
-    public async validateSession(username:string): Promise<boolean> {
+    public async validateSession(username: string): Promise<boolean> {
         const session = this.sessions[username];
 
         if (!session) {
@@ -136,7 +139,6 @@ export class SessionManager {
         return this.sessions[username] ?? null;
     }
 
-
     // ======================
     // STORAGE-STATE INTEGRATION
     // ======================
@@ -178,15 +180,13 @@ export class SessionManager {
      * @param username
      */
     public async restoreSession(username: string): Promise<boolean> {
-        
         // if the session valid, return false so we proceed with regular login
         if (!this.isStoredSessionValid(username)) return false;
 
         // read from our storage and set the cookies to context
         const all = this.readStorage();
         const state = all[username];
-        if (! state )
-            return false;
+        if (!state) return false;
 
         // set our cookies to the browser context
         await setCookies(this.context, state.cookies);
@@ -202,7 +202,6 @@ export class SessionManager {
      * @param username
      */
     public async saveSession(username: string): Promise<void> {
-
         // get our state from the browser context
         const state = await this.context.storageState();
         // add a timestamp to our storage state. This will allow us keep track of the session age

@@ -84,7 +84,7 @@ export async function handleTestResults(testInfo: TestInfo) {
  */
 export function saveWorkerTraffic(workerIndex: number) {
     // create the directory if it doesn't exiset
-    if (!fs.existsSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH)) 
+    if (!fs.existsSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH))
         fs.mkdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
 
     // serialize the map so it can be saved as json
@@ -158,8 +158,9 @@ function mergeRequestMaps(maps: RequestMap[]): RequestMap {
 export function aggregateWorkerNetworkLogs() {
     console.log('...Aggregating network traffic logs...');
     // collect the list of files we'll be working with
-    const files = fs.readdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH)
-                    .filter((f) => f.startsWith('worker-') && f.endsWith('.json'));
+    const files = fs
+        .readdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH)
+        .filter((f) => f.startsWith('worker-') && f.endsWith('.json'));
 
     // read every worker file we have and convert the contents of the file to a map
     const allMaps: RequestMap[] = files.map((file) => {

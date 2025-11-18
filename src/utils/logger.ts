@@ -85,5 +85,5 @@ export const Logger = {
     },
     success: async (msg: string, ...args: any[]) => {
         console.log(formatLog('PASS', msg, ...args));
-    }
+    },
 };

@@ -26,7 +26,6 @@ export function Interaction(type: InteractionType) {
         const originalMethod = target;
 
         return async function replacementMethod(this: any, ...args: any[]) {
-
             // let's capture our locator's bounding box (or null if it's not visible)
             const targetLocator = args[0] as Locator;
             const boundingBox = await targetLocator.boundingBox();
@@ -45,7 +44,6 @@ export function Interaction(type: InteractionType) {
             // SUCCESS-ONLY LOGIC. We only log the interaction if it was successful
             // and if we have heatmap report toggled on
             if (config.RUN_HEATMAP_REPORT) {
-
                 // log the interaction
                 await logInteraction(
                     args[0], // locator
