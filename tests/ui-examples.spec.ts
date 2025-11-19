@@ -209,9 +209,7 @@ test.describe(
     }
 );
 
-
 test.describe('Demo of disabled input handling', { tag: [TAG.UI] }, async () => {
-
     test('Attempt to fill a disabled field (test will fail)', async ({ page }) => {
         const disabledInputPage = new DisabledInputPage(page);
         // navigate to the URL defined in the POM
@@ -245,7 +243,6 @@ test.describe('Demo of disabled input handling', { tag: [TAG.UI] }, async () => 
             await disabledInputPage.fillTextbox('test value');
         });
     });
-
 
     test('Attempt to fill a disabled field with a retry decordator', async ({ page }) => {
         const disabledInputPage = new DisabledInputPage(page);
