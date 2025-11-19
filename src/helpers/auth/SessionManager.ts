@@ -78,7 +78,6 @@ export class SessionManager {
             lastChecked: Date.now(),
             isValid: true,
         };
-        Logger.info(`Session initialized for user: ${username}`);
     }
 
     /**

@@ -1,7 +1,7 @@
-import formatsPlugin from 'ajv-formats';
 import { Ajv, ErrorObject, JSONSchemaType, ValidateFunction } from 'ajv';
-import { MAX_SCHEMA_ERRORS } from '@configs/api/api.config.ts';
+import formatsPlugin from 'ajv-formats';
 import { Logger } from '@utils/logger.ts';
+import { MAX_SCHEMA_ERRORS } from '@configs/api/api.config.ts';
 
 const ajv = new Ajv({ allErrors: true });
 formatsPlugin.default(ajv);

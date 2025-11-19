@@ -1,8 +1,6 @@
 import os from 'node:os';
 import * as dotenv from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
-import * as dotenv from 'dotenv';
-import os from 'node:os';
 
 /**
  * Read environment variables from file.
@@ -81,6 +79,12 @@ export default defineConfig({
             dependencies: ['setUp'],
         },
 
+        {
+            name: 'unauthenticatedFirefox',
+            use: { ...devices['Desktop Firefox'] },
+            dependencies: ['setUp'],
+        },
+
         /** A project to run any authenticated tests that require a session
          * the authenticated: true flag will trigger the base fixture
          * to either set up a new session if a valid one does not exist
@@ -98,10 +102,7 @@ export default defineConfig({
             dependencies: ['setUp'],
         },
 
-        /*{
-            name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
-        },
+        /*
 
         {
             name: 'webkit',

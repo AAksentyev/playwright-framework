@@ -51,7 +51,7 @@ export const test = base.extend<BaseFixture>({
      * monitor all network during page interaction and compile the test data
      * also handle any specific test-level activities (such as handling failed tests)
      */
-    testMonitor: async ({ page, ignoreNetworkErrors }, use, testInfo) => {
+    testMonitor: async ({ page, ignoreNetworkErrors, browserName }, use, testInfo) => {
         /** always monitor our test traffic unless user explicitly toggled it off */
         if (!ignoreNetworkErrors) monitorTraffic(page, testInfo);
 
@@ -59,7 +59,7 @@ export const test = base.extend<BaseFixture>({
 
         /** Once the test concludes handle our results */
         /** if it failed, take a screenshot and attach it to the test */
-        await handleTestIfFailed(page, testInfo);
+        await handleTestIfFailed(page, testInfo, browserName);
 
         // handle our network traffic results if not ignored
         if (!ignoreNetworkErrors) handleTrafficResults(testInfo);

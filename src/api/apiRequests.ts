@@ -1,9 +1,9 @@
-import { GetMakesByManufacturerAndYearResponse } from '@testdata/schemas/getMakesByManufacturerAndYear.schema.ts';
-import { APIHelpers } from './apiHelpers.ts';
 import { APIRequestContext } from '@playwright/test';
+import { APIHelpers } from './apiHelpers.ts';
+import { ResponseThreshold } from '@decorators/responseThreshold.ts';
 import { GetAllMakesResponse } from '@testdata/schemas/getAllMakes.schema.ts';
 import { GetModelsForMakeResponse } from '@testdata/schemas/getModelsForMake.schema.ts';
-import { ResponseThreshold } from '@decorators/responseThreshold.ts';
+import { GetMakesByManufacturerAndYearResponse } from '@testdata/schemas/getMakesByManufacturerAndYear.schema.ts';
 
 /**
  * A wrapper class for APIHelpers that stores aliased methods for each API call

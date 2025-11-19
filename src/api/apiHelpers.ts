@@ -1,10 +1,10 @@
+import { APIRequestContext, APIResponse } from '@playwright/test';
 import { vsprintf } from 'sprintf-js';
 import { config } from '@config';
-import { API_ENDPOINTS, GetEndpointKeys, PostEndpointKeys } from '@configs/api/api.routes.ts';
-import { RequestType, RouteDetails } from '@configs/api/api.t.ts';
-import { APIRetry } from '@decorators/apiRetry.ts';
-import { APIRequestContext, APIResponse } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
+import { APIRetry } from '@decorators/apiRetry.ts';
+import { RequestType, RouteDetails } from '@configs/api/api.t.ts';
+import { API_ENDPOINTS, GetEndpointKeys, PostEndpointKeys } from '@configs/api/api.routes.ts';
 
 export interface Response<T> {
     response: APIResponse; // full api response object from the request
