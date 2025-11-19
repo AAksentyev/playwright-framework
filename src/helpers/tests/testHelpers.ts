@@ -1,8 +1,8 @@
-import { SCREENSHOT_NAME, SCREENSHOT_PATH } from '@configs/reports/reporters.config.ts';
 import { Page, TestInfo } from '@playwright/test';
+import { sprintf } from 'sprintf-js';
 import { Logger } from '@utils/logger.ts';
 import { takeScreenshot } from '@utils/screenshot.ts';
-import { sprintf } from 'sprintf-js';
+import { SCREENSHOT_NAME, SCREENSHOT_PATH } from '@configs/reports/reporters.config.ts';
 
 /**
  * Handle the test appropriately if it failed

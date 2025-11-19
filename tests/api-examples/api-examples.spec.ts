@@ -1,8 +1,8 @@
 import { expect, test } from '@fixtures/base.ts';
-import { assertSchema, validateSchema } from '@api/schemaValidator.ts';
 import { TAG } from '@constants/tags.ts';
 import { API } from '@api/apiRequests.ts';
 import { readCSV } from '@utils/readers/csvHelper.ts';
+import { assertSchema, validateSchema } from '@api/schemaValidator.ts';
 import { ManufacturerYearTest } from '@testdata/types/testdata.t.ts';
 
 test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.API] }, async () => {

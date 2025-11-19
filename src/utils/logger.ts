@@ -1,6 +1,7 @@
+import util from 'util';
 import { config } from '@config';
 import { vsprintf } from 'sprintf-js';
-import util from 'util';
+
 
 /**
  * Log message format template

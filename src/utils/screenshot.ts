@@ -1,16 +1,11 @@
-import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
-import { Locator, Page } from '@playwright/test';
+
 import fs from 'fs';
 import path from 'path';
+import { Locator, Page } from '@playwright/test';
+import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
+import { ScreenshotTracker } from './reporters/heatmap/heatmap.t.ts';
 
-export interface ScreenshotTracker {
-    screenshotPath: string;
-    boundingBox: {
-        x: number;
-        y: number;
-    };
-}
-export const screenshotTracker: Record<string, ScreenshotTracker> = {};
+const screenshotTracker: Record<string, ScreenshotTracker> = {};
 
 /**
  * Take the screenshot for the heatmap report and track it in screenshotTracker
@@ -67,4 +62,12 @@ export async function takeScreenshot(
     });
 
     return { screenshotPath, screenshot };
+}
+
+/**
+ * Return the constant with tracked screenshots
+ * @returns 
+ */
+export function getTrackedScreenshots(): Record<string, ScreenshotTracker>{
+    return screenshotTracker;
 }

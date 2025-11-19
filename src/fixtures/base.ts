@@ -1,9 +1,9 @@
+import { expect, Page, test as base, WorkerInfo } from '@playwright/test';
 import { config } from '@config';
+import { Logger } from '@utils/logger.ts';
 import { doFreshLoginAndSave } from '@helpers/auth/sessionHelpers.ts';
 import { getSessionManager } from '@helpers/auth/SessionManagerProvider.ts';
 import { handleTestIfFailed } from '@helpers/tests/testHelpers.ts';
-import { expect, Page, test as base, WorkerInfo } from '@playwright/test';
-import { Logger } from '@utils/logger.ts';
 import { saveInteractionsToDisk } from '@utils/reporters/heatmap/interactionLogger.ts';
 import {
     monitorTraffic,

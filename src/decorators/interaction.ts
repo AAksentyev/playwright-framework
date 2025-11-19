@@ -1,8 +1,8 @@
-import { logInteraction } from '@utils/reporters/heatmap/interactionLogger.ts';
-import { screenshotTracker, takeHeatmapScreenshot } from '@utils/screenshot.ts';
-import { config } from '@config';
 import { Locator } from '@playwright/test';
+import { config } from '@config';
 import { InteractionType } from '@utils/reporters/heatmap/heatmap.t.ts';
+import { logInteraction } from '@utils/reporters/heatmap/interactionLogger.ts';
+import { getTrackedScreenshots, takeHeatmapScreenshot } from '@utils/screenshot.ts';
 
 /**
  * Decorator that tracks interactions with locators from the BaseLocator class
@@ -32,6 +32,7 @@ export function Interaction(type: InteractionType) {
 
             // we need to take our screenshot before we perform our action on the page
             if (config.RUN_HEATMAP_REPORT) {
+                const screenshotTracker = getTrackedScreenshots();
                 // if a screenshot for this page/component is already taken, skip taking it
                 if (!(this.pageObjectName in screenshotTracker))
                     await takeHeatmapScreenshot(this.root ?? this.page, this.pageObjectName);

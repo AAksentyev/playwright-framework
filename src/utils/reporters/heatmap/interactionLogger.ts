@@ -1,11 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import { config } from '@config';
-import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
 import { Locator } from '@playwright/test';
+import { config } from '@config';
 import { Logger } from '@utils/logger.ts';
-import { ScreenshotTracker, screenshotTracker } from '@utils/screenshot.ts';
-import { BoundingBox, InteractionLog, InteractionType } from './heatmap.t.ts';
+import { getTrackedScreenshots } from '@utils/screenshot.ts';
+import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
+import { BoundingBox, InteractionLog, InteractionType, ScreenshotTracker } from './heatmap.t.ts';
+
 
 /**
  * array for tracking every interaction
@@ -52,6 +53,10 @@ export function saveInteractionsToDisk(workerIndex: number) {
     if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH))
         fs.mkdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
 
+    // get all the screenshots currently tracked
+    const screenshotTracker = getTrackedScreenshots();
+    
+    // write both the tracked screenshots and the interaction log to disk
     fs.writeFileSync(
         path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}-screenshots.json`),
         JSON.stringify(screenshotTracker, null, 2)

@@ -1,6 +1,6 @@
+import { test as teardown } from '@playwright/test';
 import { config } from '@config';
 import { cleanUpTestArtifacts } from '@helpers/auth/sessionHelpers.ts';
-import { test as teardown } from '@playwright/test';
 import { generateHeatmaps } from '@utils/reporters/heatmap/generateHeatmaps.ts';
 import { NetworkReportGenerator } from '@utils/reporters/network-monitor/generateNetworkReport.ts';
 import { aggregateWorkerNetworkLogs } from '@utils/reporters/network-monitor/monitor.ts';

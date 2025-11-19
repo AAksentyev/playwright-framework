@@ -1,3 +1,5 @@
+import os from 'node:os';
+import * as dotenv from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import os from 'node:os';

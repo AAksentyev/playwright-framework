@@ -1,13 +1,12 @@
-import { TAG } from '@constants/tags.ts';
-//import { PlaywrightHomePage } from '@pages/example-poms/PlaywrightHomePage.ts';
-import { TopNavigationMenuComponent } from '@pages/examples/TopNavigationMenuComponent.ts';
 import { expect, test } from '@fixtures/base.ts';
+import { Logger } from '@utils/logger.ts';
+import { TAG } from '@constants/tags.ts';
 import { mockRequest, unmockRequest } from '@api/apiMocking.ts';
+import { TopNavigationMenuComponent } from '@pages/examples/TopNavigationMenuComponent.ts';
 import { HomePage } from '@pages/examples/HomePage.ts';
 import { ResourcesPage } from '@pages/examples/ResourcesPage.ts';
 import { TextInputPage } from '@pages/examples/TextInputPage.ts';
 import { AjaxDataPage } from '@pages/examples/AjaxDataPage.ts';
-import { Logger } from '@utils/logger.ts';
 
 /**
  * Examples for the `@Retry` method decorator.

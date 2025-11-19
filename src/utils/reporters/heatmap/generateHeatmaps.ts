@@ -1,10 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { aggregateInteractions, aggregateScreenshots } from './interactionLogger.ts';
-import { ScreenshotTracker } from '../../screenshot.ts';
 import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
 import { Logger } from '@utils/logger.ts';
-import { InteractionLog } from './heatmap.t.ts';
+import { InteractionLog, ScreenshotTracker } from './heatmap.t.ts';
 
 type HeatmapPoints = {
     x: number;

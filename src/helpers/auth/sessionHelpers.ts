@@ -1,8 +1,8 @@
+import fs from 'fs';
+import { BrowserContext, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { SessionManager } from './SessionManager.ts';
-import { BrowserContext, Page } from '@playwright/test';
 import { LoginPage } from '@pages/examples/LoginPage.ts';
-import fs from 'fs';
 import { ARTIFACTS_PATH } from '@configs/auth/session.ts';
 
 /**

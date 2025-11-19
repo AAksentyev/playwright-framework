@@ -26,3 +26,11 @@ export interface InteractionLog {
     timestamp: number;
     boundingBox: BoundingBox;
 }
+
+export interface ScreenshotTracker {
+    screenshotPath: string;
+    boundingBox: {
+        x: number;
+        y: number;
+    };
+}

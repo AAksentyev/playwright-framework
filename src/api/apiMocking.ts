@@ -1,6 +1,6 @@
+import { Serializable } from 'child_process';
 import { APIResponse, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
-import { Serializable } from 'child_process';
 
 /**
  * response object to pass to route.fulfill

@@ -1,3 +1,7 @@
+import fs from 'fs';
+import path from 'path';
+import { sprintf } from 'sprintf-js';
+import { setCookies } from './cookieHelper.js';
 import { BrowserContext } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import {
@@ -6,10 +10,8 @@ import {
     SESSION_STORAGE_FILE,
     ARTIFACTS_PATH,
 } from '@configs/auth/session.ts';
-import { setCookies } from './cookieHelper.js';
-import fs from 'fs';
-import { sprintf } from 'sprintf-js';
-import path from 'path';
+
+
 
 /** User session information */
 interface SessionState {
