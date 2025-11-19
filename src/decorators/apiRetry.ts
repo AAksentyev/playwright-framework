@@ -3,7 +3,6 @@ import { config } from '@config';
 import { Logger } from '@utils/logger.ts';
 import { API_RETRY_DELAY_MS, API_RETRY_MAX_ATTEMPTS } from '@configs/api/api.config.ts';
 
-
 export interface APIRetryOptions {
     /** number of retries, default 1 (no retry) */
     attempts?: number;

@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import path from 'path';
 import { Locator, Page } from '@playwright/test';
@@ -66,8 +65,8 @@ export async function takeScreenshot(
 
 /**
  * Return the constant with tracked screenshots
- * @returns 
+ * @returns
  */
-export function getTrackedScreenshots(): Record<string, ScreenshotTracker>{
+export function getTrackedScreenshots(): Record<string, ScreenshotTracker> {
     return screenshotTracker;
 }

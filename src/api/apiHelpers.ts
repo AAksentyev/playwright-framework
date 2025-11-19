@@ -6,7 +6,6 @@ import { APIRetry } from '@decorators/apiRetry.ts';
 import { APIRequestContext, APIResponse } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 
-
 export interface Response<T> {
     response: APIResponse; // full api response object from the request
     body: T; // parsed response body of given type (response.json()) and typecast to the expect type

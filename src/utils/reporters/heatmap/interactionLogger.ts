@@ -7,7 +7,6 @@ import { getTrackedScreenshots } from '@utils/screenshot.ts';
 import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
 import { BoundingBox, InteractionLog, InteractionType, ScreenshotTracker } from './heatmap.t.ts';
 
-
 /**
  * array for tracking every interaction
  * used by generateHeatmaps.ts to plot points on the heatmap
@@ -55,7 +54,7 @@ export function saveInteractionsToDisk(workerIndex: number) {
 
     // get all the screenshots currently tracked
     const screenshotTracker = getTrackedScreenshots();
-    
+
     // write both the tracked screenshots and the interaction log to disk
     fs.writeFileSync(
         path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}-screenshots.json`),

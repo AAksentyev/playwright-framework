@@ -2,7 +2,6 @@ import util from 'util';
 import { config } from '@config';
 import { vsprintf } from 'sprintf-js';
 
-
 /**
  * Log message format template
  * format: ICON [LEVEL] TIMESTAMP - MESSAGE

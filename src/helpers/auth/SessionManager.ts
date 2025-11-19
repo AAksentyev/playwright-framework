@@ -11,8 +11,6 @@ import {
     ARTIFACTS_PATH,
 } from '@configs/auth/session.ts';
 
-
-
 /** User session information */
 interface SessionState {
     username: string;
