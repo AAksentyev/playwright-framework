@@ -2,17 +2,8 @@ import { TRAFFIC_CONFIG } from '@configs/reports/reporters.config.ts';
 import { Page, TestInfo } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-
-type RequestStats = {
-    success: number;
-    fail: number;
-    failures: {
-        testName: string;
-        responseCode: number;
-    }[];
-};
-
-type RequestMap = Map<string, RequestStats>;
+import { RequestMap, RequestStats } from './monitor.t.ts';
+import { Logger } from '@utils/logger.ts';
 
 // track requests per test with a simple array
 const testStats: RequestMap = new Map<string, RequestStats>();
@@ -21,7 +12,7 @@ const testStats: RequestMap = new Map<string, RequestStats>();
 // key = url, value = cumulative stats for that url
 const requestTracker: RequestMap = new Map<string, RequestStats>();
 
-export function monitorTestTraffic(page: Page, testInfo: TestInfo) {
+export function monitorTraffic(page: Page, testInfo: TestInfo) {
     page.on('response', (response) => {
         const url = response.url();
         const responseCode = response.status();
@@ -35,13 +26,17 @@ export function monitorTestTraffic(page: Page, testInfo: TestInfo) {
             });
         }
 
-        let stats = testStats.get(url);
+        // get any existing status from our map
+        let stats: RequestStats | undefined = testStats.get(url);
 
+        // set our stats for the url
         if (!stats) {
             stats = { success: 0, fail: 0, failures: [] };
             testStats.set(url, stats);
         }
 
+        // if the response code is 400+, consider this a failure and increment accordingly
+        // with the data as needed
         if (responseCode >= 400) {
             stats.fail++;
             stats.failures.push({ testName: testInfo.title, responseCode });
@@ -60,7 +55,7 @@ export function monitorTestTraffic(page: Page, testInfo: TestInfo) {
  *
  * @param testInfo
  */
-export async function handleTestResults(testInfo: TestInfo) {
+export async function handleTrafficResults(testInfo: TestInfo) {
     // check if we have any failures during the test and attach the report to the test
     const failedStatsObj = Object.fromEntries(
         [...testStats.entries()].filter(([_, stats]) => stats.fail > 0)
@@ -104,6 +99,7 @@ function mergeTestIntoWorker() {
     for (const [url, tStats] of testStats) {
         let wStats = requestTracker.get(url);
 
+        // set the stats for the URL if it doesn't exist increment accordingly
         if (!wStats) {
             // clone the object so we don't share references
             wStats = {
@@ -156,7 +152,7 @@ function mergeRequestMaps(maps: RequestMap[]): RequestMap {
  * Combine all of worker logs into a single report file
  */
 export function aggregateWorkerNetworkLogs() {
-    console.log('...Aggregating network traffic logs...');
+    Logger.info('... Aggregating network traffic logs ...');
     // collect the list of files we'll be working with
     const files = fs
         .readdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH)
@@ -178,4 +174,5 @@ export function aggregateWorkerNetworkLogs() {
         path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, TRAFFIC_CONFIG.JSON_OUTPUT_NAME),
         JSON.stringify(Object.fromEntries(mergedMap.entries()), null, 2)
     );
+    Logger.success('... Network logs aggregated ...');
 }

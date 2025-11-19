@@ -1,6 +1,6 @@
-import { BasePage } from '@pages/base/BasePage.ts';
 import { expect, Locator, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
+import { BasePage } from '@pages/base/BasePage.ts';
 
 /**
  * Example Page Object Model with asynchronously loaded data
@@ -46,7 +46,7 @@ export class AjaxDataPage extends BasePage {
      * its label based on the value entered in the textbox
      */
     public async clickAjaxButton() {
-        Logger.debug('Clicking the AJAX trigger button.');
+        Logger.debug('Clicking the AJAX trigger button');
         await this.safeClick(this.ajaxTriggerButton);
     }
 

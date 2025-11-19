@@ -1,10 +1,10 @@
+import { vsprintf } from 'sprintf-js';
 import { config } from '@config';
 import { API_ENDPOINTS, GetEndpointKeys, PostEndpointKeys } from '@configs/api/api.routes.ts';
 import { RequestType, RouteDetails } from '@configs/api/api.t.ts';
 import { APIRetry } from '@decorators/apiRetry.ts';
 import { APIRequestContext, APIResponse } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
-import { vsprintf } from 'sprintf-js';
 
 export interface Response<T> {
     response: APIResponse; // full api response object from the request
@@ -39,9 +39,10 @@ export abstract class APIHelpers {
         config?: object
     ): Promise<Response<T>> {
         // get the endpoint
-        const ENDPOINT = this.getEndpoint('get', alias);
+        const ENDPOINT: RouteDetails = this.getEndpoint('get', alias);
         // ensure the parameters that were passed match what's expected
         this.verifyInterpolationCount(ENDPOINT.route, values);
+
         // execute the request
         const start = performance.now();
         const response: APIResponse = await request.get(
@@ -51,17 +52,10 @@ export abstract class APIHelpers {
         const duration = performance.now() - start;
 
         // parse the body (handle the error if it's not a parseable json)
-        let body: any = {};
-        try {
-            body = await response.json();
-        } catch (e: any) {
-            throw new Error(
-                `Failed to parse response body. It may not be a valid json: ${e.message}`
-            );
-        }
+        const body: T = await this.parseResponseBody<T>(response, ENDPOINT);
 
         // return the response and the body
-        return { response, body: body as T, duration, expectedSchema: ENDPOINT.schema };
+        return { response, body, duration, expectedSchema: ENDPOINT.schema };
     }
 
     /**
@@ -73,23 +67,33 @@ export abstract class APIHelpers {
      * @param values - optional array of values to sprintf into the URL request if any are required
      * @param body - optional payload body
      * @param config - optional config object to add to the request. Should match available request.post options. These will override any route-specific config
-     * @param callback - optional callback to execute upon completion
      * @returns
      */
-    protected static async doPostData(
+    protected static async doPostData<T>(
         request: APIRequestContext,
         alias: PostEndpointKeys,
         values: any[] = [],
         data?: any | {},
         config?: object
-    ): Promise<APIResponse> {
+    ): Promise<Response<T>> {
         const ENDPOINT = this.getEndpoint('post', alias);
         this.verifyInterpolationCount(ENDPOINT.route, values);
 
-        return request.post(`${this.BASE_URL}${vsprintf(ENDPOINT.route, values)}`, {
-            data,
-            ...this.getConfig(ENDPOINT.config, config),
-        });
+        const start = performance.now();
+        const response: APIResponse = await request.post(
+            `${this.BASE_URL}${vsprintf(ENDPOINT.route, values)}`,
+            {
+                data,
+                ...this.getConfig(ENDPOINT.config, config),
+            }
+        );
+        const duration = performance.now() - start;
+
+        // parse the body (handle the error if it's not a parseable json)
+        const body: T = await this.parseResponseBody<T>(response, ENDPOINT);
+
+        // return the response and the body
+        return { response, body, duration, expectedSchema: ENDPOINT.schema };
     }
 
     /**doPatchData<T>( alias:PatchEndpointKeys, values?:any[], body?:any|{}, config?: object, callback?:() => any): Observable<T | null> {
@@ -190,5 +194,36 @@ export abstract class APIHelpers {
         }
 
         return obj;
+    }
+
+    /**
+     * Parse the response body of the request
+     *
+     * @param response APIResponse object from the request
+     * @todo Support non-json response parsing (such as xml)
+     */
+    private static async parseResponseBody<T>(
+        response: APIResponse,
+        endpoint: RouteDetails
+    ): Promise<T> {
+        let body: any = {};
+
+        // try parsing our request body
+        // if it fails, it's not json
+        try {
+            body = await response.json();
+        } catch (e: any) {
+            const errMsg = `Failed to parse response body. It may not be a valid json.\n
+                            Endpoint route: ${endpoint.route}\n
+                            Endpoint description: ${endpoint.description}\n
+                            Response URL: ${response.url()}\n                
+                            Response code: ${response.status()}\n
+                            Response body: ${response.status() !== 404 ? await response.body() : '...Resource not found...'}\n`;
+
+            Logger.error(errMsg, e.message);
+            throw new Error(errMsg);
+        }
+
+        return body as T;
     }
 }

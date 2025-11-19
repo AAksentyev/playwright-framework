@@ -20,6 +20,7 @@
       "@constants/*":["./src/constants/*"],
       "@configs/*":["./src/configs/*"],
       "@pages/*":["./src/pages/*"],
+      "@global/*":["./src/global/*"],
       "@utils/*":["./src/utils/*"],
       "@api/*":["./src/api/*"],
       "@testdata/*":["./test-data/*"],

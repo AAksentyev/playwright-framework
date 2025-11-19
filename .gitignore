@@ -2,7 +2,11 @@
 # Playwright
 node_modules/
 /test-results/
-/playwright-report/
+playwright-report/
+playwright-reports/
+reports/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+results-all.xml
+/allure-results

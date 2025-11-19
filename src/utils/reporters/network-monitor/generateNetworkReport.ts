@@ -3,119 +3,124 @@ import path from 'path';
 import { TRAFFIC_CONFIG } from '@configs/reports/reporters.config.ts';
 import { fileURLToPath } from 'url';
 import { Logger } from '@utils/logger.ts';
+import { ChartData, NetworkReport, RequestStats } from './monitor.t.ts';
 
+/*
 interface FailureEntry { testName: string; responseCode: number; }
 interface ChartData {urls: string[], successCounts:number[], failCounts:number[]}
 export interface NetworkReportEntry { success: number; fail: number; failures: FailureEntry[]; }
-type NetworkReport = Record<string, NetworkReportEntry>;
+type NetworkReport = Record<string, NetworkReportEntry>;*/
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * A Network Traffic Report generator. 
+ * A Network Traffic Report generator.
  * Uses the aggregated network traffic JSON report to generate an HTML Summary report
  * That shows successes + failures per URL and per test
  */
 export class NetworkReportGenerator {
-  constructor(private outputDir: string = TRAFFIC_CONFIG.REPORT_OUTPUT_PATH) {}
+    constructor(private outputDir: string = TRAFFIC_CONFIG.REPORT_OUTPUT_PATH) {}
 
-  /** make sure the report directory exists */
-  private ensureDir() {
-    if (!fs.existsSync(this.outputDir)) fs.mkdirSync(this.outputDir, { recursive: true });
-  }
-
-  /**
-   * Load an HTML template file for interpolation and injection
-   * @param file 
-   * @returns 
-   */
-  private loadTemplate(file: string) {
-    return fs.readFileSync(path.join(__dirname, 'templates', file), 'utf-8');
-  }
-
-  /**
-   * Load a JS script file for injection
-   * @param file 
-   * @returns 
-   */
-  private loadScript(file: string) {
-    return fs.readFileSync(path.join(__dirname, 'scripts', file), 'utf-8');
-  }
-
-  /**
-   * Load a css file for injection
-   * @param file 
-   * @returns 
-   */
-  private loadStyle(file: string) {
-    return fs.readFileSync(path.join(__dirname, 'css', file), 'utf-8');
-  }
-
-  /**
-   * Transform data in the report to fit the data structure needed for the bar chart
-   * @param report 
-   * @returns 
-   */
-  private transformForChart(report: NetworkReport):ChartData  {
-    const urls: string[] = [];
-    const successCounts: number[] = [];
-    const failCounts: number[] = [];
-    for (const [url, data] of Object.entries(report)) {
-      urls.push(url);
-      successCounts.push(data.success);
-      failCounts.push(data.fail);
+    /** make sure the report directory exists */
+    private ensureDir() {
+        if (!fs.existsSync(this.outputDir)) fs.mkdirSync(this.outputDir, { recursive: true });
     }
-    return { urls, successCounts, failCounts };
-  }
 
-  /**
-   * Build summary table showing a row for each request url with successes, failures, and failure % for each
-   * @param report 
-   * @returns 
-   */
-  private buildSummaryRows(report: NetworkReport) {
-    return Object.entries(report).map(([url, data]) => {
-      const total = data.success + data.fail;
-      const failPct = total === 0 ? 0 : ((data.fail / total) * 100).toFixed(2);
-      return `<tr><td>${url}</td><td>${data.success}</td><td>${data.fail}</td><td>${failPct}%</td></tr>`;
-    }).join('');
-  }
-
-  /**
-   * Pivots the report by the URL domain 
-   * @param report 
-   * @returns 
-   */
-  private groupByDomain(report: NetworkReport): Record<string, NetworkReport> {
-    const groups: Record<string, NetworkReport> = {};
-    for (const [url, data] of Object.entries(report)) {
-      const domain = new URL(url).hostname;
-      if (!groups[domain]) groups[domain] = {};
-      groups[domain][url] = data;
+    /**
+     * Load an HTML template file for interpolation and injection
+     * @param file
+     * @returns
+     */
+    private loadTemplate(file: string) {
+        return fs.readFileSync(path.join(__dirname, 'templates', file), 'utf-8');
     }
-    return groups;
-  }
 
-  /**
-   * Groups network requests by URL domain and return a table with grouped data
-   * @param report 
-   * @returns 
-   */
-  private buildDomainAccordions(report: NetworkReport) {
-    // pivot the report by the URL domain 
-    const domains = this.groupByDomain(report);
-    return Object.entries(domains).map(([domain, group]) => {
-        
-      const rows = Object.entries(group).map(([url, data]) => {
-            const total = data.success + data.fail;
-            const failPct = total === 0 ? 0 : ((data.fail / total) * 100).toFixed(2);
+    /**
+     * Load a JS script file for injection
+     * @param file
+     * @returns
+     */
+    private loadScript(file: string) {
+        return fs.readFileSync(path.join(__dirname, 'scripts', file), 'utf-8');
+    }
 
-            return `<tr><td>${url}</td><td>${data.success}</td><td>${data.fail}</td><td>${failPct}%</td></tr>`
+    /**
+     * Load a css file for injection
+     * @param file
+     * @returns
+     */
+    private loadStyle(file: string) {
+        return fs.readFileSync(path.join(__dirname, 'css', file), 'utf-8');
+    }
+
+    /**
+     * Transform data in the report to fit the data structure needed for the bar chart
+     * @param report
+     * @returns
+     */
+    private transformForChart(report: NetworkReport): ChartData {
+        const urls: string[] = [];
+        const successCounts: number[] = [];
+        const failCounts: number[] = [];
+        for (const [url, data] of Object.entries(report)) {
+            urls.push(url);
+            successCounts.push(data.success);
+            failCounts.push(data.fail);
         }
-      ).join('');
+        return { urls, successCounts, failCounts };
+    }
 
-      return `<details>
+    /**
+     * Build summary table showing a row for each request url with successes, failures, and failure % for each
+     * @param report
+     * @returns
+     */
+    private buildSummaryRows(report: NetworkReport) {
+        return Object.entries(report)
+            .map(([url, data]) => {
+                const total = data.success + data.fail;
+                const failPct = total === 0 ? 0 : ((data.fail / total) * 100).toFixed(2);
+                return `<tr><td>${url}</td><td>${data.success}</td><td>${data.fail}</td><td>${failPct}%</td></tr>`;
+            })
+            .join('');
+    }
+
+    /**
+     * Pivots the report by the URL domain
+     * @param report
+     * @returns
+     */
+    private groupByDomain(report: NetworkReport): Record<string, NetworkReport> {
+        const groups: Record<string, NetworkReport> = {};
+        for (const [url, data] of Object.entries(report)) {
+            const domain = new URL(url).hostname;
+            if (!groups[domain]) groups[domain] = {};
+            groups[domain][url] = data;
+        }
+        return groups;
+    }
+
+    /**
+     * Groups network requests by URL domain and return a table with grouped data
+     * @param report
+     * @returns
+     */
+    private buildDomainAccordions(report: NetworkReport) {
+        // pivot the report by the URL domain
+        const domains = this.groupByDomain(report);
+        return Object.entries(domains)
+            .map(([domain, group]) => {
+                const rows = Object.entries(group)
+                    .map(([url, data]) => {
+                        const total = data.success + data.fail;
+                        const failPct = total === 0 ? 0 : ((data.fail / total) * 100).toFixed(2);
+
+                        return `<tr><td>${url}</td><td>${data.success}</td><td>${data.fail}</td><td>${failPct}%</td></tr>`;
+                    })
+                    .join('');
+
+                return `<details>
                 <summary>${domain}</summary>
                 <table>
                     <thead>
@@ -124,84 +129,111 @@ export class NetworkReportGenerator {
                     <tbody>${rows}</tbody>
                 </table>
             </details>`;
-    }).join('');
-  }
-
-  /**
-   * Build the table that shows the network call failure by test
-   * @param report  - Network report object that is read from the json file
-   * @returns 
-   */
-  private buildFailuresPivot(report: NetworkReport) {
-    const pivot: Record<string, Record<string, number>> = {};
-
-    // if we don't have any failures, don't bother pivoting data and just return a message
-    const failedUrls = Object.entries(report).filter(([, d]) => (d.fail ?? 0) > 0).map(([u]) => u);
-    if (!failedUrls.length) return '<p>No failures recorded.</p>';
-
-    // we have failures, so pivot the data
-    const entries = Object.entries(report) as [string, NetworkReportEntry][];
-    // loop over our entries in the report and pivot the data by test
-    for (const [url, data] of entries) {
-      for (const f of data.failures ?? []) {
-        const t = f.testName ?? 'UNKNOWN_TEST';
-        if (!pivot[t]) pivot[t] = {};
-        pivot[t][url] = (pivot[t][url] ?? 0) + 1;
-      }
+            })
+            .join('');
     }
-    // set the failed URL as a header
-    const headerRow = failedUrls.map(url => {
-                                const pathOnly = new URL(url).pathname;
-                                return `<th>
+
+    /**
+     * Build the table that shows the network call failure by test
+     * @param report  - Network report object that is read from the json file
+     * @returns
+     */
+    private buildFailuresPivot(report: NetworkReport) {
+        const pivot: Record<string, Record<string, number>> = {};
+
+        // if we don't have any failures, don't bother pivoting data and just return a message
+        const failedUrls = Object.entries(report)
+            .filter(([, d]) => (d.fail ?? 0) > 0)
+            .map(([u]) => u);
+        if (!failedUrls.length) return '<p>No failures recorded.</p>';
+
+        // we have failures, so pivot the data
+        const entries = Object.entries(report) as [string, RequestStats][];
+        // loop over our entries in the report and pivot the data by test
+        for (const [url, data] of entries) {
+            for (const f of data.failures ?? []) {
+                const t = f.testName ?? 'UNKNOWN_TEST';
+                if (!pivot[t]) pivot[t] = {};
+                pivot[t][url] = (pivot[t][url] ?? 0) + 1;
+            }
+        }
+        // set the failed URL as a header
+        const headerRow = failedUrls
+            .map((url) => {
+                const pathOnly = new URL(url).pathname;
+                return `<th>
                                             <div class="tooltip">${pathOnly}
                                                 <span class="tooltiptext">${url}</span>
                                             </div>
-                                        </th>`
-                        }).join('');
+                                        </th>`;
+            })
+            .join('');
 
-    // set the rows where the row header is the test name and the values are failures per URL
-    const rows = Object.entries(pivot).map(([testName, counts]) =>
-      `<tr><td>${testName}</td>${failedUrls.map(u => `<td>${counts[u] || 0}</td>`).join('')}</tr>`
-    ).join('');
-    // return our table
-    return `<table><thead><tr><th>Test Name</th>${headerRow}</tr></thead><tbody>${rows}</tbody></table>`;
-  }
+        // set the rows where the row header is the test name and the values are failures per URL
+        const rows = Object.entries(pivot)
+            .map(
+                ([testName, counts]) =>
+                    `<tr><td>${testName}</td>${failedUrls.map((u) => `<td>${counts[u] || 0}</td>`).join('')}</tr>`
+            )
+            .join('');
+        // return our table
+        return `<table><thead><tr><th>Test Name</th>${headerRow}</tr></thead><tbody>${rows}</tbody></table>`;
+    }
 
-  /**
-   * Generate the final network report
-   */
-  public generate() {
-    this.ensureDir();
-    const raw = fs.readFileSync(path.join(this.outputDir, 'network-traffic-merged.json'), 'utf-8');
-    const report = JSON.parse(raw) as NetworkReport;
+    /**
+     * Generate the final network report
+     */
+    public generate() {
+        this.ensureDir();
+        const raw = fs.readFileSync(
+            path.join(this.outputDir, 'network-traffic-merged.json'),
+            'utf-8'
+        );
+        const report = JSON.parse(raw) as NetworkReport;
 
-    // transofrm all of the data in our report to be placed in the html report
-    const chartData = this.transformForChart(report);
-    const summaryRows = this.buildSummaryRows(report);
-    const domainAccordions = this.buildDomainAccordions(report);
-    const pivotTable = this.buildFailuresPivot(report);
+        // transofrm all of the data in our report to be placed in the html report
+        const chartData = this.transformForChart(report);
+        const summaryRows = this.buildSummaryRows(report);
+        const domainAccordions = this.buildDomainAccordions(report);
+        const pivotTable = this.buildFailuresPivot(report);
 
-    // Load templates
-    const chartTemplate = this.loadTemplate('chart.html').replace('{{chartData}}', JSON.stringify(chartData));
-    const summaryTemplate = this.loadTemplate('summary.html').replace('{{summaryRows}}', summaryRows);
-    const domainTemplate = this.loadTemplate('domain.html').replace('{{domainAccordions}}', domainAccordions);
-    const pivotTemplate = this.loadTemplate('failures-by-test.html').replace('{{pivotTable}}', pivotTable);
-    
-    const styleContent = this.loadStyle('style.css');
+        // Load templates
+        const chartTemplate = this.loadTemplate('chart.html').replace(
+            '{{chartData}}',
+            JSON.stringify(chartData)
+        );
+        const summaryTemplate = this.loadTemplate('summary.html').replace(
+            '{{summaryRows}}',
+            summaryRows
+        );
+        const domainTemplate = this.loadTemplate('domain.html').replace(
+            '{{domainAccordions}}',
+            domainAccordions
+        );
+        const pivotTemplate = this.loadTemplate('failures-by-test.html').replace(
+            '{{pivotTable}}',
+            pivotTable
+        );
 
-    const chartJs = this.loadScript('chart.js');
-    const sortJs = this.loadScript('sortTable.js');
+        // load the css file
+        const styleContent = this.loadStyle('style.css');
 
-    const baseTemplate = this.loadTemplate('main.html')
-      .replace('{{style}}', styleContent)
-      .replace('{{chartSection}}', chartTemplate)
-      .replace('{{summarySection}}', summaryTemplate)
-      .replace('{{domainSection}}', domainTemplate)
-      .replace('{{pivotSection}}', pivotTemplate)
-      .replace('{{chartJs}}', chartJs)
-      .replace('{{sortJs}}', sortJs);
+        // load our scripts
+        const chartJs = this.loadScript('chart.js');
+        const sortJs = this.loadScript('sortTable.js');
 
-    fs.writeFileSync(path.join(this.outputDir, 'network-report.html'), baseTemplate, 'utf-8');
-    Logger.info(`📊 Network report generated at: ${this.outputDir}`);
-  }
+        // interpolate all the loaded resources into the main report template
+        const baseTemplate = this.loadTemplate('main.html')
+            .replace('{{style}}', styleContent)
+            .replace('{{chartSection}}', chartTemplate)
+            .replace('{{summarySection}}', summaryTemplate)
+            .replace('{{domainSection}}', domainTemplate)
+            .replace('{{pivotSection}}', pivotTemplate)
+            .replace('{{chartJs}}', chartJs)
+            .replace('{{sortJs}}', sortJs);
+
+        // save
+        fs.writeFileSync(path.join(this.outputDir, 'network-report.html'), baseTemplate, 'utf-8');
+        Logger.info(`📊 Network report generated at: ${this.outputDir}`);
+    }
 }

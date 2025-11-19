@@ -1,27 +1,11 @@
-import { config } from '@config';
-import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
-import { InteractionType } from '@decorators/interaction.t.ts';
-import { Locator } from '@playwright/test';
-import { ScreenshotTracker, screenshotTracker } from '@utils/screenshot.ts';
 import fs from 'fs';
 import path from 'path';
-
-interface BoundingBox {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-}
-/**
- *  Interaction log interface
- */
-export interface InteractionLog {
-    //locator: Locator; // locator being interacted with
-    type: InteractionType; // the type of interaction ('fill' | 'click' | 'hover')
-    pageObjectName: string;
-    timestamp: number;
-    boundingBox: BoundingBox;
-}
+import { Locator } from '@playwright/test';
+import { config } from '@config';
+import { Logger } from '@utils/logger.ts';
+import { getTrackedScreenshots } from '@utils/screenshot.ts';
+import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
+import { BoundingBox, InteractionLog, InteractionType, ScreenshotTracker } from './heatmap.t.ts';
 
 /**
  * array for tracking every interaction
@@ -68,6 +52,10 @@ export function saveInteractionsToDisk(workerIndex: number) {
     if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH))
         fs.mkdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
 
+    // get all the screenshots currently tracked
+    const screenshotTracker = getTrackedScreenshots();
+
+    // write both the tracked screenshots and the interaction log to disk
     fs.writeFileSync(
         path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}-screenshots.json`),
         JSON.stringify(screenshotTracker, null, 2)
@@ -87,6 +75,7 @@ export function saveInteractionsToDisk(workerIndex: number) {
 export function aggregateInteractions() {
     if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) return;
 
+    Logger.info('... Aggregating interaction data...');
     // collect worker files
     const interactionFiles = fs
         .readdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)
@@ -114,6 +103,8 @@ export function aggregateInteractions() {
         path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.INTERACTIONS_FILENAME),
         JSON.stringify(aggregatedInteractions, null, 2)
     );
+
+    Logger.success('Interaction data aggregation complete');
 }
 
 /**
@@ -124,6 +115,8 @@ export function aggregateInteractions() {
  */
 export function aggregateScreenshots() {
     if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) return;
+
+    Logger.info('... Aggregating screenshot data ...');
 
     // collect worker files
     const screenshotFiles = fs
@@ -154,4 +147,6 @@ export function aggregateScreenshots() {
         path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.SCREENSHOTS_FILENAME),
         JSON.stringify(aggregatedScreenshots, null, 2)
     );
+
+    Logger.success('Screenshot data aggregation complete');
 }

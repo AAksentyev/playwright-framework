@@ -1,5 +1,5 @@
-import { Interaction } from '@decorators/interaction.ts';
 import { expect, Locator, Page } from '@playwright/test';
+import { Interaction } from '@decorators/interaction.ts';
 
 interface ClickOptions {
     button?: 'left' | 'right' | 'middle';

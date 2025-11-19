@@ -1,7 +1,9 @@
-import { expect, test } from '@playwright/test';
-import { assertSchema, validateSchema } from '@api/schemaValidator.ts';
+import { expect, test } from '@fixtures/base.ts';
 import { TAG } from '@constants/tags.ts';
 import { API } from '@api/apiRequests.ts';
+import { readCSV } from '@utils/readers/csvHelper.ts';
+import { assertSchema, validateSchema } from '@api/schemaValidator.ts';
+import { ManufacturerYearTest } from '@testdata/types/testdata.t.ts';
 
 test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.API] }, async () => {
     /**
@@ -157,6 +159,49 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 // perform any other validation on the response body once schema checks passed
                 expect.soft(body.Count).toEqual(expectedRecordCount);
             }
+        });
+
+        test(`Datadriven test with data from a csv file`, async ({ request }) => {
+            /** read our test data from the csv file. This is type-safe and you can pass
+             * any type T to readCSV to get back a typed array T[] for use in your tests
+             *
+             * Note: When parsing a CSV, it will return you strings even if data is numbers, regardless of the type
+             * so if you're expecting numbers in your data, you can optionally pass a 'converter' object
+             * to convert given keys to the primitive data type you want.
+             *
+             * Alternatively you can either manually convert them in your test or use them as strings if it doesn't matter to you
+             */
+            const csvData = readCSV<ManufacturerYearTest>('test-data/data-driven/csv-example.csv', {
+                year: Number,
+                expectedRecordCount: Number,
+            });
+
+            for (const { year, manufacturer, expectedRecordCount } of csvData) {
+                const { body } = await API.getMakesByManufacturerAndYear(request, [
+                    manufacturer,
+                    year,
+                ]);
+
+                // perform any checks here. Omitting status,etc in interest of making examples more compact
+                expect.soft(body.Count).toEqual(expectedRecordCount);
+            }
+        });
+
+        test(`Datadriven test with data from an xlsx file`, async () => {
+            // read our test data from a xlsx file. This is type-safe and you can pass
+            // any type T to readXLSX to get back a typed array T[] for use in your tests
+            // usage is exactly the same as readCSV, but with readXLSX
+            // for example:
+            /*const xlsxData = readXLSX<ManufacturerYearTest>('testdata/data-driven/xlsx-example.xlsx');
+            for (const { year, manufacturer, expectedRecordCount } of csvData) {
+                const { body, response, expectedSchema } = await API.getMakesByManufacturerAndYear(
+                    request,
+                    [manufacturer, year]
+                );
+
+                // perform any checks here. Omitting status,etc in interest of making examples more compact
+                expect.soft(body.Count).toEqual(expectedRecordCount);
+            }*/
         });
     });
 });

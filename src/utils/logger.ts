@@ -1,6 +1,7 @@
+import util from 'util';
+import { config } from '@config';
 import { vsprintf } from 'sprintf-js';
 
-const DEBUG_ENABLED = 'true' === 'true'; //if ( process.env.DEBUG_MODE === "true" )
 /**
  * Log message format template
  * format: ICON [LEVEL] TIMESTAMP - MESSAGE
@@ -14,7 +15,7 @@ const LOG_FORMAT = '%s [%s] %s - %s';
  * @private
  * @type {LogLevel}
  */
-type LogLevel = 'INFO' | 'DEBUG' | 'ERROR' | 'WARN' | 'PASS';
+type LogLevel = 'INFO' | 'DEBUG' | 'ERROR' | 'WARN' | 'SUCCESS';
 
 /**
  * Icons for each log level for better visual distinction
@@ -26,29 +27,38 @@ const LEVEL_ICONS: Record<LogLevel, string> = {
     DEBUG: '🔍',
     ERROR: '❌',
     WARN: '⚠️',
-    PASS: '✅',
+    SUCCESS: '✅',
 };
 
 /**
  * Formats the log message with timestamp, level, and icon.
  *
  * @param level - Log level
- * @param msg - Log message
- * @param args - Optional arguments for message formatting
+ * @param args - arguments for message formatting
  * @returns
  */
-function formatLog(level: LogLevel, msg: any, ...args: any[]): string {
+function formatLog(level: LogLevel, ...args: any[]): string {
     const icon = LEVEL_ICONS[level];
     const timestamp = new Date().toISOString();
 
     let message: string;
 
-    if (typeof msg === 'string') {
-        // String message: interpolate placeholders if provided
-        message = args.length ? vsprintf(msg, args) : msg;
+    if (typeof args[0] === 'string') {
+        const [template, ...rest] = args;
+
+        try {
+            message = rest.length ? vsprintf(template, rest) : template;
+        } catch {
+            // fallback to console.log-style join
+            message = args
+                .map((a) => (typeof a === 'string' ? a : util.inspect(a, { depth: null })))
+                .join(' ');
+        }
     } else {
-        // Non-string (object, array, etc.): JSON stringify for readability
-        message = JSON.stringify(msg, null, 2);
+        // pure console.log behavior
+        message = args
+            .map((a) => (typeof a === 'string' ? a : util.inspect(a, { depth: null })))
+            .join(' ');
     }
 
     return vsprintf(LOG_FORMAT, [icon, level, timestamp, message]);
@@ -71,19 +81,19 @@ function formatLog(level: LogLevel, msg: any, ...args: any[]): string {
  *
  */
 export const Logger = {
-    info: async (msg: string, ...args: any[]) => {
-        console.info(formatLog('INFO', msg, ...args));
+    info: async (...args: any[]) => {
+        console.info(formatLog('INFO', ...args));
     },
-    debug: async (msg: string, ...args: any[]) => {
-        if (DEBUG_ENABLED) console.debug(formatLog('DEBUG', msg, ...args));
+    debug: async (...args: any[]) => {
+        if (config.DEBUG_MODE) console.debug(formatLog('DEBUG', ...args));
     },
-    error: async (msg: string, ...args: any[]) => {
-        console.error(formatLog('ERROR', msg, ...args));
+    error: async (...args: any[]) => {
+        console.error(formatLog('ERROR', ...args));
     },
-    warn: async (msg: string, ...args: any[]) => {
-        console.warn(formatLog('WARN', msg, ...args));
+    warn: async (...args: any[]) => {
+        console.warn(formatLog('WARN', ...args));
     },
-    success: async (msg: string, ...args: any[]) => {
-        console.log(formatLog('PASS', msg, ...args));
+    success: async (...args: any[]) => {
+        console.log(formatLog('SUCCESS', ...args));
     },
 };

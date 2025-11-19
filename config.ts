@@ -32,4 +32,9 @@ export const config = {
     DEBUG_MODE: getEnv('DEBUG_MODE', 'false', true) === 'true',
     RETRY_ENABLED: getEnv('RETRY_ENABLED', 'false', true) === 'true',
     RUN_HEATMAP_REPORT: getEnv('RUN_HEATMAP_REPORT', 'false', true) === 'true',
+
+    SITE_USERNAME: getEnv('SITE_USERNAME', '<please configure>'),
+    SITE_PASSWORD: getEnv('SITE_PASSWORD', '<please configure>'),
+
+    SESSION_COOKIE_NAME: getEnv('SESSION_COOKIE_NAME', ''),
 };

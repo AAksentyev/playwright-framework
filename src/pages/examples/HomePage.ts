@@ -1,15 +1,24 @@
-import { Retry } from '@decorators/actionRetry.ts';
-import { BasePage } from '@pages/base/BasePage.ts';
 import { expect, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
+import { Retry } from '@decorators/actionRetry.ts';
+import { BasePage } from '@pages/base/BasePage.ts';
 
+/**
+ * List of available link names on the page
+ * This is not a full list and is just used as an example
+ * for making clickPageLink typesafe during compile time
+ * so that only available pages show up.
+ *
+ * @todo externalize to a separate file with appropriate config
+ */
 type AvailableLinks =
     | 'Dynamic ID'
     | 'AJAX Data'
     | 'Click'
     | 'Text Input'
     | 'Load Delay'
-    | 'Mouse Over';
+    | 'Mouse Over'
+    | 'Sample App';
 /**
  * Example Page Object Model using the Playwright site
  * Provides examples on how to implement base classes and decorators
@@ -66,6 +75,11 @@ export class HomePage extends BasePage {
         await this.safeFill(this.page.getByRole('textbox', { name: 'missing textbox' }), 'value');
     }
 
+    /**
+     * Click on the section link on the Home Page grid
+     * These links navigate you to different pages across the demo site
+     * @param linkName
+     */
     @Retry({ attempts: 2, delay: 1000 })
     public async clickPageLink(linkName: AvailableLinks): Promise<void> {
         await this.safeClick(

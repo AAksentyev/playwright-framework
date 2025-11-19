@@ -1,16 +1,10 @@
-import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
-import { Locator, Page } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
+import { Locator, Page } from '@playwright/test';
+import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
+import { ScreenshotTracker } from './reporters/heatmap/heatmap.t.ts';
 
-export interface ScreenshotTracker {
-    screenshotPath: string;
-    boundingBox: {
-        x: number;
-        y: number;
-    };
-}
-export const screenshotTracker: Record<string, ScreenshotTracker> = {};
+const screenshotTracker: Record<string, ScreenshotTracker> = {};
 
 /**
  * Take the screenshot for the heatmap report and track it in screenshotTracker
@@ -26,7 +20,7 @@ export async function takeHeatmapScreenshot(
     pageObjectName: string
 ): Promise<void> {
     if (!(pageObjectName in screenshotTracker)) {
-        const screenshotPath: string = await takeScreenshot(
+        const { screenshotPath } = await takeScreenshot(
             element,
             path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, pageObjectName),
             'screenshot.png'
@@ -50,22 +44,29 @@ export async function takeHeatmapScreenshot(
  * @param dir - directory to save the screenshot to
  * @param filename screenshot file name
  * @param fullPage capture full page or just the viewport. fullPage is `true` by default
- * @returns the full path to the screenshot
+ * @returns the full path to the screenshot and the screenshot itself
  */
 export async function takeScreenshot(
     target: Page | Locator,
     dir: string,
     filename: string,
     fullPage: boolean = true
-): Promise<string> {
+): Promise<{ screenshot: Buffer<ArrayBufferLike>; screenshotPath: string }> {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
     const screenshotPath = path.join(dir, filename);
-
-    await target.screenshot({
+    const screenshot = await target.screenshot({
         path: screenshotPath,
         fullPage,
     });
 
-    return screenshotPath;
+    return { screenshotPath, screenshot };
+}
+
+/**
+ * Return the constant with tracked screenshots
+ * @returns
+ */
+export function getTrackedScreenshots(): Record<string, ScreenshotTracker> {
+    return screenshotTracker;
 }
