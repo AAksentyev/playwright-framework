@@ -25,8 +25,14 @@ export function Interaction(type: InteractionType) {
         const originalMethod = target;
 
         return async function replacementMethod(this: any, ...args: any[]) {
-            // let's capture our locator's bounding box (or null if it's not visible)
+            
+            // verify that the first argument of the decorated method is Locator
+            if (! isLocator(args[0]) ){
+                throw new Error('First argument of the method decorated with @Interaction must be a Locator');
+            }
+
             const targetLocator = args[0] as Locator;
+            // let's capture our locator's bounding box (or null if it's not visible)
             let boundingBox = null;
             if (await targetLocator.isVisible()) boundingBox = await targetLocator.boundingBox();
 
@@ -47,7 +53,7 @@ export function Interaction(type: InteractionType) {
             if (config.RUN_HEATMAP_REPORT) {
                 // log the interaction
                 await logInteraction(
-                    args[0], // locator
+                    targetLocator, // locator
                     boundingBox, //locator boundingBox
                     type, // interaction type
                     this.pageObjectName
@@ -57,4 +63,13 @@ export function Interaction(type: InteractionType) {
             return result;
         };
     };
+}
+
+/**
+ * Verify that a given object is a Locator type
+ * @param obj 
+ * @returns 
+ */
+function isLocator(obj: any): boolean {
+    return obj && typeof obj === 'object' && 'click' in obj && 'fill' in obj;
 }
