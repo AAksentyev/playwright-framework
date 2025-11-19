@@ -1,4 +1,4 @@
-import { BrowserContext, Page, WorkerInfo } from '@playwright/test';
+import { BrowserContext } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import {
     SESSION_CHECK_INTERVAL_MS,
@@ -6,7 +6,7 @@ import {
     SESSION_STORAGE_FILE,
     ARTIFACTS_PATH,
 } from '@configs/auth/session.ts';
-import { hasCookie, setCookies } from './cookieHelper.js';
+import { setCookies } from './cookieHelper.js';
 import fs from 'fs';
 import { sprintf } from 'sprintf-js';
 import path from 'path';
@@ -38,18 +38,21 @@ interface MultiUserStorage {
 export class SessionManager {
     private static readonly SESSION_CHECK_INTERVAL = SESSION_CHECK_INTERVAL_MS; // 5 minutes
     private static readonly SESSION_LIFETIME = SESSION_LIFETIME_MS; // 55 minutes (refresh before 1 hour expiry)
-    
-    private readonly WORKER_SESSION_STORAGE_FILE:string;
-    
+
+    private readonly WORKER_SESSION_STORAGE_FILE: string;
+
     /** Stores multiple user sessions keyed by username */
     private sessions: Record<string, SessionState> = {};
-    
+
     constructor(
         //private readonly context: BrowserContext,
         private readonly workerIndex: number
     ) {
         this.validateClassCanBeUsed();
-        this.WORKER_SESSION_STORAGE_FILE = path.join(ARTIFACTS_PATH, sprintf(SESSION_STORAGE_FILE, this.workerIndex));
+        this.WORKER_SESSION_STORAGE_FILE = path.join(
+            ARTIFACTS_PATH,
+            sprintf(SESSION_STORAGE_FILE, this.workerIndex)
+        );
     }
 
     /**
@@ -109,16 +112,6 @@ export class SessionManager {
         // let's ensure, as a final step, that we have a valid session saved
         if (!this.isStoredSessionValid(username)) return false;
 
-        /** VALIDATION LOGIC TO CHECK IF OUR SESSION IS STILL VALID REGARDLESS OF WHETHER WE HIT THE REFRESH BUFFER */
-        
-        // Cookie check - verify session cookie exists
-        /*const hasCookieResult = await hasCookie(this.context, config.SESSION_COOKIE_NAME);
-        if (!hasCookieResult) {
-            Logger.warn('Session cookie not found');
-            session.isValid = false;
-            return false;
-        }*/
-
         // Additional session validation could be added here
         // For example, making a lightweight API call to verify session
 
@@ -136,7 +129,8 @@ export class SessionManager {
             Logger.info(`Session cleared for user: ${username}`);
         } else {
             this.sessions = {};
-            if (fs.existsSync(this.WORKER_SESSION_STORAGE_FILE)) fs.unlinkSync(this.WORKER_SESSION_STORAGE_FILE);
+            if (fs.existsSync(this.WORKER_SESSION_STORAGE_FILE))
+                fs.unlinkSync(this.WORKER_SESSION_STORAGE_FILE);
             Logger.info('All sessions cleared');
         }
     }
@@ -157,7 +151,9 @@ export class SessionManager {
     private readStorage(): MultiUserStorage {
         try {
             if (!fs.existsSync(this.WORKER_SESSION_STORAGE_FILE)) return {};
-            return JSON.parse(fs.readFileSync(this.WORKER_SESSION_STORAGE_FILE, 'utf-8')) as MultiUserStorage;
+            return JSON.parse(
+                fs.readFileSync(this.WORKER_SESSION_STORAGE_FILE, 'utf-8')
+            ) as MultiUserStorage;
         } catch {
             return {};
         }
@@ -165,8 +161,7 @@ export class SessionManager {
 
     /** Write all persisted sessions to storageState.json */
     private writeStorage(data: MultiUserStorage) {
-        if (! fs.existsSync(ARTIFACTS_PATH))
-            fs.mkdirSync(ARTIFACTS_PATH, {recursive: true});
+        if (!fs.existsSync(ARTIFACTS_PATH)) fs.mkdirSync(ARTIFACTS_PATH, { recursive: true });
 
         fs.writeFileSync(this.WORKER_SESSION_STORAGE_FILE, JSON.stringify(data, null, 2));
     }
@@ -193,7 +188,6 @@ export class SessionManager {
      * @param username
      */
     public async restoreSession(context: BrowserContext, username: string): Promise<boolean> {
-
         // read from our storage and set the cookies to context
         const all = this.readStorage();
         const state = all[username];

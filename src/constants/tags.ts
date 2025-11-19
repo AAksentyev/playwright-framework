@@ -3,7 +3,7 @@ export const TAG = {
     UI: '@ui',
     E2E: '@e2e',
     AUTHENTICATED: '@authenticated',
-    
+
     // temp tags
     WIP: '@wip',
 };

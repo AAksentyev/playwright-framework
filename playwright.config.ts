@@ -41,10 +41,10 @@ export default defineConfig({
                     os_platform: os.platform(),
                     os_release: os.release(),
                     os_version: os.version(),
-                    node_version: process.version
-                }
-            }
-        ]
+                    node_version: process.version,
+                },
+            },
+        ],
     ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
@@ -68,17 +68,17 @@ export default defineConfig({
             testMatch: /global\.teardown\.ts/,
         },
 
-        /** 
-         * Since we're not defining 'authenticated' here 
+        /**
+         * Since we're not defining 'authenticated' here
          * unlike in 'authenticatedChromium', the base fixture will not
          * bother restoring or setting up the session
-        */
+         */
         {
             name: 'unauthenticatedChromium',
             use: { ...devices['Desktop Chrome'] },
             dependencies: ['setUp'],
         },
-        
+
         /** A project to run any authenticated tests that require a session
          * the authenticated: true flag will trigger the base fixture
          * to either set up a new session if a valid one does not exist
@@ -86,17 +86,15 @@ export default defineConfig({
          */
         {
             name: 'authenticatedChromium',
-            use: { 
+            use: {
                 ...devices['Desktop Chrome'],
                 // we have this custom option defined in src/global/playwright.custom.d.ts
                 // it is now accessible in every test to see if we're running an authenticated project
-                authenticated: true 
+                authenticated: true,
             },
             testMatch: ['tests/authenticated-example/**/*.spec.ts'],
             dependencies: ['setUp'],
         },
-
-
 
         /*{
             name: 'firefox',

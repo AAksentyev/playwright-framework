@@ -1,12 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import {
-    aggregateInteractions,
-    aggregateScreenshots,
-    InteractionLog,
-} from './interactionLogger.ts';
+import { aggregateInteractions, aggregateScreenshots } from './interactionLogger.ts';
 import { ScreenshotTracker } from '../../screenshot.ts';
 import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
+import { Logger } from '@utils/logger.ts';
+import { InteractionLog } from './heatmap.t.ts';
 
 type HeatmapPoints = {
     x: number;
@@ -29,8 +27,9 @@ type HeatmapPoints = {
  *
  */
 export async function generateHeatmaps() {
-    console.log('...Generating heatmap report...');
+    Logger.info('... Generating heatmap report ...');
     // aggregate all of the page/component interactions from different workers into a single file
+    Logger.info('... Aggregating json files ...');
     aggregateInteractions();
     aggregateScreenshots();
     // read and parse the merged interactions file
@@ -52,6 +51,7 @@ export async function generateHeatmaps() {
 
     // loop over each page object for which we have data for
     for (const [pageObjectName, logs] of grouped) {
+        Logger.info(`... Generating report for ${pageObjectName} ...`);
         // create the folder for the page we don't have it yet
         const dir = path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, pageObjectName);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -86,7 +86,12 @@ export async function generateHeatmaps() {
             maxOpacity: HEATMAP_CONFIG.MAX_OPACITY,
         });
         fs.writeFileSync(path.join(dir, HEATMAP_CONFIG.REPORT_NAME), html);
+        Logger.info(`... Report generated ...`);
     }
+
+    Logger.success(
+        `... All Heatmap reports generated. Access them in ${HEATMAP_CONFIG.REPORT_OUTPUT_PATH} ...`
+    );
 }
 
 /**

@@ -27,6 +27,8 @@ export async function getCookie(context: BrowserContext, name: string) {
 }
 
 /** Overload signatures to allow setting cookies either to browser context or per page */
+// disable lint errors for this block since it is valid in typescript
+/* eslint-disable no-redeclare */
 export async function setCookies(page: Page, cookies: Cookie[]): Promise<void>;
 export async function setCookies(context: BrowserContext, cookies: Cookie[]): Promise<void>;
 
@@ -40,3 +42,4 @@ export async function setCookies(target: Page | BrowserContext, cookies: Cookie[
         await target.addCookies(cookies);
     }
 }
+/* eslint-enable no-redeclare */

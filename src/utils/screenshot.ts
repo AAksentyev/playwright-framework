@@ -57,7 +57,7 @@ export async function takeScreenshot(
     dir: string,
     filename: string,
     fullPage: boolean = true
-): Promise<{screenshot: Buffer<ArrayBufferLike>, screenshotPath: string}> {
+): Promise<{ screenshot: Buffer<ArrayBufferLike>; screenshotPath: string }> {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
     const screenshotPath = path.join(dir, filename);
@@ -66,5 +66,5 @@ export async function takeScreenshot(
         fullPage,
     });
 
-    return { screenshotPath, screenshot } ;
+    return { screenshotPath, screenshot };
 }

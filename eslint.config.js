@@ -1,41 +1,49 @@
-import js from "@eslint/js";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
-import prettierPlugin from "eslint-plugin-prettier";
-import playwrightPlugin from "eslint-plugin-playwright";
+import js from '@eslint/js';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import prettierPlugin from 'eslint-plugin-prettier';
+import playwrightPlugin from 'eslint-plugin-playwright';
 
 export default [
-  js.configs.recommended,
-  {
-    files: ["**/*.ts"],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        ecmaVersion: "latest",
-        sourceType: "module",
-      },
-      globals: {
-        process: "readonly", // ✅ mark Node global
-        Buffer: "readonly",
-        __dirname: "readonly",
-        __filename: "readonly",
-        console: "readonly",
-        setTimeout: "readonly",
-        performance: "readonly"
-      },
+    js.configs.recommended,
+    {
+        files: ['**/*.ts'],
+        languageOptions: {
+            parser: tsParser,
+            parserOptions: {
+                ecmaVersion: 'latest',
+                sourceType: 'module',
+            },
+            globals: {
+                process: 'readonly', // ✅ mark Node global
+                Buffer: 'readonly',
+                __dirname: 'readonly',
+                __filename: 'readonly',
+                console: 'readonly',
+                setTimeout: 'readonly',
+                performance: 'readonly',
+                document: 'readonly',
+                window: 'readonly',
+                URL: 'readonly',
+            },
+        },
+        plugins: {
+            '@typescript-eslint': tsPlugin,
+            prettier: prettierPlugin,
+            playwright: playwrightPlugin,
+        },
+        rules: {
+            'no-unused-vars': 'off', // prevent conflict with @typescript-eslint/no-unused-vars
+            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+            'prettier/prettier': 'warn',
+        },
     },
-    plugins: {
-      "@typescript-eslint": tsPlugin,
-      prettier: prettierPlugin,
-      playwright: playwrightPlugin,
+    // ignore compiled and js scripts used for reporting
+    {
+        ignores: [
+          'node_modules/**', 
+          'dist/**', 
+          '**/reporters/**/*.js'
+        ],
     },
-    rules: {
-      "no-unused-vars": "off", // prevent conflict with @typescript-eslint/no-unused-vars
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-      "prettier/prettier": "warn",
-    },
-  },
-  {
-    ignores: ["node_modules/**", "dist/**"],
-  },
 ];

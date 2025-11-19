@@ -1,12 +1,13 @@
 import { TAG } from '@constants/tags.ts';
 //import { PlaywrightHomePage } from '@pages/example-poms/PlaywrightHomePage.ts';
-import { TopNavigationMenuComponent } from '@pages/example-poms/TopNavigationMenuComponent.ts';
+import { TopNavigationMenuComponent } from '@pages/examples/TopNavigationMenuComponent.ts';
 import { expect, test } from '@fixtures/base.ts';
 import { mockRequest, unmockRequest } from '@api/apiMocking.ts';
-import { HomePage } from '@pages/example-poms/HomePage.ts';
-import { ResourcesPage } from '@pages/example-poms/ResourcesPage.ts';
-import { TextInputPage } from '@pages/example-poms/TextInputPage.ts';
-import { AjaxDataPage } from '@pages/example-poms/AjaxDataPage.ts';
+import { HomePage } from '@pages/examples/HomePage.ts';
+import { ResourcesPage } from '@pages/examples/ResourcesPage.ts';
+import { TextInputPage } from '@pages/examples/TextInputPage.ts';
+import { AjaxDataPage } from '@pages/examples/AjaxDataPage.ts';
+import { Logger } from '@utils/logger.ts';
 
 /**
  * Examples for the `@Retry` method decorator.
@@ -134,7 +135,9 @@ test.describe('Component and Page Object Models', { tag: [TAG.UI] }, async () =>
 
         // verify that the asynchronously loaded data is correct
         await test.step('Button text should change', async () => {
-            await expect(ajaxDataPage.ajaxDataContents).toHaveText('Data loaded with AJAX get request.');
+            await expect(ajaxDataPage.ajaxDataContents).toHaveText(
+                'Data loaded with AJAX get request.'
+            );
         });
     });
 });
@@ -161,6 +164,8 @@ test.describe(
 
             /** Navigate back and forth between two pages to trigger the 'failed' network requests */
             for (const i of Array(3)) {
+                Logger.debug(`Click iteration ${i}`);
+
                 await test.step('Navigate to the Resources page via Top nav menu', async () => {
                     await topMenu.clickMenuOption('Resources');
                 });

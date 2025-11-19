@@ -39,7 +39,7 @@ export abstract class APIHelpers {
         config?: object
     ): Promise<Response<T>> {
         // get the endpoint
-        const ENDPOINT:RouteDetails = this.getEndpoint('get', alias);
+        const ENDPOINT: RouteDetails = this.getEndpoint('get', alias);
         // ensure the parameters that were passed match what's expected
         this.verifyInterpolationCount(ENDPOINT.route, values);
 
@@ -52,7 +52,7 @@ export abstract class APIHelpers {
         const duration = performance.now() - start;
 
         // parse the body (handle the error if it's not a parseable json)
-        const body:T = await this.parseResponseBody<T>(response, ENDPOINT);
+        const body: T = await this.parseResponseBody<T>(response, ENDPOINT);
 
         // return the response and the body
         return { response, body, duration, expectedSchema: ENDPOINT.schema };
@@ -81,14 +81,16 @@ export abstract class APIHelpers {
 
         const start = performance.now();
         const response: APIResponse = await request.post(
-            `${this.BASE_URL}${vsprintf(ENDPOINT.route, values)}`, {
-            data,
-            ...this.getConfig(ENDPOINT.config, config),
-        });
+            `${this.BASE_URL}${vsprintf(ENDPOINT.route, values)}`,
+            {
+                data,
+                ...this.getConfig(ENDPOINT.config, config),
+            }
+        );
         const duration = performance.now() - start;
 
         // parse the body (handle the error if it's not a parseable json)
-        const body:T = await this.parseResponseBody<T>(response, ENDPOINT);
+        const body: T = await this.parseResponseBody<T>(response, ENDPOINT);
 
         // return the response and the body
         return { response, body, duration, expectedSchema: ENDPOINT.schema };
@@ -194,30 +196,34 @@ export abstract class APIHelpers {
         return obj;
     }
 
-    /** 
-     * Parse the response body of the request 
-     * 
+    /**
+     * Parse the response body of the request
+     *
      * @param response APIResponse object from the request
      * @todo Support non-json response parsing (such as xml)
-    */
-    private static async parseResponseBody<T>(response:APIResponse, endpoint:RouteDetails):Promise<T>{
+     */
+    private static async parseResponseBody<T>(
+        response: APIResponse,
+        endpoint: RouteDetails
+    ): Promise<T> {
         let body: any = {};
-        
+
         // try parsing our request body
         // if it fails, it's not json
         try {
             body = await response.json();
         } catch (e: any) {
-            const errMsg = `Failed to parse response body. It may not be a valid json: ${e.message}\n
+            const errMsg = `Failed to parse response body. It may not be a valid json.\n
+                            Endpoint route: ${endpoint.route}\n
+                            Endpoint description: ${endpoint.description}\n
                             Response URL: ${response.url()}\n                
                             Response code: ${response.status()}\n
-                            Response body: ${response.status() !== 404 ? await response.body() : '...Resource not found...'}
-                            `
-            
-            Logger.error(errMsg);
+                            Response body: ${response.status() !== 404 ? await response.body() : '...Resource not found...'}\n`;
+
+            Logger.error(errMsg, e.message);
             throw new Error(errMsg);
         }
-        
+
         return body as T;
     }
 }

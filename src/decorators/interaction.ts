@@ -1,9 +1,8 @@
-// decorators/Interaction.ts
 import { logInteraction } from '@utils/reporters/heatmap/interactionLogger.ts';
 import { screenshotTracker, takeHeatmapScreenshot } from '@utils/screenshot.ts';
 import { config } from '@config';
-import { InteractionType } from './interaction.t.ts';
 import { Locator } from '@playwright/test';
+import { InteractionType } from '@utils/reporters/heatmap/heatmap.t.ts';
 
 /**
  * Decorator that tracks interactions with locators from the BaseLocator class
@@ -29,8 +28,7 @@ export function Interaction(type: InteractionType) {
             // let's capture our locator's bounding box (or null if it's not visible)
             const targetLocator = args[0] as Locator;
             let boundingBox = null;
-            if ( await targetLocator.isVisible() )
-                boundingBox = await targetLocator.boundingBox();
+            if (await targetLocator.isVisible()) boundingBox = await targetLocator.boundingBox();
 
             // we need to take our screenshot before we perform our action on the page
             if (config.RUN_HEATMAP_REPORT) {

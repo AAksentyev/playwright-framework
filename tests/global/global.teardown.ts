@@ -5,7 +5,7 @@ import { generateHeatmaps } from '@utils/reporters/heatmap/generateHeatmaps.ts';
 import { NetworkReportGenerator } from '@utils/reporters/network-monitor/generateNetworkReport.ts';
 import { aggregateWorkerNetworkLogs } from '@utils/reporters/network-monitor/monitor.ts';
 
-teardown('Running global teardown....', async ({ page }) => {
+teardown('Running global teardown....', async () => {
     /** Aggregate all of the passively tracked network traffic and generate report */
     aggregateWorkerNetworkLogs();
     new NetworkReportGenerator().generate();
