@@ -1,5 +1,7 @@
 export type RequestType = 'get' | 'post' | 'patch' | 'delete';
 
+export type ParamValues = (string | number)[];
+
 /**
  * Details for a specific API route.
  */

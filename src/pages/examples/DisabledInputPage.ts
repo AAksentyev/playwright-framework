@@ -1,5 +1,7 @@
 import { expect, Page } from '@playwright/test';
 import { BasePage } from '@pages/base/BasePage.ts';
+import { Retry } from '@decorators/actionRetry.ts';
+import { Logger } from '@utils/logger.ts';
 
 /**
  * Example Page Object Model with disabled input
@@ -56,5 +58,22 @@ export class DisabledInputPage extends BasePage {
      */
     public async fillTextbox(value:string, waitTime:number=6000) {
         await this.safeFill(this.textFieldLocator, value, waitTime);
+    }
+
+
+    /**
+     * An example of fillTextbox with Retry decorator that will succeed
+     * after several attempts
+     * @param value 
+     */
+    @Retry({
+        attempts: 3,
+        delay: 2000,
+        onRetry(error, attempt) {
+            Logger.warn(`Attempting to fill a disabled textbox. Attempt ${attempt} of 3`)
+        },
+    })
+    public async fillTextboxWithRetry(value:string) {
+        await this.safeFill(this.textFieldLocator, value, 2000);
     }
 }

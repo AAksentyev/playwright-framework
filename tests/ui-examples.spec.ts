@@ -245,4 +245,25 @@ test.describe('Demo of disabled input handling', { tag: [TAG.UI] }, async () => 
             await disabledInputPage.fillTextbox('test value');
         });
     });
+
+
+    test('Attempt to fill a disabled field with a retry decordator', async ({ page }) => {
+        const disabledInputPage = new DisabledInputPage(page);
+        // navigate to the URL defined in the POM
+        await test.step('Navigate to the page', async () => {
+            await disabledInputPage.navigateToByUrl();
+        });
+
+        await test.step('click the button to disable the input textbox', async () => {
+            await disabledInputPage.disableTextbox();
+        });
+
+        // fill the textbox after waiting for it to be enabled again
+        await test.step('Fill the textbox after it becomes enabled', async () => {
+            Logger.info(`This fill function will be retried several times and 
+                        should result in a successful test since the field will become 
+                        enabled between retry attempts`);
+            await disabledInputPage.fillTextboxWithRetry('test value');
+        });
+    });
 });

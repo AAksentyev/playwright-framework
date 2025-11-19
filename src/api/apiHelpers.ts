@@ -3,7 +3,7 @@ import { vsprintf } from 'sprintf-js';
 import { config } from '@config';
 import { Logger } from '@utils/logger.ts';
 import { APIRetry } from '@decorators/apiRetry.ts';
-import { RequestType, RouteDetails } from '@configs/api/api.t.ts';
+import { ParamValues, RequestType, RouteDetails } from '@configs/api/api.t.ts';
 import { API_ENDPOINTS, GetEndpointKeys, PostEndpointKeys } from '@configs/api/api.routes.ts';
 
 export interface Response<T> {
@@ -35,7 +35,7 @@ export abstract class APIHelpers {
     protected static async doGetData<T>(
         request: APIRequestContext,
         alias: GetEndpointKeys,
-        values: any[] = [],
+        values: ParamValues = [],
         config?: object
     ): Promise<Response<T>> {
         // get the endpoint
@@ -72,7 +72,7 @@ export abstract class APIHelpers {
     protected static async doPostData<T>(
         request: APIRequestContext,
         alias: PostEndpointKeys,
-        values: any[] = [],
+        values: ParamValues = [],
         data?: any | {},
         config?: object
     ): Promise<Response<T>> {
@@ -159,8 +159,8 @@ export abstract class APIHelpers {
      */
     private static verifyInterpolationCount(
         route: string,
-        values: any[],
-        specifiers = ['d', 's', 'f']
+        values: ParamValues,
+        specifiers = ['d', 's']
     ): void {
         const regex = new RegExp(`%[${specifiers.join('')}]`, 'g');
         const expectedNumParams = (route.match(regex) || []).length;
