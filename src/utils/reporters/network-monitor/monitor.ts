@@ -21,7 +21,7 @@ const testStats: RequestMap = new Map<string, RequestStats>();
 // key = url, value = cumulative stats for that url
 const requestTracker: RequestMap = new Map<string, RequestStats>();
 
-export function monitorTestTraffic(page: Page, testInfo: TestInfo) {
+export function monitorTraffic(page: Page, testInfo: TestInfo) {
     page.on('response', (response) => {
         const url = response.url();
         const responseCode = response.status();
@@ -60,7 +60,7 @@ export function monitorTestTraffic(page: Page, testInfo: TestInfo) {
  *
  * @param testInfo
  */
-export async function handleTestResults(testInfo: TestInfo) {
+export async function handleTrafficResults(testInfo: TestInfo) {
     // check if we have any failures during the test and attach the report to the test
     const failedStatsObj = Object.fromEntries(
         [...testStats.entries()].filter(([_, stats]) => stats.fail > 0)

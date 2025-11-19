@@ -1,23 +1,27 @@
 import { config } from '@config';
-import { SCREENSHOT_NAME, SCREENSHOT_PATH } from '@configs/reports/reporters.config.ts';
 import { doFreshLoginAndSave } from '@helpers/auth/sessionHelpers.ts';
 import { getSessionManager } from '@helpers/auth/SessionManagerProvider.ts';
+import { handleTestIfFailed } from '@helpers/tests/testHelpers.ts';
 import { expect, Page, test as base, WorkerInfo } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { saveInteractionsToDisk } from '@utils/reporters/heatmap/interactionLogger.ts';
 import {
-    monitorTestTraffic,
-    handleTestResults,
+    monitorTraffic,
+    handleTrafficResults,
     saveWorkerTraffic,
 } from '@utils/reporters/network-monitor/monitor.ts';
-import path from 'path';
-import { sprintf } from 'sprintf-js';
 
 type BaseFixture = {
-    testMonitor: Page; // monitor all network traffic during page interaction
-    handleAuth: Page; // monitor all network traffic during page interaction
-    networkWorkerTeardown: any; // worker-scoped fixture
-    ignoreNetworkErrors: boolean; // optionally configure tests to skip tracking network error
+    testMonitor: Page; // handle any test-level monitoring and test teardown
+    handleAuth: Page; // handle session and session restoration from sessionStorage as needed
+    workerTeardown: any; // worker-scoped fixture to tear down and compile any worker data
+
+    /** optionally configure tests to skip tracking network error
+     * use as test.use({ ignoreNetworkErrors: true })
+     * useful when you're testing negative page actions and you are EXPECTING >=400 response from the server
+     * and don't necessarily want it included in test monitoring logs
+    */
+    ignoreNetworkErrors: boolean; 
 };
 
 /**
@@ -25,10 +29,12 @@ type BaseFixture = {
  */
 export const test = base.extend<BaseFixture>({
     ignoreNetworkErrors: [false, { option: true }],
-    // handle worker teardown
-    networkWorkerTeardown: [
+    
+    /** worker-level teardown activities 
+     * Handle
+    */
+    workerTeardown: [
         async ({ }, use: (value: void) => Promise<void>, workerInfo: WorkerInfo) => {
-            const username = config.SITE_USERNAME;
 
             // nothing to pass into tests
             await use(undefined);
@@ -38,44 +44,42 @@ export const test = base.extend<BaseFixture>({
             saveWorkerTraffic(workerInfo.workerIndex);
             saveInteractionsToDisk(workerInfo.workerIndex);
         },
-        { scope: 'worker' },
+        { auto: true, scope: 'worker' },
     ],
-    // monitor all network during page interaction and compile the test data
-    testMonitor: async ({ page, networkWorkerTeardown, ignoreNetworkErrors }, use, testInfo) => {
-        if (!ignoreNetworkErrors) monitorTestTraffic(page, testInfo);
+    /**
+     * monitor all network during page interaction and compile the test data
+     * also handle any specific test-level activities (such as handling failed tests)
+     */
+    testMonitor: async ({ page, ignoreNetworkErrors }, use, testInfo) => {
+        /** always monitor our test traffic unless user explicitly toggled it off */
+        if (!ignoreNetworkErrors) monitorTraffic(page, testInfo);
 
         await use(page);
 
-        // if the test failed or timed out, take a screenshot if we have a page instance
-        const normalizedTest = testInfo.title.replace(/\s+/g, '_');
-        Logger.info(`${testInfo.title} ----> ${testInfo.status}`);
-        if (testInfo.status === 'failed' || testInfo.status === 'timedOut') {
-            if ( ! page ){
-                Logger.info('No Page instance found. Skipping screenshot')
-                return;
-            }  
+        /** Once the test concludes handle our results */
+        /** if it failed, take a screenshot and attach it to the test */
+        await handleTestIfFailed(page, testInfo);
 
-            // join our path a interpolated screenshot name
-            const screenshotPath = path.join(SCREENSHOT_PATH, sprintf(SCREENSHOT_NAME, testInfo.retry, normalizedTest ))
-            const ss = await page.screenshot({
-                path: screenshotPath,
-                fullPage: true,
-            });
-
-            await testInfo.attach('screenshot', { body: ss, contentType: 'image/png' });
-        }
-
-        if (!ignoreNetworkErrors) handleTestResults(testInfo);
+        // handle our network traffic results if not ignored
+        if (!ignoreNetworkErrors) handleTrafficResults(testInfo);
         
     },
-    // handle session authentication and restoration for   
-    // authenticated projects
+    /**
+    * handle session authentication and restoration for authenticated projects
+    * this fixture will run for every test.
+    * 
+    * We inject 'testMonitor' fixture here as the dependency to ensure every test
+    * has the network traffic monitoring set up since this fixture will always run
+    * automatically 
+    */
     handleAuth: [
         async ({ testMonitor, context, page }, use, testInfo) => {
             
             // Pull authenticated flag from project options
             const authenticated = testInfo.project.use.authenticated ?? false;
 
+            // only run our authentication logic if we have the authenticated flag set for the project
+            // this logic can be changed to use any other criteria you want to use if not using a project-based flag
             if (authenticated) {
 
                 // get our session manager instance for the worker from the provider
@@ -90,17 +94,23 @@ export const test = base.extend<BaseFixture>({
                 // Check if we even have a valid stored session
                 const isValid = await sessionManager.validateSession(username);
 
+                // if the saved session is not valid, re-log in and save the new session
+                // all login steps are handled in the helper file
                 if (!isValid) {
                     Logger.info("No valid stored session found. Performing login...");
                     await doFreshLoginAndSave(sessionManager, context, page, username, password);
                 } else {
-                    // We have a valid session → attempt restore
+                    // We have a valid session. Attempt to restore
                     const restored = await sessionManager.restoreSession(context, username);
 
+                    // if there was some issue with restoration, re-log in and get a new session
                     if (!restored) {
                         Logger.warn("Stored session was expected to be valid but restore failed. Logging in instead...");
                         await doFreshLoginAndSave(sessionManager, context, page, username, password);
-                    } else {
+                    } 
+                    // otherwise we have nothing left to do but proceed with our test.
+                    // the helper restored sessionStorage to our current browser context
+                    else {
                         Logger.info("Session restored from worker storage.");
                     }
                 }
