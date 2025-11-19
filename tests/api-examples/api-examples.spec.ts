@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '@fixtures/base.ts';
 import { assertSchema, validateSchema } from '@api/schemaValidator.ts';
 import { TAG } from '@constants/tags.ts';
 import { API } from '@api/apiRequests.ts';

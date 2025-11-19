@@ -9,7 +9,8 @@ type AvailableLinks =
     | 'Click'
     | 'Text Input'
     | 'Load Delay'
-    | 'Mouse Over';
+    | 'Mouse Over'
+    | 'Sample App';
 /**
  * Example Page Object Model using the Playwright site
  * Provides examples on how to implement base classes and decorators

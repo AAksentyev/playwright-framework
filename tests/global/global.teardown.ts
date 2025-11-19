@@ -1,4 +1,5 @@
 import { config } from '@config';
+import { cleanUpTestArtifacts } from '@helpers/auth/sessionHelpers.ts';
 import { test as teardown } from '@playwright/test';
 import { generateHeatmaps } from '@utils/reporters/heatmap/generateHeatmaps.ts';
 import { NetworkReportGenerator } from '@utils/reporters/network-monitor/generateNetworkReport.ts';
@@ -11,4 +12,7 @@ teardown('Running global teardown....', async ({ page }) => {
 
     /** Generate the heatmap report if it was toggled on */
     if (config.RUN_HEATMAP_REPORT) await generateHeatmaps();
+
+    // clean up our artifacts from the run
+    cleanUpTestArtifacts();
 });

@@ -1,12 +1,15 @@
-import { BrowserContext, Page } from '@playwright/test';
+import { BrowserContext, Page, WorkerInfo } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import {
     SESSION_CHECK_INTERVAL_MS,
     SESSION_LIFETIME_MS,
     SESSION_STORAGE_FILE,
+    ARTIFACTS_PATH,
 } from '@configs/auth/session.ts';
 import { hasCookie, setCookies } from './cookieHelper.js';
 import fs from 'fs';
+import { sprintf } from 'sprintf-js';
+import path from 'path';
 
 /** User session information */
 interface SessionState {
@@ -35,15 +38,18 @@ interface MultiUserStorage {
 export class SessionManager {
     private static readonly SESSION_CHECK_INTERVAL = SESSION_CHECK_INTERVAL_MS; // 5 minutes
     private static readonly SESSION_LIFETIME = SESSION_LIFETIME_MS; // 55 minutes (refresh before 1 hour expiry)
-
+    
+    private readonly WORKER_SESSION_STORAGE_FILE:string;
+    
     /** Stores multiple user sessions keyed by username */
     private sessions: Record<string, SessionState> = {};
-
+    
     constructor(
-        private readonly context: BrowserContext,
-        private readonly page: Page
+        //private readonly context: BrowserContext,
+        private readonly workerIndex: number
     ) {
         this.validateClassCanBeUsed();
+        this.WORKER_SESSION_STORAGE_FILE = path.join(ARTIFACTS_PATH, sprintf(SESSION_STORAGE_FILE, this.workerIndex));
     }
 
     /**
@@ -100,7 +106,11 @@ export class SessionManager {
             return false;
         }
 
+        // let's ensure, as a final step, that we have a valid session saved
+        if (!this.isStoredSessionValid(username)) return false;
+
         /** VALIDATION LOGIC TO CHECK IF OUR SESSION IS STILL VALID REGARDLESS OF WHETHER WE HIT THE REFRESH BUFFER */
+        
         // Cookie check - verify session cookie exists
         /*const hasCookieResult = await hasCookie(this.context, config.SESSION_COOKIE_NAME);
         if (!hasCookieResult) {
@@ -126,7 +136,7 @@ export class SessionManager {
             Logger.info(`Session cleared for user: ${username}`);
         } else {
             this.sessions = {};
-            if (fs.existsSync(SESSION_STORAGE_FILE)) fs.unlinkSync(SESSION_STORAGE_FILE);
+            if (fs.existsSync(this.WORKER_SESSION_STORAGE_FILE)) fs.unlinkSync(this.WORKER_SESSION_STORAGE_FILE);
             Logger.info('All sessions cleared');
         }
     }
@@ -146,8 +156,8 @@ export class SessionManager {
     /** Read all persisted sessions from storageState.json */
     private readStorage(): MultiUserStorage {
         try {
-            if (!fs.existsSync(SESSION_STORAGE_FILE)) return {};
-            return JSON.parse(fs.readFileSync(SESSION_STORAGE_FILE, 'utf-8')) as MultiUserStorage;
+            if (!fs.existsSync(this.WORKER_SESSION_STORAGE_FILE)) return {};
+            return JSON.parse(fs.readFileSync(this.WORKER_SESSION_STORAGE_FILE, 'utf-8')) as MultiUserStorage;
         } catch {
             return {};
         }
@@ -155,7 +165,10 @@ export class SessionManager {
 
     /** Write all persisted sessions to storageState.json */
     private writeStorage(data: MultiUserStorage) {
-        fs.writeFileSync(SESSION_STORAGE_FILE, JSON.stringify(data, null, 2));
+        if (! fs.existsSync(ARTIFACTS_PATH))
+            fs.mkdirSync(ARTIFACTS_PATH, {recursive: true});
+
+        fs.writeFileSync(this.WORKER_SESSION_STORAGE_FILE, JSON.stringify(data, null, 2));
     }
 
     /** Remove a stored session for a username */
@@ -166,7 +179,7 @@ export class SessionManager {
     }
 
     /** Check if a stored session exists and is valid for a username */
-    public isStoredSessionValid(username: string): boolean {
+    private isStoredSessionValid(username: string): boolean {
         const all = this.readStorage();
         const state = all[username];
         if (!state?.timestamp || !state.cookies?.length) return false;
@@ -179,9 +192,7 @@ export class SessionManager {
      * Restore a session from storage for a given username
      * @param username
      */
-    public async restoreSession(username: string): Promise<boolean> {
-        // if the session valid, return false so we proceed with regular login
-        if (!this.isStoredSessionValid(username)) return false;
+    public async restoreSession(context: BrowserContext, username: string): Promise<boolean> {
 
         // read from our storage and set the cookies to context
         const all = this.readStorage();
@@ -189,7 +200,7 @@ export class SessionManager {
         if (!state) return false;
 
         // set our cookies to the browser context
-        await setCookies(this.context, state.cookies);
+        await setCookies(context, state.cookies);
 
         // update the in-memory session
         this.initializeSession(username);
@@ -201,9 +212,9 @@ export class SessionManager {
      * Save a session to storage for a given username
      * @param username
      */
-    public async saveSession(username: string): Promise<void> {
+    public async saveSession(context: BrowserContext, username: string): Promise<void> {
         // get our state from the browser context
-        const state = await this.context.storageState();
+        const state = await context.storageState();
         // add a timestamp to our storage state. This will allow us keep track of the session age
         // and track session refreshes
         const stateWithTimestamp: StorageState = { ...state, timestamp: Date.now() };

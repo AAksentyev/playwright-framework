@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
+import os from 'node:os';
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -25,14 +27,14 @@ export default defineConfig({
     reporter: [
         ['line'],
         ['junit', { outputFile: `results-${process.env.PW_TAG || 'all'}.xml` }], // for TeamCity
-        [
+        /*[
             'html',
             {
                 outputFolder: `playwright-reports/playwright-report-${process.env.PW_TAG || 'all'}`,
                 open: 'never',
             },
-        ], // optional artifact
-        /*[
+        ],*/ // optional artifact
+        [
             'allure-playwright',
             {
                 environmentInfo: {
@@ -42,7 +44,7 @@ export default defineConfig({
                     node_version: process.version
                 }
             }
-        ]*/
+        ]
     ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
@@ -55,6 +57,7 @@ export default defineConfig({
 
     /* Configure projects for major browsers */
     projects: [
+        /** global setup + teardown projects to be used as dependencies */
         {
             name: 'setUp',
             testMatch: /global\.setup\.ts/,
@@ -64,11 +67,36 @@ export default defineConfig({
             name: 'tearDown',
             testMatch: /global\.teardown\.ts/,
         },
+
+        /** 
+         * Since we're not defining 'authenticated' here 
+         * unlike in 'authenticatedChromium', the base fixture will not
+         * bother restoring or setting up the session
+        */
         {
-            name: 'chromium',
+            name: 'unauthenticatedChromium',
             use: { ...devices['Desktop Chrome'] },
             dependencies: ['setUp'],
         },
+        
+        /** A project to run any authenticated tests that require a session
+         * the authenticated: true flag will trigger the base fixture
+         * to either set up a new session if a valid one does not exist
+         * or restore the existing session
+         */
+        {
+            name: 'authenticatedChromium',
+            use: { 
+                ...devices['Desktop Chrome'],
+                // we have this custom option defined in src/global/playwright.custom.d.ts
+                // it is now accessible in every test to see if we're running an authenticated project
+                authenticated: true 
+            },
+            testMatch: ['tests/authenticated-example/**/*.spec.ts'],
+            dependencies: ['setUp'],
+        },
+
+
 
         /*{
             name: 'firefox',

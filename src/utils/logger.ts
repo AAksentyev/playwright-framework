@@ -1,6 +1,6 @@
+import { config } from '@config';
 import { vsprintf } from 'sprintf-js';
 
-const DEBUG_ENABLED = 'true' === 'true'; //if ( process.env.DEBUG_MODE === "true" )
 /**
  * Log message format template
  * format: ICON [LEVEL] TIMESTAMP - MESSAGE
@@ -75,7 +75,7 @@ export const Logger = {
         console.info(formatLog('INFO', msg, ...args));
     },
     debug: async (msg: string, ...args: any[]) => {
-        if (DEBUG_ENABLED) console.debug(formatLog('DEBUG', msg, ...args));
+        if (config.DEBUG_MODE) console.debug(formatLog('DEBUG', msg, ...args));
     },
     error: async (msg: string, ...args: any[]) => {
         console.error(formatLog('ERROR', msg, ...args));
