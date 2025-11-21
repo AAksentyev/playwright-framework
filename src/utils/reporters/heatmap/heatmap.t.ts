@@ -34,3 +34,9 @@ export interface ScreenshotTracker {
         y: number;
     };
 }
+
+export type HeatmapPoints = {
+    x: number;
+    y: number;
+    value: number;
+};

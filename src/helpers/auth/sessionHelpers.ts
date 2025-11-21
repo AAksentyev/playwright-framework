@@ -1,9 +1,7 @@
-import fs from 'fs';
 import { BrowserContext, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { SessionManager } from './SessionManager.ts';
 import { LoginPage } from '@pages/examples/LoginPage.ts';
-import { ARTIFACTS_PATH } from '@configs/auth/session.ts';
 
 /**
  * Perform login actions (or API call) to start a new authenticated session
@@ -44,13 +42,4 @@ export async function tearDownSessionAndClear(
     // clear the saved session for this username from the session manager
     sessionManager.clearSession(username);
     Logger.info('Session cleared');
-}
-
-/**
- * Clean up the artifacts folder so all the saved sessions are deleted.
- * This is called in global.teardown.ts
- */
-export function cleanUpTestArtifacts() {
-    Logger.info('Cleaning up generated artifacts...');
-    if (fs.existsSync(ARTIFACTS_PATH)) fs.rmSync(ARTIFACTS_PATH, { recursive: true });
 }

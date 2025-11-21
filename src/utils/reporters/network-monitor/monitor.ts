@@ -1,9 +1,9 @@
-import { TRAFFIC_CONFIG } from '@configs/reports/reporters.config.ts';
-import { Page, TestInfo } from '@playwright/test';
-import fs from 'fs';
 import path from 'path';
-import { RequestMap, RequestStats } from './monitor.t.ts';
+import { Page, TestInfo } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
+import { TRAFFIC_CONFIG } from '@configs/reports/reporters.config.ts';
+import { RequestMap, RequestStats } from './monitor.t.ts';
+import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 // track requests per test with a simple array
 const testStats: RequestMap = new Map<string, RequestStats>();
@@ -12,8 +12,12 @@ const testStats: RequestMap = new Map<string, RequestStats>();
 // key = url, value = cumulative stats for that url
 const requestTracker: RequestMap = new Map<string, RequestStats>();
 
+/**
+ * Monitor network traffic for a single test
+ * Registers a listener on the page to track all responses
+ */
 export function monitorTraffic(page: Page, testInfo: TestInfo) {
-    page.on('response', (response) => {
+    page.on('response', async (response) => {
         const url = response.url();
         const responseCode = response.status();
 
@@ -36,7 +40,6 @@ export function monitorTraffic(page: Page, testInfo: TestInfo) {
         }
 
         // if the response code is 400+, consider this a failure and increment accordingly
-        // with the data as needed
         if (responseCode >= 400) {
             stats.fail++;
             stats.failures.push({ testName: testInfo.title, responseCode });
@@ -52,8 +55,6 @@ export function monitorTraffic(page: Page, testInfo: TestInfo) {
  * to the test.
  *
  * It then merges all the traffic data into the worker tracker for later aggregation
- *
- * @param testInfo
  */
 export async function handleTrafficResults(testInfo: TestInfo) {
     // check if we have any failures during the test and attach the report to the test
@@ -78,17 +79,17 @@ export async function handleTrafficResults(testInfo: TestInfo) {
  * @param workerIndex
  */
 export function saveWorkerTraffic(workerIndex: number) {
-    // create the directory if it doesn't exiset
-    if (!fs.existsSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH))
-        fs.mkdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
+    // create the directory if it doesn't exist
+    FSHelpers.createPathSafe(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH);
 
-    // serialize the map so it can be saved as json
+    // serialize the map so it can be saved as JSON
     const serialized = Object.fromEntries(requestTracker.entries());
 
     // save the file
-    fs.writeFileSync(
+    FSHelpers.writeTextFileSafe(
         path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}.json`),
-        JSON.stringify(serialized, null, 2)
+        serialized,
+        'json'
     );
 }
 
@@ -99,7 +100,7 @@ function mergeTestIntoWorker() {
     for (const [url, tStats] of testStats) {
         let wStats = requestTracker.get(url);
 
-        // set the stats for the URL if it doesn't exist increment accordingly
+        // set the stats for the URL if it doesn't exist, increment accordingly
         if (!wStats) {
             // clone the object so we don't share references
             wStats = {
@@ -153,26 +154,31 @@ function mergeRequestMaps(maps: RequestMap[]): RequestMap {
  */
 export function aggregateWorkerNetworkLogs() {
     Logger.info('... Aggregating network traffic logs ...');
+
     // collect the list of files we'll be working with
-    const files = fs
-        .readdirSync(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH)
-        .filter((f) => f.startsWith('worker-') && f.endsWith('.json'));
+    const files = FSHelpers.readDirSafe(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH).filter(
+        (f) => f.startsWith('worker-') && f.endsWith('.json')
+    );
 
     // read every worker file we have and convert the contents of the file to a map
     const allMaps: RequestMap[] = files.map((file) => {
-        const raw = fs.readFileSync(path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, file), 'utf-8');
-        const obj = JSON.parse(raw) as Record<string, RequestStats>;
+        const obj = JSON.parse(
+            FSHelpers.readFileSafe(path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, file))
+        ) as Record<string, RequestStats>;
         // delete the file after reading it. Since we're aggregating them all, we don't need it
-        fs.unlinkSync(path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, file));
+        FSHelpers.deleteFileSafe(path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, file));
         return new Map(Object.entries(obj)); // convert to Map and return
     });
 
     // merge our maps into a single aggregated map
     const mergedMap = mergeRequestMaps(allMaps);
+
     // write the merged file to disk after serializing the Map back to an Object
-    fs.writeFileSync(
+    FSHelpers.writeTextFileSafe(
         path.join(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH, TRAFFIC_CONFIG.JSON_OUTPUT_NAME),
-        JSON.stringify(Object.fromEntries(mergedMap.entries()), null, 2)
+        Object.fromEntries(mergedMap.entries()),
+        'json'
     );
+
     Logger.success('... Network logs aggregated ...');
 }

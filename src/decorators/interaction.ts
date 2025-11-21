@@ -25,10 +25,11 @@ export function Interaction(type: InteractionType) {
         const originalMethod = target;
 
         return async function replacementMethod(this: any, ...args: any[]) {
-            
             // verify that the first argument of the decorated method is Locator
-            if (! isLocator(args[0]) ){
-                throw new Error('First argument of the method decorated with @Interaction must be a Locator');
+            if (!isLocator(args[0])) {
+                throw new Error(
+                    'First argument of the method decorated with @Interaction must be a Locator'
+                );
             }
 
             const targetLocator = args[0] as Locator;
@@ -67,8 +68,8 @@ export function Interaction(type: InteractionType) {
 
 /**
  * Verify that a given object is a Locator type
- * @param obj 
- * @returns 
+ * @param obj
+ * @returns
  */
 function isLocator(obj: any): boolean {
     return obj && typeof obj === 'object' && 'click' in obj && 'fill' in obj;

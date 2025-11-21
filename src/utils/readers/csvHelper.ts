@@ -1,6 +1,6 @@
-import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
+import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 /**
  * Helper function to parse a CSV file and return it as array of T
@@ -40,10 +40,9 @@ export function readCSV<T extends Record<string, any>>(
 ): T[] {
     // read the csv file
     const absPath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath);
-    const fileContent = fs.readFileSync(absPath, 'utf-8');
 
     // parse our csv contents
-    const records: T[] = parse(fileContent, {
+    const records: T[] = parse(FSHelpers.readFileSafe(absPath), {
         columns: true, // use first row as headers
         skip_empty_lines: true,
         trim: true,

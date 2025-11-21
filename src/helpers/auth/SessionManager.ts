@@ -1,4 +1,3 @@
-import fs from 'fs';
 import path from 'path';
 import { sprintf } from 'sprintf-js';
 import { setCookies } from './cookieHelper.js';
@@ -10,6 +9,7 @@ import {
     SESSION_STORAGE_FILE,
     ARTIFACTS_PATH,
 } from '@configs/auth/session.ts';
+import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 /** User session information */
 interface SessionState {
@@ -128,8 +128,7 @@ export class SessionManager {
             Logger.info(`Session cleared for user: ${username}`);
         } else {
             this.sessions = {};
-            if (fs.existsSync(this.WORKER_SESSION_STORAGE_FILE))
-                fs.unlinkSync(this.WORKER_SESSION_STORAGE_FILE);
+            FSHelpers.deleteFileSafe(this.WORKER_SESSION_STORAGE_FILE);
             Logger.info('All sessions cleared');
         }
     }
@@ -149,10 +148,8 @@ export class SessionManager {
     /** Read all persisted sessions from storageState.json */
     private readStorage(): MultiUserStorage {
         try {
-            if (!fs.existsSync(this.WORKER_SESSION_STORAGE_FILE)) return {};
-            return JSON.parse(
-                fs.readFileSync(this.WORKER_SESSION_STORAGE_FILE, 'utf-8')
-            ) as MultiUserStorage;
+            if (! FSHelpers.pathExists(this.WORKER_SESSION_STORAGE_FILE)) return {};
+            return JSON.parse(FSHelpers.readFileSafe(this.WORKER_SESSION_STORAGE_FILE)) as MultiUserStorage;
         } catch {
             return {};
         }
@@ -160,9 +157,8 @@ export class SessionManager {
 
     /** Write all persisted sessions to storageState.json */
     private writeStorage(data: MultiUserStorage) {
-        if (!fs.existsSync(ARTIFACTS_PATH)) fs.mkdirSync(ARTIFACTS_PATH, { recursive: true });
-
-        fs.writeFileSync(this.WORKER_SESSION_STORAGE_FILE, JSON.stringify(data, null, 2));
+        FSHelpers.createPathSafe(ARTIFACTS_PATH);
+        FSHelpers.writeTextFileSafe(this.WORKER_SESSION_STORAGE_FILE, data, 'json');
     }
 
     /** Remove a stored session for a username */

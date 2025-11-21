@@ -1,18 +1,9 @@
+import { ARTIFACTS_PATH } from '@configs/auth/session.ts';
 import { test as teardown } from '@playwright/test';
-import { config } from '@config';
-import { cleanUpTestArtifacts } from '@helpers/auth/sessionHelpers.ts';
-import { generateHeatmaps } from '@utils/reporters/heatmap/generateHeatmaps.ts';
-import { NetworkReportGenerator } from '@utils/reporters/network-monitor/generateNetworkReport.ts';
-import { aggregateWorkerNetworkLogs } from '@utils/reporters/network-monitor/monitor.ts';
+import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 teardown('Running global teardown....', async () => {
-    /** Aggregate all of the passively tracked network traffic and generate report */
-    aggregateWorkerNetworkLogs();
-    new NetworkReportGenerator().generate();
-
-    /** Generate the heatmap report if it was toggled on */
-    if (config.RUN_HEATMAP_REPORT) await generateHeatmaps();
-
+    const pathsToDelete: string[] = [ARTIFACTS_PATH];
     // clean up our artifacts from the run
-    cleanUpTestArtifacts();
+    FSHelpers.cleanUpFolders(pathsToDelete);
 });

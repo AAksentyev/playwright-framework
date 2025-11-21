@@ -15,16 +15,17 @@ export default [
                 sourceType: 'module',
             },
             globals: {
-                process: 'readonly', // ✅ mark Node global
-                Buffer: 'readonly',
                 __dirname: 'readonly',
                 __filename: 'readonly',
+                process: 'readonly', // ✅ mark Node global
+                Buffer: 'readonly',
                 console: 'readonly',
                 setTimeout: 'readonly',
                 performance: 'readonly',
                 document: 'readonly',
                 window: 'readonly',
                 URL: 'readonly',
+                BufferEncoding: 'readonly'
             },
         },
         plugins: {
@@ -35,7 +36,7 @@ export default [
         rules: {
             'no-unused-vars': 'off', // prevent conflict with @typescript-eslint/no-unused-vars
             '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-            'prettier/prettier': 'warn',
+            'prettier/prettier': 'warn'
         },
     },
     // ignore compiled and js scripts used for reporting

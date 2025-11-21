@@ -1,15 +1,9 @@
-import fs from 'fs';
 import path from 'path';
 import { TRAFFIC_CONFIG } from '@configs/reports/reporters.config.ts';
 import { fileURLToPath } from 'url';
 import { Logger } from '@utils/logger.ts';
 import { ChartData, NetworkReport, RequestStats } from './monitor.t.ts';
-
-/*
-interface FailureEntry { testName: string; responseCode: number; }
-interface ChartData {urls: string[], successCounts:number[], failCounts:number[]}
-export interface NetworkReportEntry { success: number; fail: number; failures: FailureEntry[]; }
-type NetworkReport = Record<string, NetworkReportEntry>;*/
+import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,18 +16,13 @@ const __dirname = path.dirname(__filename);
 export class NetworkReportGenerator {
     constructor(private outputDir: string = TRAFFIC_CONFIG.REPORT_OUTPUT_PATH) {}
 
-    /** make sure the report directory exists */
-    private ensureDir() {
-        if (!fs.existsSync(this.outputDir)) fs.mkdirSync(this.outputDir, { recursive: true });
-    }
-
     /**
      * Load an HTML template file for interpolation and injection
      * @param file
      * @returns
      */
     private loadTemplate(file: string) {
-        return fs.readFileSync(path.join(__dirname, 'templates', file), 'utf-8');
+        return FSHelpers.readFileSafe(path.join(__dirname, 'templates', file));
     }
 
     /**
@@ -42,7 +31,7 @@ export class NetworkReportGenerator {
      * @returns
      */
     private loadScript(file: string) {
-        return fs.readFileSync(path.join(__dirname, 'scripts', file), 'utf-8');
+        return FSHelpers.readFileSafe(path.join(__dirname, 'scripts', file));
     }
 
     /**
@@ -51,7 +40,7 @@ export class NetworkReportGenerator {
      * @returns
      */
     private loadStyle(file: string) {
-        return fs.readFileSync(path.join(__dirname, 'css', file), 'utf-8');
+        return FSHelpers.readFileSafe(path.join(__dirname, 'css', file));
     }
 
     /**
@@ -184,12 +173,10 @@ export class NetworkReportGenerator {
      * Generate the final network report
      */
     public generate() {
-        this.ensureDir();
-        const raw = fs.readFileSync(
-            path.join(this.outputDir, 'network-traffic-merged.json'),
-            'utf-8'
-        );
-        const report = JSON.parse(raw) as NetworkReport;
+        FSHelpers.createPathSafe(this.outputDir);
+        const report = JSON.parse(
+            FSHelpers.readFileSafe(path.join(this.outputDir, 'network-traffic-merged.json'))
+        ) as NetworkReport;
 
         // transofrm all of the data in our report to be placed in the html report
         const chartData = this.transformForChart(report);
@@ -233,7 +220,8 @@ export class NetworkReportGenerator {
             .replace('{{sortJs}}', sortJs);
 
         // save
-        fs.writeFileSync(path.join(this.outputDir, 'network-report.html'), baseTemplate, 'utf-8');
-        Logger.info(`📊 Network report generated at: ${this.outputDir}`);
+        FSHelpers.writeTextFileSafe(path.join(this.outputDir, 'network-report.html'), baseTemplate, 'text');
+
+        Logger.success(`[Reporter] 📊 Network report generated at: ${this.outputDir}`);
     }
 }
