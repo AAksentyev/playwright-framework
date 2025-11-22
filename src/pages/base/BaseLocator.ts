@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { Interaction } from '@decorators/interaction.ts';
+import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 
 interface ClickOptions {
     button?: 'left' | 'right' | 'middle';
@@ -67,6 +67,7 @@ export abstract class BaseLocator {
         await expect(locator, 'Locator being clicked is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being clicked is not enabled').toBeEnabled({ timeout });
 
+        await locator.scrollIntoViewIfNeeded();
         // perform the click action
         await locator.click(options);
         await this.page.waitForLoadState('networkidle');
@@ -86,6 +87,8 @@ export abstract class BaseLocator {
         await expect(locator, 'Locator being clicked is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being clicked is not enabled').toBeEnabled({ timeout });
 
+        await locator.scrollIntoViewIfNeeded();
+
         // perform the click action
         await locator.dblclick(options);
         await this.page.waitForLoadState('networkidle');
@@ -101,6 +104,8 @@ export abstract class BaseLocator {
         await expect(locator, 'Locator being hovered is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being hovered is not enabled').toBeEnabled({ timeout });
 
+        await locator.scrollIntoViewIfNeeded();
+
         // perform the hover action
         await locator.hover();
     }
@@ -114,6 +119,8 @@ export abstract class BaseLocator {
     protected async safeFill(locator: Locator, value: string, timeout: number = 5000) {
         await expect(locator, 'Locator being filled is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being filled is not enabled').toBeEnabled({ timeout });
+
+        await locator.scrollIntoViewIfNeeded();
 
         // perform the fill action
         await locator.fill(value);
@@ -129,6 +136,8 @@ export abstract class BaseLocator {
         await expect(locator, 'Locator being checked is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being checked is not enabled').toBeEnabled({ timeout });
 
+        await locator.scrollIntoViewIfNeeded();
+
         // perform the check action
         await locator.check();
     }
@@ -142,6 +151,8 @@ export abstract class BaseLocator {
     protected async safeUncheck(locator: Locator, timeout: number = 5000) {
         await expect(locator, 'Locator being checked is not visible').toBeVisible({ timeout });
         await expect(locator, 'Locator being checked is not enabled').toBeEnabled({ timeout });
+
+        await locator.scrollIntoViewIfNeeded();
 
         // perform the check action
         await locator.uncheck();

@@ -7,6 +7,7 @@ import { HomePage } from '@pages/examples/HomePage.ts';
 import { ResourcesPage } from '@pages/examples/ResourcesPage.ts';
 import { TextInputPage } from '@pages/examples/TextInputPage.ts';
 import { AjaxDataPage } from '@pages/examples/AjaxDataPage.ts';
+import { DisabledInputPage } from '@pages/examples/DisabledInputPage.ts';
 
 /**
  * Examples for the `@Retry` method decorator.
@@ -162,7 +163,7 @@ test.describe(
             });
 
             /** Navigate back and forth between two pages to trigger the 'failed' network requests */
-            for (const i of Array(3)) {
+            for (const [i] of Array(3).entries()) {
                 Logger.debug(`Click iteration ${i}`);
 
                 await test.step('Navigate to the Resources page via Top nav menu', async () => {
@@ -207,3 +208,59 @@ test.describe(
         });
     }
 );
+
+test.describe('Demo of disabled input handling', { tag: [TAG.UI] }, async () => {
+    test('Attempt to fill a disabled field (test will fail)', async ({ page }) => {
+        const disabledInputPage = new DisabledInputPage(page);
+        // navigate to the URL defined in the POM
+        await test.step('Navigate to the page', async () => {
+            await disabledInputPage.navigateToByUrl();
+        });
+
+        await test.step('click the button to disable the input textbox', async () => {
+            await disabledInputPage.disableTextbox();
+        });
+
+        // fill the textbox without waiting for it to be enabled again
+        await test.step('Fill the textbox while it is disabled', async () => {
+            await disabledInputPage.fillTextbox('test value', 1000);
+        });
+    });
+
+    test('Attempt to fill a field after waiting for it to be enabled', async ({ page }) => {
+        const disabledInputPage = new DisabledInputPage(page);
+        // navigate to the URL defined in the POM
+        await test.step('Navigate to the page', async () => {
+            await disabledInputPage.navigateToByUrl();
+        });
+
+        await test.step('click the button to disable the input textbox', async () => {
+            await disabledInputPage.disableTextbox();
+        });
+
+        // fill the textbox after waiting for it to be enabled again
+        await test.step('Fill the textbox after it becomes enabled', async () => {
+            await disabledInputPage.fillTextbox('test value');
+        });
+    });
+
+    test('Attempt to fill a disabled field with a retry decordator', async ({ page }) => {
+        const disabledInputPage = new DisabledInputPage(page);
+        // navigate to the URL defined in the POM
+        await test.step('Navigate to the page', async () => {
+            await disabledInputPage.navigateToByUrl();
+        });
+
+        await test.step('click the button to disable the input textbox', async () => {
+            await disabledInputPage.disableTextbox();
+        });
+
+        // fill the textbox after waiting for it to be enabled again
+        await test.step('Fill the textbox after it becomes enabled', async () => {
+            Logger.info(`This fill function will be retried several times and 
+                        should result in a successful test since the field will become 
+                        enabled between retry attempts`);
+            await disabledInputPage.fillTextboxWithRetry('test value');
+        });
+    });
+});

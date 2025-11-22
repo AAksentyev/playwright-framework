@@ -1,8 +1,8 @@
-import fs from 'fs';
 import path from 'path';
 import { Locator, Page } from '@playwright/test';
 import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
 import { ScreenshotTracker } from './reporters/heatmap/heatmap.t.ts';
+import { FSHelpers } from './fs/fsHelpers.ts';
 
 const screenshotTracker: Record<string, ScreenshotTracker> = {};
 
@@ -52,7 +52,7 @@ export async function takeScreenshot(
     filename: string,
     fullPage: boolean = true
 ): Promise<{ screenshot: Buffer<ArrayBufferLike>; screenshotPath: string }> {
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    FSHelpers.createPathSafe(dir);
 
     const screenshotPath = path.join(dir, filename);
     const screenshot = await target.screenshot({

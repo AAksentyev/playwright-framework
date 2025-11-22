@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { BaseLocator } from './BaseLocator.ts';
 
 /**
@@ -9,11 +9,33 @@ import { BaseLocator } from './BaseLocator.ts';
  *
  */
 export abstract class BasePage extends BaseLocator {
+    readonly root: Locator | Page;
+
     constructor(
         protected page: Page,
-        protected pageName: string
+        protected pageName: string,
+        private rootLocator?: string | Locator
     ) {
         super(page, pageName);
+        this.root = this.setRootLocator();
+    }
+
+    /**
+     * Set the root locator for the page.
+     * If the rootLocator is not defined, it will set it to Page
+     * 
+     * Intended to potentially exclude any persistent components on the page and instead
+     * focus only on the unique page component/viewport.
+     * 
+     * @returns 
+     */
+    private setRootLocator(): Locator | Page {
+        if (! this.rootLocator)
+            return this.page;
+
+        return typeof this.rootLocator === 'string'
+            ? this.page.locator(this.rootLocator)
+            : this.rootLocator;
     }
 
     /**

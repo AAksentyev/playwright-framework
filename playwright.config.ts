@@ -1,15 +1,14 @@
 import os from 'node:os';
 import * as dotenv from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
-import * as dotenv from 'dotenv';
-import os from 'node:os';
+import { REPORTS_PATH } from '@configs/reports/reporters.config.ts';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 
-dotenv.config({ debug: true, path: `.env` }); //.${process.env.ENV || 'qa'}
+dotenv.config({ path: `.env` }); //.${process.env.ENV || 'qa'}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -24,21 +23,22 @@ export default defineConfig({
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : 1,
+    workers: process.env.CI ? 3 : 3,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: [
         ['line'],
         ['junit', { outputFile: `results-${process.env.PW_TAG || 'all'}.xml` }], // for TeamCity
         /*[
-            'html',
-            {
-                outputFolder: `playwright-reports/playwright-report-${process.env.PW_TAG || 'all'}`,
-                open: 'never',
-            },
-        ],*/ // optional artifact
+                'html',
+                {
+                    outputFolder: `playwright-reports/playwright-report-${process.env.PW_TAG || 'all'}`,
+                    open: 'never',
+                },
+            ],*/ // optional artifact
         [
             'allure-playwright',
             {
+                resultsDir: `${REPORTS_PATH}/allure-results`,
                 environmentInfo: {
                     os_platform: os.platform(),
                     os_release: os.release(),
@@ -46,6 +46,23 @@ export default defineConfig({
                     node_version: process.version,
                 },
             },
+        ],
+        // custom network-monitor reporter (enabled if env variable is true)
+        // Not used as a standalone module to allow for customization and tweaks without
+        // having to re-install it
+        [
+            './src/utils/reporters/network-monitor/reporter.ts',
+            { enabled: process.env.RUN_NETWORK_REPORT === 'true' },
+        ],
+        // custom interaction heatmap reporter (enabled if env variable is true)
+        [
+            './src/utils/reporters/heatmap/reporter.ts',
+            { enabled: process.env.RUN_HEATMAP_REPORT === 'true' },
+        ],
+        // slack reporter integration
+        [
+            './src/utils/reporters/slack-reporter/slackReporter.ts',
+            { enabled: process.env.SLACK_ENABLED === 'true' },
         ],
     ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -81,6 +98,12 @@ export default defineConfig({
             dependencies: ['setUp'],
         },
 
+        /*{
+            name: 'unauthenticatedFirefox',
+            use: { ...devices['Desktop Firefox'] },
+            dependencies: ['setUp'],
+        },*/
+
         /** A project to run any authenticated tests that require a session
          * the authenticated: true flag will trigger the base fixture
          * to either set up a new session if a valid one does not exist
@@ -98,10 +121,7 @@ export default defineConfig({
             dependencies: ['setUp'],
         },
 
-        /*{
-            name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
-        },
+        /*
 
         {
             name: 'webkit',

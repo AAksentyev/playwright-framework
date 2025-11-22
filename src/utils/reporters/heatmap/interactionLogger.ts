@@ -1,11 +1,10 @@
-import fs from 'fs';
 import path from 'path';
 import { Locator } from '@playwright/test';
 import { config } from '@config';
-import { Logger } from '@utils/logger.ts';
 import { getTrackedScreenshots } from '@utils/screenshot.ts';
 import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
-import { BoundingBox, InteractionLog, InteractionType, ScreenshotTracker } from './heatmap.t.ts';
+import { BoundingBox, InteractionLog, InteractionType } from './heatmap.t.ts';
+import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 /**
  * array for tracking every interaction
@@ -30,7 +29,7 @@ export async function logInteraction(
     if (!boundingBox) return;
 
     interactionLogs.push({
-        //locator,
+        locator,
         type,
         pageObjectName,
         timestamp: new Date().getTime(),
@@ -48,105 +47,22 @@ export async function logInteraction(
  */
 export function saveInteractionsToDisk(workerIndex: number) {
     if (!config.RUN_HEATMAP_REPORT) return;
-
-    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH))
-        fs.mkdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, { recursive: true });
+    // create folder if it doesn't exist
+    FSHelpers.createPathSafe(HEATMAP_CONFIG.REPORT_OUTPUT_PATH);
 
     // get all the screenshots currently tracked
     const screenshotTracker = getTrackedScreenshots();
 
     // write both the tracked screenshots and the interaction log to disk
-    fs.writeFileSync(
+    FSHelpers.writeTextFileSafe(
         path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}-screenshots.json`),
-        JSON.stringify(screenshotTracker, null, 2)
+        screenshotTracker,
+        'json'
     );
 
-    fs.writeFileSync(
+    FSHelpers.writeTextFileSafe(
         path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, `worker-${workerIndex}-interactions.json`),
-        JSON.stringify(interactionLogs, null, 2)
+        interactionLogs,
+        'json'
     );
-}
-
-/**
- * Aggregate all of our worker data for the interactions
- * into a single file
- * @returns
- */
-export function aggregateInteractions() {
-    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) return;
-
-    Logger.info('... Aggregating interaction data...');
-    // collect worker files
-    const interactionFiles = fs
-        .readdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)
-        .filter((f) => f.startsWith('worker-') && f.endsWith('-interactions.json'));
-
-    // no files? return
-    if (!interactionFiles.length) return;
-
-    const aggregatedInteractions: InteractionLog[] = [];
-
-    // read and parse each file and push to a combined list
-    for (const file of interactionFiles) {
-        const raw = fs.readFileSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file), 'utf-8');
-        const entries = JSON.parse(raw) as InteractionLog[];
-
-        // append to aggregated list
-        aggregatedInteractions.push(...entries);
-
-        // delete worker file after processing. We only want the final combined file
-        fs.unlinkSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file));
-    }
-
-    // write the merged result
-    fs.writeFileSync(
-        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.INTERACTIONS_FILENAME),
-        JSON.stringify(aggregatedInteractions, null, 2)
-    );
-
-    Logger.success('Interaction data aggregation complete');
-}
-
-/**
- * Merge screenshots tracker into a single file
- * This keeps all the unique values since some workers may have touched
- * components that were untouched by others
- * @returns
- */
-export function aggregateScreenshots() {
-    if (!fs.existsSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)) return;
-
-    Logger.info('... Aggregating screenshot data ...');
-
-    // collect worker files
-    const screenshotFiles = fs
-        .readdirSync(HEATMAP_CONFIG.REPORT_OUTPUT_PATH)
-        .filter((f) => f.startsWith('worker-') && f.endsWith('-screenshots.json'));
-
-    // no files? return
-    if (!screenshotFiles.length) return;
-
-    const aggregatedScreenshots: Record<string, ScreenshotTracker> = {};
-    for (const file of screenshotFiles) {
-        const raw = fs.readFileSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file), 'utf-8');
-        const entries = JSON.parse(raw) as any;
-
-        // append to aggregated list
-        for (const k in entries) {
-            if (aggregatedScreenshots[k]) continue;
-
-            aggregatedScreenshots[k] = entries[k];
-        }
-
-        // delete worker file after processing
-        fs.unlinkSync(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, file));
-    }
-
-    // write the merged result
-    fs.writeFileSync(
-        path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, HEATMAP_CONFIG.SCREENSHOTS_FILENAME),
-        JSON.stringify(aggregatedScreenshots, null, 2)
-    );
-
-    Logger.success('Screenshot data aggregation complete');
 }

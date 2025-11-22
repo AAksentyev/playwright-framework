@@ -27,9 +27,9 @@ type RouteToMock = string | RegExp;
  * @param route route to mock
  * @param mockResponse response object
  */
-export function mockRequest(page: Page, route: RouteToMock, mockResponse: MockResponse) {
-    page.route(route, (route) => {
-        Logger.debug(`Route ${route} will respond with a mock response`);
+export function mockRequest(page: Page, routeToMock: RouteToMock, mockResponse: MockResponse) {
+    page.route(routeToMock, (route) => {
+        Logger.debug(`Route ${routeToMock.toString()} will respond with a mock response`);
         route.fulfill(mockResponse);
     });
 }

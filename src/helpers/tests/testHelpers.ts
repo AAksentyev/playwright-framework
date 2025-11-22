@@ -14,7 +14,7 @@ import { SCREENSHOT_NAME, SCREENSHOT_PATH } from '@configs/reports/reporters.con
  * @param testInfo
  * @returns
  */
-export async function handleTestIfFailed(page: Page, testInfo: TestInfo) {
+export async function handleTestIfFailed(page: Page, testInfo: TestInfo, browserName: string) {
     const normalizedTest = testInfo.title.replace(/\s+/g, '_');
     if (testInfo.status === 'failed' || testInfo.status === 'timedOut') {
         Logger.warn(`Test ${testInfo.title} failed with status '${testInfo.status}'. 
@@ -24,9 +24,14 @@ export async function handleTestIfFailed(page: Page, testInfo: TestInfo) {
             Logger.info('No Page instance found. Skipping screenshot');
             return;
         }
-
+        Logger.warn(`BROWSER: ${browserName}`);
         // interpolate screenshot name with expected variables, take the screenshot and attach to test
-        const screenshotName = sprintf(SCREENSHOT_NAME, testInfo.retry, normalizedTest);
+        const screenshotName = sprintf(
+            SCREENSHOT_NAME,
+            testInfo.retry,
+            normalizedTest,
+            browserName
+        );
         const { screenshot } = await takeScreenshot(page, SCREENSHOT_PATH, screenshotName);
         await testInfo.attach('screenshot', { body: screenshot, contentType: 'image/png' });
     }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Heatmap Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body, html { height: 100%; margin: 0; }
+  #viewport { flex: 1; border: none; height: 100%; }
+  .sidebar { width: 300px; height: 100vh; overflow-y: auto; background: #1f2937; color: white; padding: 15px; }
+  .sidebar h2 { font-size: 1.25rem; text-align: center; margin-bottom: 1rem; }
+  .sidebar button { width: 100%; margin-bottom: 0.5rem; text-align: left; }
+</style>
+</head>
+<body>
+<div class="d-flex h-100">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Heatmaps</h2>
+    <div id="nav-buttons"></div>
+  </div>
+
+  <!-- Main content (viewport) -->
+  <iframe id="viewport" src=""></iframe>
+</div>
+
+<script>
+  // This array will be injected by the reporter
+  const pagesData = {{pagesData}}; 
+  // Example format:
+  // pagesData = [
+  //   { name: 'LoginPage', path: './LoginPage/report.html' },
+  //   { name: 'Dashboard', path: './Dashboard/report.html' },
+  // ];
+
+  const navContainer = document.getElementById('nav-buttons');
+  const viewport = document.getElementById('viewport');
+
+  pagesData.forEach((page, idx) => {
+    const btn = document.createElement('button');
+    btn.classList.add('btn', 'btn-sm', 'btn-secondary');
+    btn.textContent = page.name;
+
+    btn.addEventListener('click', () => {
+      viewport.src = page.path;
+      // Highlight active button
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('btn-primary'));
+      btn.classList.add('btn-primary');
+    });
+
+    navContainer.appendChild(btn);
+
+    // Auto-load first page
+    if(idx === 0) {
+      viewport.src = page.path;
+      btn.classList.add('btn-primary');
+    }
+  });
+</script>
+
+</body>
+</html>

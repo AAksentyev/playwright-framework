@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Heatmap</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/heatmap.js/2.0.2/heatmap.min.js"></script>
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+    }
+    .marker {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: rgba(255, 0, 0, 0.8);
+        border-radius: 50%;
+        cursor: pointer;
+        transform: translate(-50%, -50%);
+    }
+
+    .tooltip {
+        position: absolute;
+        background: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 9999;
+    }
+
+    .bounding-box-highlight {
+        position: absolute;
+        border: 2px solid rgba(150, 0, 0, 0.8);
+        border-radius: 4px;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        opacity: 0; /* start hidden */
+        z-index: 9998; /* below tooltip */
+    }
+
+</style>
+</head>
+<body>
+<div id="container" style="position:relative; width:100%; height:100%;">
+    <img id="screenshot" src="./screenshot.png" style="width:auto; height:auto; position:absolute;">
+    <div id="heatmap" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
+    <div id="tooltip" class="tooltip"></div>
+    <div id="highlighBox" class="bounding-box-highlight"></div>
+</div>
+
+<script>
+    const img = document.getElementById("screenshot");
+    // Create tooltip element
+    const tooltip = document.getElementById("tooltip");
+    const highlight = document.getElementById("highlighBox");
+
+    //highlight.classList.add("bounding-box-highlight");
+    //tooltip.classList.add("tooltip");
+    //document.body.appendChild(tooltip);
+    //document.body.appendChild(highlight);
+
+    img.onload = () => {
+
+        const heatmapDiv = document.getElementById("heatmap");
+        heatmapDiv.style.width = img.naturalWidth + "px";
+        heatmapDiv.style.height = img.naturalHeight + "px";
+
+        const points = {{points}}
+
+        const heatmapInstance = h337.create({
+            container: heatmapDiv,
+            radius: {{radius}},
+            maxOpacity: {{maxOpacity}},
+            minOpacity: {{minOpacity}},
+            blur: {{blur}}
+        });
+
+        heatmapInstance.setData({
+            max: {{maxPoints}},
+            data: {{points}}
+        });
+
+    
+        // Add markers for each point
+        points.forEach(p => {
+            console.log(p);
+            const marker = document.createElement("div");
+            marker.classList.add("marker");
+
+            marker.style.left = p.x + "px";
+            marker.style.top = p.y + "px";
+
+            marker.addEventListener("mouseenter", (e) => {
+                
+                
+                displayBorder(p);
+                displayTooltip(p)
+            });
+
+            marker.addEventListener("mousemove", (e) => {
+                tooltip.style.left = (e.pageX + 10) + "px";
+                tooltip.style.top = (e.pageY + 10) + "px";
+            });
+
+            marker.addEventListener("mouseleave", () => {
+                tooltip.style.opacity = 0;
+                highlight.style.opacity = 0; // fade out
+            });
+
+            heatmapDiv.appendChild(marker);
+        });
+    };
+
+    // display a border around the hovered element
+    function displayBorder(point){
+        highlight.style.left = (point.x - point.boundingBox.width/2) + "px";
+        highlight.style.top = (point.y - point.boundingBox.height/2) + "px";
+        highlight.style.width = point.boundingBox.width + "px";
+        highlight.style.height = point.boundingBox.height + "px";
+        highlight.style.opacity = "1"; // fade in
+    }
+
+    // display a tooltip around the hovered point
+    function displayTooltip(point){
+        console.log(point)
+        const counts = point.counts;
+
+        // Build a string for each type of interaction
+        // to dynamically only add interactions we actually performed
+        const interactions = Object.entries(counts)
+            .map(([type, count]) => `${type}s: ${count}`)
+            .join('<br>');
+
+        tooltip.innerHTML = `
+            <strong>Interactions:</strong><br>
+            ${interactions}<br>
+            Total: ${point.value}
+        `;
+        tooltip.style.opacity = '1';
+
+    }
+
+</script>
+</body>
+</html>
