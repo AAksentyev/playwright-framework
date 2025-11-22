@@ -114,6 +114,7 @@ export default class HeatmapReporter implements Reporter {
                 const points: HeatmapPoints[] = summary.map((log) => ({
                     x: Math.round(log.boundingBox.x - offsets!.x + log.boundingBox.width / 2),
                     y: Math.round(log.boundingBox.y - offsets!.y + log.boundingBox.height / 2),
+                    boundingBox: log.boundingBox,
                     counts: log.counts,
                     value: log.value,
                 }));
@@ -136,6 +137,9 @@ export default class HeatmapReporter implements Reporter {
                 // push our page data to the array for index.html navigation buildout
                 pagesData.push({name: pageObjectName, path: `./${pageObjectName}/${HEATMAP_CONFIG.REPORT_NAME}`});
             }
+
+            // sort our pages in the navigation
+            pagesData.sort((a, b) => a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase()) );
 
             /** Generate the final index.html file with navigation that will point to the individual generated pages */
             const template = FSHelpers.readFileSafe(HEATMAP_CONFIG.DASHBOARD_TEMPLATE_PATH);

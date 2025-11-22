@@ -31,10 +31,7 @@ export interface InteractionLog {
 
 export interface ScreenshotTracker {
     screenshotPath: string;
-    boundingBox: {
-        x: number;
-        y: number;
-    };
+    boundingBox: Pick<BoundingBox, 'x'| 'y'>;
 }
 
 export type HeatmapPoints = {
@@ -42,4 +39,5 @@ export type HeatmapPoints = {
     y: number;
     counts: any;
     value: number;
+    boundingBox: BoundingBox
 };
