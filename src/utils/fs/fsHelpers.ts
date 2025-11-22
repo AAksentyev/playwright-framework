@@ -303,7 +303,7 @@ export class FSHelpers {
             this.createPathSafe(path.dirname(absPath));
 
             // convert to json if needed
-            const content: string = type === 'json' ? JSON.stringify(data, null, 2) : type;
+            const content: string = type === 'json' ? JSON.stringify(data, null, 2) : data;
 
             // attempt to write the file
             fs.writeFileSync(absPath, content, { encoding: 'utf-8' });

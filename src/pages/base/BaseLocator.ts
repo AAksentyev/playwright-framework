@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { Interaction } from '@decorators/interaction.ts';
+import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 
 interface ClickOptions {
     button?: 'left' | 'right' | 'middle';

@@ -6,7 +6,7 @@
  *
  */
 
-import * as schemas from '@testdata/schemas/index.ts';
+import * as schemas from '@testdata/schemas/json/index.ts';
 import { RouteDetails, RouteMap } from './api.t.ts';
 
 // GET request route configuration

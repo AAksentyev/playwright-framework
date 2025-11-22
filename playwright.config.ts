@@ -52,6 +52,7 @@ export default defineConfig({
             './src/utils/reporters/network-monitor/reporter.ts',
             { enabled: process.env.RUN_NETWORK_REPORT === 'true' },
         ],
+        // custom interaction heatmap reporter (enabled if env variable is true)
         [
             './src/utils/reporters/heatmap/reporter.ts',
             { enabled: process.env.RUN_HEATMAP_REPORT === 'true' },

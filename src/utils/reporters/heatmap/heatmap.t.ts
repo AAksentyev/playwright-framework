@@ -1,3 +1,5 @@
+import { Locator } from "@playwright/test";
+
 /** Types of Locator interactions we're tracking as part of @Interaction() decorator in BaseLocator */
 export type InteractionType =
     | 'click'
@@ -20,7 +22,7 @@ export interface BoundingBox {
  *  Interaction log interface with data passed from the @Interaction() decorator
  */
 export interface InteractionLog {
-    //locator: Locator; // locator being interacted with
+    locator: Locator; // locator being interacted with
     type: InteractionType; // the type of interaction ('fill' | 'click' | 'hover')
     pageObjectName: string;
     timestamp: number;
@@ -38,5 +40,6 @@ export interface ScreenshotTracker {
 export type HeatmapPoints = {
     x: number;
     y: number;
+    counts: any;
     value: number;
 };

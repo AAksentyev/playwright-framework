@@ -29,7 +29,7 @@ export async function logInteraction(
     if (!boundingBox) return;
 
     interactionLogs.push({
-        //locator,
+        locator,
         type,
         pageObjectName,
         timestamp: new Date().getTime(),

@@ -2,9 +2,9 @@ import { APIRequestContext } from '@playwright/test';
 import { APIHelpers } from './apiHelpers.ts';
 import { ParamValues } from '@configs/api/api.t.ts';
 import { ResponseThreshold } from '@decorators/responseThreshold.ts';
-import { GetAllMakesResponse } from '@testdata/schemas/getAllMakes.schema.ts';
-import { GetModelsForMakeResponse } from '@testdata/schemas/getModelsForMake.schema.ts';
-import { GetMakesByManufacturerAndYearResponse } from '@testdata/schemas/getMakesByManufacturerAndYear.schema.ts';
+import { GetAllMakesResponse } from '@testdata/schemas/json/getAllMakes.schema.ts';
+import { GetModelsForMakeResponse } from '@testdata/schemas/json/getModelsForMake.schema.ts';
+import { GetMakesByManufacturerAndYearResponse } from '@testdata/schemas/json/getMakesByManufacturerAndYear.schema.ts';
 
 /**
  * A wrapper class for APIHelpers that stores aliased methods for each API call

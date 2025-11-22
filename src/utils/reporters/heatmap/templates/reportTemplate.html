@@ -5,9 +5,33 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/heatmap.js/2.0.2/heatmap.min.js"></script>
 <style>
     html, body {
-    margin: 0;
-    padding: 0;
+        margin: 0;
+        padding: 0;
     }
+    .marker {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: rgba(255, 0, 0, 0.8);
+        border-radius: 50%;
+        cursor: pointer;
+        transform: translate(-50%, -50%);
+    }
+
+    .tooltip {
+        position: absolute;
+        background: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 9999;
+    }
+
 </style>
 </head>
 <body>
@@ -24,6 +48,8 @@
         heatmapDiv.style.width = img.naturalWidth + "px";
         heatmapDiv.style.height = img.naturalHeight + "px";
 
+        const points = {{points}}
+
         const heatmapInstance = h337.create({
             container: heatmapDiv,
             radius: {{radius}},
@@ -35,6 +61,48 @@
         heatmapInstance.setData({
             max: {{maxPoints}},
             data: {{points}}
+        });
+
+         // Create tooltip element
+        const tooltip = document.createElement("div");
+        tooltip.classList.add("tooltip");
+        document.body.appendChild(tooltip);
+
+        // Add markers for each point
+        points.forEach(p => {
+            const marker = document.createElement("div");
+            marker.classList.add("marker");
+
+            marker.style.left = p.x + "px";
+            marker.style.top = p.y + "px";
+
+            marker.addEventListener("mouseenter", (e) => {
+                const counts = p.counts;
+                
+                // Build a string for each type of interaction
+                // to dynamically only add interactions we actually performed
+                const interactions = Object.entries(counts)
+                    .map(([type, count]) => `${type}s: ${count}`)
+                    .join('<br>');
+
+                tooltip.innerHTML = `
+                    <strong>Interactions:</strong><br>
+                    ${interactions}<br>
+                    Total: ${p.value}
+                `;
+                tooltip.style.opacity = '1';
+            });
+
+            marker.addEventListener("mousemove", (e) => {
+                tooltip.style.left = (e.pageX + 10) + "px";
+                tooltip.style.top = (e.pageY + 10) + "px";
+            });
+
+            marker.addEventListener("mouseleave", () => {
+                tooltip.style.opacity = 0;
+            });
+
+            heatmapDiv.appendChild(marker);
         });
     };
 </script>

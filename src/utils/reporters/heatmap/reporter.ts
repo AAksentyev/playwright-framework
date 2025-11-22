@@ -2,7 +2,7 @@ import path from 'path';
 import { FullResult, Reporter } from '@playwright/test/reporter';
 import { Logger } from '@utils/logger.ts';
 import { HEATMAP_CONFIG } from '@configs/reports/reporters.config.ts';
-import { HeatmapPoints, InteractionLog, ScreenshotTracker } from './heatmap.t.ts';
+import { BoundingBox, HeatmapPoints, InteractionLog, ScreenshotTracker } from './heatmap.t.ts';
 import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 interface HeatmapReporterOptions {
@@ -53,8 +53,14 @@ export default class HeatmapReporter implements Reporter {
         Logger.success('[HeatmapReporter] Heatmap generation complete!');
     }
 
+    /**
+     * Genenerates individual html reports for each tracked POM 
+     * and finally generates the main index.html file to view all of the reports from one file
+     */
     private async generateHeatmaps() {
         Logger.info('[HeatmapReporter] Generating heatmap reports ...');
+
+        let pagesData: {name: string, path:string}[] = [];
 
         try {
             // read and parse the merged interactions file
@@ -82,12 +88,16 @@ export default class HeatmapReporter implements Reporter {
 
             // loop over each page object for which we have data for
             for (const [pageObjectName, logs] of grouped) {
+
                 Logger.debug(`[HeatmapReporter] Generating heatmap for ${pageObjectName} ...`);
                 // create the folder for the page we don't have it yet
                 const dir = path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, pageObjectName);
 
                 // create folder if it doesn't exist
                 FSHelpers.createPathSafe(dir);
+
+                // get a summary of events, such as counts
+                const summary = this.summarizeEvents(logs)
 
                 /**
                  * get the x/y offset for the screenshot
@@ -101,13 +111,14 @@ export default class HeatmapReporter implements Reporter {
                 const offsets = aggScreenshots[pageObjectName]?.boundingBox;
 
                 // process the data points and create our final heatmap object
-                const points: HeatmapPoints[] = logs.map((log) => ({
+                const points: HeatmapPoints[] = summary.map((log) => ({
                     x: Math.round(log.boundingBox.x - offsets!.x + log.boundingBox.width / 2),
                     y: Math.round(log.boundingBox.y - offsets!.y + log.boundingBox.height / 2),
-                    value: 2,
+                    counts: log.counts,
+                    value: log.value,
                 }));
 
-                // generate our final html report file and save it
+                /** Generate and save the html page for the individual POM */
                 const template = this.loadTemplate(HEATMAP_CONFIG.TEMPLATE_PATH);
 
                 const html = this.renderTemplate(template, {
@@ -118,9 +129,19 @@ export default class HeatmapReporter implements Reporter {
                     minOpacity: HEATMAP_CONFIG.MIN_OPACITY,
                     maxOpacity: HEATMAP_CONFIG.MAX_OPACITY,
                 });
+                
                 FSHelpers.writeTextFileSafe(path.join(dir, HEATMAP_CONFIG.REPORT_NAME), html, 'text');
                 Logger.debug('[HeatmapReporter] Generation complete.');
+
+                // push our page data to the array for index.html navigation buildout
+                pagesData.push({name: pageObjectName, path: `./${pageObjectName}/${HEATMAP_CONFIG.REPORT_NAME}`});
             }
+
+            /** Generate the final index.html file with navigation that will point to the individual generated pages */
+            const template = FSHelpers.readFileSafe(HEATMAP_CONFIG.DASHBOARD_TEMPLATE_PATH);
+            const html = template.replace('{{pagesData}}', JSON.stringify(pagesData));
+            FSHelpers.writeTextFileSafe(path.join(HEATMAP_CONFIG.REPORT_OUTPUT_PATH, 'index.html'), html, 'text');
+
         } catch (e: any) {
             Logger.error(`Heatmap report generation failed: ${e.message}`);
             throw e;
@@ -217,6 +238,45 @@ export default class HeatmapReporter implements Reporter {
         );
 
         Logger.success('Screenshot data aggregation complete');
+    }
+
+    /**
+     * Given an array of events grouped by Page Object Name,
+     * summarize the number of interactions
+     * @param events 
+     * @returns 
+     */
+    private summarizeEvents(events: InteractionLog[]) {
+        type IType = InteractionLog['type'];
+
+        type BoxSummary = {
+            boundingBox: BoundingBox;
+            counts: Partial<Record<IType, number>>; // counts per type for this bounding box
+            value: number; // total events for this bounding box and value for the heatmap
+        };
+
+        const map = new Map<string, BoxSummary>();
+
+        for (const evt of events) {
+            // Use JSON.stringify as the unique key for the bounding box
+            const key = JSON.stringify(evt.boundingBox);
+
+            let entry = map.get(key);
+            if (!entry) {
+            entry = {
+                boundingBox: evt.boundingBox,
+                counts: {} as Partial<Record<IType, number>>,
+                value: 0
+            };
+            map.set(key, entry);
+            }
+
+            entry.counts[evt.type] = (entry.counts[evt.type] ?? 0) + 1;
+            entry.value++;
+        }
+
+        // Return as an array; you can .sort(...) here if you want a specific order
+        return Array.from(map.values());
     }
 
     // pivot our group logs by key
