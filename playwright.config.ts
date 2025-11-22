@@ -1,13 +1,14 @@
 import os from 'node:os';
 import * as dotenv from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
+import { REPORTS_PATH } from '@configs/reports/reporters.config.ts';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 
-dotenv.config({ debug: true, path: `.env` }); //.${process.env.ENV || 'qa'}
+dotenv.config({ path: `.env` }); //.${process.env.ENV || 'qa'}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -37,6 +38,7 @@ export default defineConfig({
         [
             'allure-playwright',
             {
+                resultsDir: `${REPORTS_PATH}/allure-results`,
                 environmentInfo: {
                     os_platform: os.platform(),
                     os_release: os.release(),
@@ -56,6 +58,11 @@ export default defineConfig({
         [
             './src/utils/reporters/heatmap/reporter.ts',
             { enabled: process.env.RUN_HEATMAP_REPORT === 'true' },
+        ],
+        // slack reporter integration
+        [
+            './src/utils/reporters/slack-reporter/slackReporter.ts',
+            { enabled: process.env.SLACK_ENABLED === 'true' },
         ],
     ],
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

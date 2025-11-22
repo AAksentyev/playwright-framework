@@ -38,4 +38,9 @@ export const config = {
     SITE_PASSWORD: getEnv('SITE_PASSWORD', '<please configure>'),
 
     SESSION_COOKIE_NAME: getEnv('SESSION_COOKIE_NAME', ''),
+
+    SLACK_ENABLED: getEnv('SLACK_ENABLED', 'false'),
+    SLACK_TOKEN: getEnv('SLACK_TOKEN', '<please configure>', true),
+    SLACK_CHANNEL: getEnv('SLACK_CHANNEL', '<please configure>', true),
+    SLACK_CHANNEL_ID: getEnv('SLACK_CHANNEL_ID', '<please configure>', true),
 };
