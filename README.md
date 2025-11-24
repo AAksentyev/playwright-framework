@@ -147,3 +147,4 @@ Helps visually identify missing or lightly-tested UI elements.
 1. More decorators
 2. Annotation library
 3. Visual regression testing integration
+4. More reports
