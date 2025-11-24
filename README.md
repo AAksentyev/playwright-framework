@@ -20,6 +20,8 @@ A fresh clone of this repo includes example tests you can run immediately. This 
 
 If you want to explore what the framework includes, continue below.
 
+_Please Note: The ReadMe documentation is still in progress._
+
 ## 📦 What's Included
 
 This repository ships with a rich ecosystem of pre-configured modules, utilities, decorators, and reports designed to accelerate your development and testing workflow.
@@ -141,10 +143,15 @@ If enabled, the heatmap reporter:
 
 Helps visually identify missing or lightly-tested UI elements.
 
+## 📧 Slack Integration 
+Slack reporter integration is included. All you need to do is populate the applicable .env variables
+and you have end-of-the-run slack notifications working. The template/formatting can be easily
+modified in the Slack Reporter.
 
 ## 🚀Roadmap
 
-1. More decorators
-2. Annotation library
-3. Visual regression testing integration
-4. More reports
+1. Per-module documentation
+2. More decorators
+3. Annotation library
+4. Visual regression testing integration
+5. More reports
