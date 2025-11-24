@@ -64,6 +64,13 @@ Provides:
 
 *See more about navigation functionality here*
 
+## 🌐 API Testing
+A standardized module and helper functions that enable you to integrate your API tests right into your e2e suite.
+
+* Configure and track all routes and their configurations in one file 
+* Standardized management of route and query parameters, schema, and per-route config in one place
+* Automatically get strongly typed API response body
+* Validate schema with provided AJV integration
 
 ### 🔧 Decorators
 
