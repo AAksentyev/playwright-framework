@@ -91,7 +91,27 @@ export class ExamplePOM extends BasePage {
 }
 ```
 
+## Screenshots and POMs/COMs
+The Interaction tracker will take care of taking the screenshot automatically during the run of either the Page
+or the Component where the Locator is being tracked.
 
+If the root locator is defined (as should be the case at least for Component Object classes), the screenshot will only be of the component bounding box. Otherwise, it will take a full page screenshot.
 
+### Example with root locator set
+```typescript
+export class TopNavigationMenuComponent extends BaseComponent {
+    constructor(protected page: Page) {
 
+        // note the root locator 'page.getByRole('navigation')' for the component being set
+        super(page, 'TopNavigationMenuComponent', page.getByRole('navigation')); 
+    }
 
+    // click the navigation menu option
+    public async clickMenuOption(label: string) {
+        await this.safeClick(this.root.getByRole('link', { name: label, exact: true }));
+    }
+}
+```
+This will streamline your report so you only see the component information you care about. In this example, it will only have the screenshot of the top navigation component.
+
+![Top Nav Component](../images/top-nav-component-example.png)

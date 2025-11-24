@@ -114,12 +114,14 @@ Wraps the activities in the decorated method in a test.step
 ## 📊 Reports 
 Several standard and custom-built reporting systems are integrated out of the box:
 
-**Allure Report**
+**Integrated Allure Report**
 
 * Fully configured and ready to use
 * Includes post-processing enhancements
 * Displays warning indicators for tests with logged warnings
 * Integrates seamlessly with decorators and network logging
+
+[Read more about the Allure enhancements](/docs/reports/allure-report.md)
 
 **Network Traffic Report**
 
@@ -134,6 +136,8 @@ Captures:
 * Per-test call breakdowns
 
 Generates a consolidated summary report at the end of each run.
+
+[Read more about the Network Traffic report](/docs/reports/network-traffic-report.md)
 
 **Interaction Heatmap Report**
 
