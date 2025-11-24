@@ -30,11 +30,10 @@ export default class NetworkTrafficReporter implements Reporter {
     constructor(options?: NetworkReporterOptions) {
         this.REPORT_GENERATOR = new NetworkReportGenerator();
         this.enabled = options?.enabled ?? false;
-        
-        if ( this.enabled ){
+
+        if (this.enabled) {
             FSHelpers.createPathSafe(TRAFFIC_CONFIG.REPORT_OUTPUT_PATH);
-        }
-        else  {
+        } else {
             /* eslint-disable prettier/prettier */
             Logger.debug('------------------------------------------------------------------------------------');
             Logger.debug('-------- Network Monitoring Report Toggled off. No Report will be generated --------');

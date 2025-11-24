@@ -38,7 +38,10 @@ export class ResourcesPage extends BasePage {
      * Automatically invoked when using `this.navigateToByUrl()`
      */
     public async waitForPageLoad(): Promise<void> {
-        await expect(this.page.getByRole('heading', { name: 'Resources' })).toBeVisible();
+        await expect(
+            this.page.getByRole('heading', { name: 'Resources' }),
+            `Resources header should be visible`
+        ).toBeVisible();
     }
 
     /**

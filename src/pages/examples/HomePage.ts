@@ -43,7 +43,8 @@ export class HomePage extends BasePage {
      */
     public async waitForPageLoad(): Promise<void> {
         await expect(
-            this.page.getByRole('heading', { name: 'UI Test Automation Playground' })
+            this.page.getByRole('heading', { name: 'UI Test Automation Playground' }),
+            `UI Test Automation Playground home page header should be visible`
         ).toBeVisible();
     }
 

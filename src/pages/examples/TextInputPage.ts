@@ -33,7 +33,10 @@ export class TextInputPage extends BasePage {
      * Automatically invoked when using `this.navigateToByUrl()`
      */
     public async waitForPageLoad(): Promise<void> {
-        await expect(this.page.getByRole('heading', { name: 'Text Input' })).toBeVisible();
+        await expect(
+            this.page.getByRole('heading', { name: 'Text Input' }),
+            `Text Input header should be visible`
+        ).toBeVisible();
     }
 
     /**

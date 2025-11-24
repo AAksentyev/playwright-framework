@@ -1,4 +1,4 @@
-import { Locator } from "@playwright/test";
+import { Locator } from '@playwright/test';
 
 /** Types of Locator interactions we're tracking as part of @Interaction() decorator in BaseLocator */
 export type InteractionType =
@@ -31,7 +31,7 @@ export interface InteractionLog {
 
 export interface ScreenshotTracker {
     screenshotPath: string;
-    boundingBox: Pick<BoundingBox, 'x'| 'y'>;
+    boundingBox: Pick<BoundingBox, 'x' | 'y'>;
 }
 
 export type HeatmapPoints = {
@@ -39,5 +39,5 @@ export type HeatmapPoints = {
     y: number;
     counts: any;
     value: number;
-    boundingBox: BoundingBox
+    boundingBox: BoundingBox;
 };

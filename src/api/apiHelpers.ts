@@ -26,6 +26,7 @@ export abstract class APIHelpers {
      * @param callback - optional callback to execute upon completion
      * @returns
      */
+
     @APIRetry({
         attempts: 2, // override default API_RETRY_MAX_ATTEMPTS
         onRetry(error, attempt) {

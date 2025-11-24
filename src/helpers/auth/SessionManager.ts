@@ -148,8 +148,10 @@ export class SessionManager {
     /** Read all persisted sessions from storageState.json */
     private readStorage(): MultiUserStorage {
         try {
-            if (! FSHelpers.pathExists(this.WORKER_SESSION_STORAGE_FILE)) return {};
-            return JSON.parse(FSHelpers.readFileSafe(this.WORKER_SESSION_STORAGE_FILE)) as MultiUserStorage;
+            if (!FSHelpers.pathExists(this.WORKER_SESSION_STORAGE_FILE)) return {};
+            return JSON.parse(
+                FSHelpers.readFileSafe(this.WORKER_SESSION_STORAGE_FILE)
+            ) as MultiUserStorage;
         } catch {
             return {};
         }

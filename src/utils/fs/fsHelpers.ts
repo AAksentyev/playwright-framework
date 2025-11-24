@@ -2,12 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { Logger } from '@utils/logger.ts';
 
-
 /**
  * Safe wrappers around file system actions.
  * Ensures secure and consistent checks whenever performing actions such as
  * creating/deleting folders, reading/creating/deleting files and others.
- * 
+ *
  * Ensures the actions are only allowed within the project workspace
  * and that resources exist
  */
@@ -87,7 +86,7 @@ export class FSHelpers {
      * @returns
      */
     public static pathExists(targetPath: string): boolean {
-        if (! this.isInsideWorkspace(targetPath))
+        if (!this.isInsideWorkspace(targetPath))
             throw new Error(`[Security] Trying to check if path exists outside of the workspace.`);
 
         return fs.existsSync(targetPath);
@@ -162,7 +161,9 @@ export class FSHelpers {
         const canonical = this.canonicalizeTarget(targetPath);
 
         if (!this.isInsideWorkspace(canonical)) {
-            throw new Error(`[SECURITY] Refusing operation: path is outside workspace: ${canonical}`);
+            throw new Error(
+                `[SECURITY] Refusing operation: path is outside workspace: ${canonical}`
+            );
         }
 
         // If any existing component in the original path is a symlink, refuse.
@@ -231,7 +232,9 @@ export class FSHelpers {
                 try {
                     this.assertSafePath(abs);
                 } catch (err) {
-                    Logger.error(`⚠️ Skipped deleting "${abs}" — unsafe: ${(err as Error).message}`);
+                    Logger.error(
+                        `⚠️ Skipped deleting "${abs}" — unsafe: ${(err as Error).message}`
+                    );
                     continue;
                 }
 
@@ -312,5 +315,4 @@ export class FSHelpers {
             throw err;
         }
     }
-
 }

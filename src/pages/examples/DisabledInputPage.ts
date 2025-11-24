@@ -35,7 +35,10 @@ export class DisabledInputPage extends BasePage {
      * Automatically invoked when using `this.navigateToByUrl()`
      */
     public async waitForPageLoad(): Promise<void> {
-        await expect(this.page.getByRole('heading', { name: 'Disabled Input' })).toBeVisible();
+        await expect(
+            this.page.getByRole('heading', { name: 'Disabled Input' }),
+            `Disabled Input header should be visible`
+        ).toBeVisible();
     }
 
     /**
