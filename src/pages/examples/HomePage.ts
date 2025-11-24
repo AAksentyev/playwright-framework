@@ -1,7 +1,8 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { Retry } from '@decorators/actionRetry.ts';
 import { BasePage } from '@pages/base/BasePage.ts';
+import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 
 /**
  * List of available link names on the page
@@ -37,13 +38,18 @@ export class HomePage extends BasePage {
         return '/';
     }
 
+    /** page header locator */
+    private get pageHeader():Locator{
+        return this.page.getByRole('heading', { name: 'UI Test Automation Playground' })
+    }
     /**
      * Condition(s) to wait for when navigating to the page or waiting for it to load
      * Automatically invoked when using `this.navigateToByUrl()`
      */
+    @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
         await expect(
-            this.page.getByRole('heading', { name: 'UI Test Automation Playground' }),
+            this.pageHeader,
             `UI Test Automation Playground home page header should be visible`
         ).toBeVisible();
     }

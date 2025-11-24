@@ -1,7 +1,8 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { BasePage } from '@pages/base/BasePage.ts';
 import { Step } from '@decorators/step.ts';
+import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 
 /**
  * Example Page Object Model with the text input
@@ -20,18 +21,23 @@ export class LoginPage extends BasePage {
         return '/sampleapp';
     }
 
+    /** page header locator */
+    private get pageHeader():Locator {
+        return this.page.getByRole('heading', { name: 'Sample App' })
+    }
+
     /** Locator for the username textbox on the page */
-    private get usernameTextbox() {
+    private get usernameTextbox():Locator {
         return this.page.getByRole('textbox', { name: 'User Name' });
     }
 
     /** locator for the  password textbox on the page */
-    private get passwordTextbox() {
+    private get passwordTextbox():Locator {
         return this.page.locator('input[type="password"]');
     }
 
     /** Locator for the Log In button on the page */
-    private get logInButton() {
+    private get logInButton():Locator {
         return this.page.getByRole('button', { name: 'Log In' });
     }
 
@@ -39,9 +45,10 @@ export class LoginPage extends BasePage {
      * Condition(s) to wait for when navigating to the page or waiting for it to load
      * Automatically invoked when using `this.navigateToByUrl()`
      */
+    @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
         await expect(
-            this.page.getByRole('heading', { name: 'Sample App' }),
+            this.pageHeader,
             `Sample App header should be visible`
         ).toBeVisible();
     }
@@ -51,7 +58,7 @@ export class LoginPage extends BasePage {
      * @param username
      */
     @Step('Fill username field')
-    public async fillUsername(username: string) {
+    public async fillUsername(username: string): Promise<void> {
         await this.safeFill(this.usernameTextbox, username);
     }
 
@@ -60,7 +67,7 @@ export class LoginPage extends BasePage {
      * @param value
      */
     @Step('Fill password field')
-    public async fillPassword(password: string) {
+    public async fillPassword(password: string): Promise<void> {
         await this.safeFill(this.passwordTextbox, password);
     }
 
@@ -69,7 +76,7 @@ export class LoginPage extends BasePage {
      * its label based on the value entered in the textbox
      */
     @Step('Click Log In button')
-    public async clickLogIn() {
+    public async clickLogIn(): Promise<void> {
         await this.safeClick(this.logInButton);
     }
 
@@ -77,7 +84,7 @@ export class LoginPage extends BasePage {
      * Fill out and submit the login form
      */
     @Step('Perform login actions')
-    public async logIn(username: string, password: string, timeout: number = 10000) {
+    public async logIn(username: string, password: string, timeout: number = 10000): Promise<void> {
         Logger.debug(`Performing login actions on the Login page for username '${username}'`);
         await this.fillUsername(username);
         await this.fillPassword(password);

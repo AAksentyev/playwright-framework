@@ -146,6 +146,8 @@ If enabled, the heatmap reporter:
 
 Helps visually identify missing or lightly-tested UI elements.
 
+[Read more about the heatmap report](/docs/reports/heatmap-report.md)
+
 ## 📧 Slack Integration 
 Slack reporter integration is included. All you need to do is populate the applicable .env variables
 and you have end-of-the-run slack notifications working. The template/formatting can be easily

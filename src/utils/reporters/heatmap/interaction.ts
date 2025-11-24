@@ -12,10 +12,45 @@ import { getTrackedScreenshots, takeHeatmapScreenshot } from '@utils/screenshot.
  * These interactions are then used to generate a heatmap report over the screenshots taken to indiciate
  * where there interactions took place
  *
+ * By default, the decorator requires that the Locator being tracked is passed as the first argument
+ * to the decorated method (for example, as used in `BaseLocator`). Alternatively, if it's a custom method
+ * that does not accept the locator as an argument or accepts it in a different order, you can define the locator
+ * as an optional argument passed to the decorator.
+ * 
  * @param type Interaction type
+ * @param locator Override/alternative for the locator being passed to the method
  * @returns
+ * 
+ * @example
+ * ```typescript
+ * 
+ * class ExampleClass {
+ *   
+ *   constructor(private readonly page:Page){}
+ *   
+ *   // locator getter
+ *   private get myLocator():Locator{
+ *      return this.page.locator('#mylocator')
+ *   }
+ *   
+ *   // if the locator is being passed as the first argument, only the interaction type needs to be set
+ *   @Interaction('click')
+ *   async clickExampleLocator(locator:Locator){
+ *     await locator.click()
+ *   }
+ *  
+ *   // optionally pass the locator if not using BaseLocator interaction methods
+ *   // or the locator is not the first argument being passed to the method
+ *   // if using the BaseLocator method to interact with a locator, 
+ *   // this second decorator should not be added as the BaseLocator class will already log the interaction
+ *   @Interaction('click', 'myLocator') // pass the name of the property or getter as a string here
+ *   async customLocatorAction(){
+ *     await this.locatorGetter.fill('MyValue')
+ *   }
+ * }
+ * ```
  */
-export function Interaction(type: InteractionType) {
+export function Interaction(type: InteractionType, locatorPropName?:string) {
     return function decorator(target: Function, context: ClassMethodDecoratorContext) {
         if (context.kind !== 'method') {
             throw new Error(`@Interaction can only be applied to methods. Got: ${context.kind}`);
@@ -25,14 +60,20 @@ export function Interaction(type: InteractionType) {
         const originalMethod = target;
 
         return async function replacementMethod(this: any, ...args: any[]) {
-            // verify that the first argument of the decorated method is Locator
-            if (!isLocator(args[0])) {
+
+            let targetLocator:Locator;
+            const isLocatorOverrideValid = locatorPropName && this[locatorPropName] && isLocator(this[locatorPropName]);
+            if (isLocator(args[0])){
+                targetLocator = args[0] as Locator;
+            } else if ( isLocatorOverrideValid ) {
+                targetLocator = this[locatorPropName] as Locator;
+            } else {
                 throw new Error(
-                    'First argument of the method decorated with @Interaction must be a Locator'
+                    `First argument of the method decorated with @Interaction must be a Locator or 
+                    the property name of the locator needs to be passed to @Interaction`
                 );
             }
 
-            const targetLocator = args[0] as Locator;
             // let's capture our locator's bounding box (or null if it's not visible)
             let boundingBox = null;
             if (await targetLocator.isVisible()) boundingBox = await targetLocator.boundingBox();
