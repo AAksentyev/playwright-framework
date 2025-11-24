@@ -8,7 +8,8 @@ export type InteractionType =
     | 'hover'
     | 'check'
     | 'uncheck'
-    | 'dragdrop';
+    | 'dragdrop'
+    | 'visibility_check';
 
 /** Bounding box for the locator as returned by Locator.boundingBox() */
 export interface BoundingBox {

@@ -1,6 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { BasePage } from '@pages/base/BasePage.ts';
+import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 
 /**
  * Example Page Object Model with asynchronously loaded data
@@ -24,8 +25,13 @@ export class AjaxDataPage extends BasePage {
         return this.page.locator('#spinner');
     }
     /** Locator for the button on the page */
-    private get ajaxTriggerButton() {
+    private get ajaxTriggerButton():Locator {
         return this.page.getByRole('button', { name: 'Button Triggering AJAX Request' });
+    }
+
+    /** page header locator */
+    private get pageHeader():Locator {
+        return this.page.getByRole('heading', { name: 'AJAX Data' })
     }
 
     /** Locator with the contents of the data */
@@ -37,15 +43,16 @@ export class AjaxDataPage extends BasePage {
      * Condition(s) to wait for when navigating to the page or waiting for it to load
      * Automatically invoked when using `this.navigateToByUrl()`
      */
+    @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
-        await expect(this.page.getByRole('heading', { name: 'AJAX Data' })).toBeVisible();
+        await expect(this.pageHeader).toBeVisible();
     }
 
     /**
      * Click the button on the page that changes
      * its label based on the value entered in the textbox
      */
-    public async clickAjaxButton() {
+    public async clickAjaxButton(): Promise<void>  {
         Logger.debug('Clicking the AJAX trigger button');
         await this.safeClick(this.ajaxTriggerButton);
     }
@@ -54,7 +61,7 @@ export class AjaxDataPage extends BasePage {
      * Wait for the async data to be loaded after clicking the ajaxTriggerButton
      * @param timeout
      */
-    public async waitForAjaxData(timeout: number = 20000) {
+    public async waitForAjaxData(timeout: number = 20000): Promise<void>  {
         await this.spinner.waitFor({ state: 'hidden', timeout });
         await expect(this.ajaxDataContents).toBeVisible();
     }

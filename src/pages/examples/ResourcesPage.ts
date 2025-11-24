@@ -1,6 +1,7 @@
-import { expect, Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
 import { Logger } from '@utils/logger.ts';
 import { BasePage } from '@pages/base/BasePage.ts';
+import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 
 const externalLinks = {
     W3SCHOOLS: {
@@ -33,13 +34,18 @@ export class ResourcesPage extends BasePage {
         return '/resources';
     }
 
+    /** page header */
+    private get pageHeader():Locator {
+        return this.page.getByRole('heading', { name: 'Resources' })
+    }
     /**
      * Condition(s) to wait for when navigating to the page or waiting for it to load
      * Automatically invoked when using `this.navigateToByUrl()`
      */
+    @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
         await expect(
-            this.page.getByRole('heading', { name: 'Resources' }),
+            this.pageHeader,
             `Resources header should be visible`
         ).toBeVisible();
     }
