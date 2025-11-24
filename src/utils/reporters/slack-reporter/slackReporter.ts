@@ -11,19 +11,18 @@ interface SlackReporterOpts {
  * Driven by process.env.SLACK_ENABLED
  */
 export default class SlackReporter implements Reporter {
-    private readonly enabled:boolean;
+    private readonly enabled: boolean;
 
     private slackClient: SlackClient;
     private passed = 0;
     private failed = 0;
     private skipped = 0;
 
-    constructor(opts?:SlackReporterOpts) {
+    constructor(opts?: SlackReporterOpts) {
         this.enabled = opts?.enabled ?? false;
         this.slackClient = new SlackClient();
 
-        if ( ! this.enabled ){
-
+        if (!this.enabled) {
             /* eslint-disable prettier/prettier */
             Logger.debug('----------------------------------------------------------------------------');
             Logger.debug('------------- Slack Integration Toggled off. No Report will be generated ---');
@@ -42,13 +41,12 @@ export default class SlackReporter implements Reporter {
 
     /**
      * Increment the pass/fail status
-     * @param test 
-     * @param result 
-     * @returns 
+     * @param test
+     * @param result
+     * @returns
      */
     onTestEnd(test: TestCase, result: TestResult) {
-        if ( ! this.enabled )
-            return;
+        if (!this.enabled) return;
 
         if (result.status === 'passed') this.passed++;
         else if (result.status === 'failed') this.failed++;
@@ -56,14 +54,13 @@ export default class SlackReporter implements Reporter {
     }
 
     /**
-     * Once all tests finish running, collect necessary statistics 
+     * Once all tests finish running, collect necessary statistics
      * and send a block message to the slack message (if SLACK_ENABLED=true)
-     * @param result 
-     * @returns 
+     * @param result
+     * @returns
      */
-    async onEnd(result:FullResult) {
-        if ( ! this.enabled )
-            return;
+    async onEnd(result: FullResult) {
+        if (!this.enabled) return;
 
         const symbol = this.failed === 0 ? '✅' : '❌';
         const durationSec = Math.round(result.duration / 1000);
@@ -73,32 +70,32 @@ export default class SlackReporter implements Reporter {
 
         // Build Slack blocks
         const blocks = [
-        {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: `${symbol} *Playwright Test Run Completed*`
-            }
-        },
-        {
-            type: 'section',
-            fields: [
-            { type: 'mrkdwn', text: `*Passed:* ${this.passed}` },
-            { type: 'mrkdwn', text: `*Failed:* ${this.failed}` },
-            { type: 'mrkdwn', text: `*Skipped:* ${this.skipped}` },
-            { type: 'mrkdwn', text: `*Duration:* ${durationText}` },
-            ]
-        },
-        // Optional: divider
-        { type: 'divider' },
-        // Optional: link to CI or reports
-        {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: `*Full Reports:* <https://google.com|View Reports>`
-            }
-        }
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `${symbol} *Playwright Test Run Completed*`,
+                },
+            },
+            {
+                type: 'section',
+                fields: [
+                    { type: 'mrkdwn', text: `*Passed:* ${this.passed}` },
+                    { type: 'mrkdwn', text: `*Failed:* ${this.failed}` },
+                    { type: 'mrkdwn', text: `*Skipped:* ${this.skipped}` },
+                    { type: 'mrkdwn', text: `*Duration:* ${durationText}` },
+                ],
+            },
+            // Optional: divider
+            { type: 'divider' },
+            // Optional: link to CI or reports
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `*Full Reports:* <https://google.com|View Reports>`,
+                },
+            },
         ];
 
         // Send using blocks

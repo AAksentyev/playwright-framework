@@ -102,6 +102,10 @@ If a decorated function exceeds the defined threshold, the framework:
 
 Useful as an early indicator of backend slowness. (Not a replacement for load testing.)
 
+**Step**
+
+Wraps the activities in the decorated method in a test.step
+
 ## 📊 Reports 
 Several standard and custom-built reporting systems are integrated out of the box:
 
@@ -133,7 +137,7 @@ If enabled, the heatmap reporter:
 * Logs all locator interactions
 * Takes screenshots
 * Overlays interaction markers
-* Generates coverage heatmaps for pages and components
+* Generates coverage heatmaps for pages and components and tracks action counts
 
 Helps visually identify missing or lightly-tested UI elements.
 
@@ -142,5 +146,4 @@ Helps visually identify missing or lightly-tested UI elements.
 
 1. More decorators
 2. Annotation library
-3. Extended API schema validation tools to support multiple formats other than json (xml is priority)
-2. Visual regression testing integration
+3. Visual regression testing integration

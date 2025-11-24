@@ -14,11 +14,11 @@ test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.A
         const { body, response, expectedSchema } = await API.getAllMakes(request);
 
         // verify the response code
-        expect(response.status()).toBe(200);
+        expect(response.status(), 'Status should be 200').toBe(200);
         // verify the schema. assertSchema throws if there is a mismatch
         assertSchema(body, expectedSchema);
         // perform any validation on the repsonse body
-        expect(body.Count).toBeGreaterThan(0);
+        expect(body.Count, 'Returned record count in body should be > 0').toBeGreaterThan(0);
     });
 
     /**
@@ -28,11 +28,11 @@ test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.A
         const { body, response, expectedSchema } = await API.getModelsForMake(request, ['honda']);
 
         // verify the response code
-        expect(response.status()).toBe(200);
+        expect(response.status(), 'Status should be 200').toBe(200);
         // verify the schema. assertSchema throws if there is a mismatch
         assertSchema(body, expectedSchema);
         // perform any validation on the repsonse body
-        expect(body.Count).toBeGreaterThan(0);
+        expect(body.Count, 'Returned record count in body should be > 0').toBeGreaterThan(0);
     });
 
     /**
@@ -47,11 +47,11 @@ test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.A
         );
 
         // verify the response code
-        expect(response.status()).toBe(200);
+        expect(response.status(), 'Status should be 200').toBe(200);
         // verify the schema. assertSchema throws if there is a mismatch
         assertSchema(body, expectedSchema);
         // perform any validation on the repsonse body
-        expect(body.Count).toBeGreaterThan(0);
+        expect(body.Count, 'Returned record count in body should be > 0').toBeGreaterThan(0);
     });
 
     test('API test example without schema configured for route', async ({ request }) => {
@@ -59,11 +59,11 @@ test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.A
         const { body, response, expectedSchema } = await API.getAllMakesNoSchema(request);
 
         // verify the response code
-        expect(response.status()).toBe(200);
+        expect(response.status(), 'Status should be 200').toBe(200);
         // since no schema is configured for this route, assertion will pass but a warning will be logged
         assertSchema(body, expectedSchema);
         // perform any validation on the repsonse body
-        expect(body.Count).toBeGreaterThan(0);
+        expect(body.Count, 'Returned record count in body should be > 0').toBeGreaterThan(0);
     });
 });
 
@@ -100,12 +100,15 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 );
 
                 // verify the response code first
-                expect(response.status()).toBe(200);
+                expect(response.status(), 'Status should be 200').toBe(200);
                 // verify the schema. assertSchema throws if there is a mismatch
                 assertSchema(body, expectedSchema);
 
                 // perform any validation on the response body
-                expect(body.Count).toEqual(expectedRecordCount);
+                expect(
+                    body.Count,
+                    `Returned record cound in body should be ${expectedRecordCount}`
+                ).toEqual(expectedRecordCount);
             });
         }
     });
@@ -136,7 +139,7 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 expect
                     .soft(
                         response.status(),
-                        `The response status for ${manufacturer}-${year} did not match expected. No further validation performed`
+                        `The response status for ${manufacturer}-${year} should match expected. No further validation performed`
                     )
                     .toBe(200);
 
@@ -149,7 +152,7 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 expect
                     .soft(
                         validated.valid,
-                        `Schema validation failed for ${manufacturer}-${year}.\n\n${validated.message}`
+                        `Schema should match for ${manufacturer}-${year}.\n\n${validated.message}`
                     )
                     .toBeTruthy();
 
@@ -157,7 +160,9 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 if (!validated.valid) continue;
 
                 // perform any other validation on the response body once schema checks passed
-                expect.soft(body.Count).toEqual(expectedRecordCount);
+                expect
+                    .soft(body.Count, `Record count in body should be ${expectedRecordCount}`)
+                    .toEqual(expectedRecordCount);
             }
         });
 
@@ -183,7 +188,9 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 ]);
 
                 // perform any checks here. Omitting status,etc in interest of making examples more compact
-                expect.soft(body.Count).toEqual(expectedRecordCount);
+                expect
+                    .soft(body.Count, `Record count in body should be ${expectedRecordCount}`)
+                    .toEqual(expectedRecordCount);
             }
         });
 

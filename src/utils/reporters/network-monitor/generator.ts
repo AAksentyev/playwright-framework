@@ -220,7 +220,11 @@ export class NetworkReportGenerator {
             .replace('{{sortJs}}', sortJs);
 
         // save
-        FSHelpers.writeTextFileSafe(path.join(this.outputDir, 'network-report.html'), baseTemplate, 'text');
+        FSHelpers.writeTextFileSafe(
+            path.join(this.outputDir, 'network-report.html'),
+            baseTemplate,
+            'text'
+        );
 
         Logger.success(`[Reporter] 📊 Network report generated at: ${this.outputDir}`);
     }
