@@ -159,3 +159,4 @@ modified in the Slack Reporter.
 4. Visual regression testing integration
 5. More reports
 6. Optional root locator for Page Objects
+7. Accessibility test integration
