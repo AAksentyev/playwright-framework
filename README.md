@@ -54,15 +54,13 @@ Extends BaseLocator, inheriting all safe interaction functionality and facilitat
 
 **BasePage**
 
-A page-level Page Object Model. Unlike BaseComponent, this does not use a root locator. (*todo: Add optional root locator* )
+A page-level Page Object Model. Unlike BaseComponent, this does not use a root locator.
 
 Provides:
 
 * URL handling
 * Navigation helpers
 * Page-level utilities
-
-*See more about navigation functionality here*
 
 ## 🌐 API Testing
 A standardized module and helper functions that enable you to integrate your API tests right into your e2e suite.
@@ -98,8 +96,6 @@ Use cases:
 * Intermittent UI states
 
 Controlled via the `RETRY_ENABLED` environment variable, giving you flexibility over tolerance of flaky or inconsistent behaviour.
-
-[*See more about Retry here here*]
 
 **ResponseThreshold**
 
@@ -162,3 +158,5 @@ modified in the Slack Reporter.
 3. Annotation library
 4. Visual regression testing integration
 5. More reports
+6. Optional root locator for Page Objects
+7. Accessibility test integration
