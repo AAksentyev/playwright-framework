@@ -70,6 +70,8 @@ A standardized module and helper functions that enable you to integrate your API
 * Automatically get strongly typed API response body
 * Validate schema with provided AJV integration
 
+[Read more about the API Testing support](/docs/reports/api-testing.md)
+
 ### 🔧 Decorators
 
 The framework includes a library of ready-to-use decorators to enhance your code quality and maintainability.
