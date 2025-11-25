@@ -79,7 +79,7 @@ export function Retry(options: RetryOptions = {}) {
                     return result instanceof Promise ? await result : result;
                 } catch (error) {
                     // Log the error and prepare for the next attempt
-                    Logger.warn(`Attempt ${attempt} for ${callerMethod} failed: ${error}`);
+                    Logger.warn(`🔄 Attempt ${attempt} for ${callerMethod} failed: ${error}`);
                     lastError = error;
                     // Call the onRetry callback if provided
                     onRetry?.(error, attempt);
