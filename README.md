@@ -76,7 +76,7 @@ A standardized module and helper functions that enable you to integrate your API
 
 The framework includes a library of ready-to-use decorators to enhance your code quality and maintainability.
 
-[Read more about the API Testing support](/docs/decorators.md)
+[Read more about Decorators](/docs/decorators.md)
 
 **Interaction**
 
