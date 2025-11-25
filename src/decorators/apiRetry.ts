@@ -72,7 +72,7 @@ export function APIRetry(options: APIRetryOptions = {}) {
                 } catch (error) {
                     lastError = error;
                     Logger.warn(
-                        `API call ${callInfo.class}.${methodName} attempt ${attempt} failed: ${error}`
+                        `🔄 API call ${callInfo.class}.${methodName} attempt ${attempt} failed: ${error}`
                     );
 
                     if (onRetry) {

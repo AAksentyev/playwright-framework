@@ -12,7 +12,10 @@ import { FSHelpers } from '@utils/fs/fsHelpers.ts';
 
 const RESULTS_DIR: string = path.join(REPORTS_PATH, 'allure-results');
 // Indicators (substrings) in the log that would trigger the warning icon to be added to test name
-const INDICATORS: string[] = ['⚠️', '⛔'];
+const INDICATORS: string[] = ['⚠️'];
+
+// Indicator in logs that the Retry indicator was triggered
+const RETRY_INDICATOR: string = "🔄";
 
 /**
  * Read the attachment
@@ -34,14 +37,27 @@ function textHasWarning(text: string): boolean {
     return INDICATORS.some((substr: string) => text.includes(substr));
 }
 
+function textHasRetry(text: string): boolean {
+    return text.includes(RETRY_INDICATOR);
+}
+
 /**
  * Alters the given text and prepends it with a warning icon
  * if the icon is not already present in it
  * @param text
  * @returns
  */
-function appendWarning(text: string): string {
-    if (!text.includes('⚠️')) return `⚠️ ${text}`;
+function appendIndicator(text: string, hasRetry:boolean): string {
+    const append = `
+            ${!text.includes('⚠️') ? '⚠️':''} 
+            ${hasRetry && !text.includes('🔄') ? '🔄':''} 
+        `;
+    
+    return `${append} ${text}`;
+}
+
+function appendRetryIndicator(text: string): string {
+    if (!text.includes(RETRY_INDICATOR)) return `${RETRY_INDICATOR} ${text}`;
     return text;
 }
 
@@ -61,7 +77,7 @@ export default function processAllureResults() {
         if (!json.attachments) continue;
 
         let hasWarning = false;
-
+        let hasRetry = false;
         // Scan attachments for warning indicators and compile list of tests + suites that includes them
         for (const att of json.attachments) {
             const log = readAttachment(att.source);
@@ -69,6 +85,8 @@ export default function processAllureResults() {
 
             if (textHasWarning(log)) {
                 hasWarning = true;
+                hasRetry = textHasRetry(log);
+                
                 results.push({
                     suite: json.fullName?.split(/[:→]/)?.[0] ?? 'Unknown Suite',
                     test: json.name,
@@ -78,15 +96,16 @@ export default function processAllureResults() {
         }
 
         if (hasWarning) {
+            
             // Append ⚠️ to test name if a warning was found
-            json.name = appendWarning(json.name);
+            json.name = appendIndicator(json.name, hasRetry);
 
             // labels that should also have a warning attached in addition to the test names
             // the Suites page of the report and path traversal uses labels for display names
             // so we need to append those for easy indication of which suites have warnings
             for (let i = 0; i < json.labels.length; i++) {
                 if (['parentSuite', 'suite', 'subSuite'].includes(json.labels[i].name)) {
-                    json.labels[i].value = appendWarning(json.labels[i].value);
+                    json.labels[i].value = appendIndicator(json.labels[i].value, hasRetry);
                 }
             }
 
