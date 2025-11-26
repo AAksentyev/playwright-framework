@@ -1,6 +1,10 @@
 # 🎭 Playwright Framework
 ### A portable, plug-and-play Playwright automation framework with decorators, API testing support, reporting, strongly-typed utilities, and more!
 
+# [!] Brief Note
+
+_While the code in this repo is fully functional and ready to use as is with the included features, the code and the documentation is by no means "final". I'm actively working on refactoring, improving and expanding the features set with almost daily updates as I'm able._
+
 ---
 
 # 🌟 Quick Start
@@ -19,8 +23,6 @@ This framework is designed to be portable, strongly typed, and ready to use out 
 A fresh clone of this repo includes example tests you can run immediately. This project layout and pattern haS proven effective for me for both testing and development in the past and emphasizes type safety, reusability, and clean separation of concerns. 
 
 If you want to explore what the framework includes, continue below.
-
-_Please Note: The ReadMe documentation is still in progress._
 
 ## 📦 What's Included
 
