@@ -151,10 +151,10 @@ export class NetworkReportGenerator {
             .map((url) => {
                 const pathOnly = new URL(url).pathname;
                 return `<th>
-                                            <div class="tooltip">${pathOnly}
-                                                <span class="tooltiptext">${url}</span>
-                                            </div>
-                                        </th>`;
+                            <div class="tooltip">${pathOnly}
+                                <span class="tooltiptext">${url}</span>
+                            </div>
+                        </th>`;
             })
             .join('');
 

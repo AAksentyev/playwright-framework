@@ -83,7 +83,6 @@ export abstract class BasePage extends BaseLocator {
      * ```
      */
     public async navigateToByUrl(): Promise<void> {
-        // if url is not defined, throw an error
         if (this.url == null) {
             throw new Error(
                 'URL is not defined for this page. Cannot navigate by URL. Please override the url getter in the subclass with a non-null return value or use navigateBy.'
