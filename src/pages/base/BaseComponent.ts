@@ -62,7 +62,7 @@ export abstract class BaseComponent extends BaseLocator {
         private rootLocator: string | Locator
     ) {
         super(page, componentName);
-        // initialize the root component
+
         this.root = this.setRootLocator();
     }
 

@@ -1,5 +1,6 @@
 import { TAG } from '@constants/tags.ts';
 import { test } from '@fixtures/base.ts';
+import { AjaxDataPage } from '@pages/examples/AjaxDataPage.ts';
 import { Logger } from '@utils/logger.ts';
 
 /**
@@ -23,8 +24,15 @@ test.describe(
          * will show where the session was set up vs where it was restored from existing saved session
          */
         for (const [i] of Array(6).entries()) {
-            test(`Authenticated test example ${i}`, async () => {
+            test(`Authenticated test example ${i}`, async ({ page }) => {
                 Logger.info('Executing test after the authenticated session was set up....');
+
+                // the authentication/login steps are triggered by our fixture based on the authenticaticed:true
+                // so we can just start performing all of our post-auth test steps right way
+                const ajaxPage:AjaxDataPage = new AjaxDataPage(page);
+                await test.step('Navigating to AJAX page after login steps', async()=>{
+                    await ajaxPage.navigateToByUrl();
+                })
             });
         }
     }

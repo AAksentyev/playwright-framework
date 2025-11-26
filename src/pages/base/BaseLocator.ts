@@ -68,7 +68,7 @@ export abstract class BaseLocator {
         await expect(locator, 'Locator being clicked should be enabled').toBeEnabled({ timeout });
 
         await locator.scrollIntoViewIfNeeded();
-        // perform the click action
+
         await locator.click(options);
         await this.page.waitForLoadState('networkidle');
     }
@@ -106,7 +106,6 @@ export abstract class BaseLocator {
 
         await locator.scrollIntoViewIfNeeded();
 
-        // perform the hover action
         await locator.hover();
     }
 
@@ -122,7 +121,6 @@ export abstract class BaseLocator {
 
         await locator.scrollIntoViewIfNeeded();
 
-        // perform the fill action
         await locator.fill(value);
     }
 
@@ -138,7 +136,6 @@ export abstract class BaseLocator {
 
         await locator.scrollIntoViewIfNeeded();
 
-        // perform the check action
         await locator.check();
     }
 
@@ -154,7 +151,6 @@ export abstract class BaseLocator {
 
         await locator.scrollIntoViewIfNeeded();
 
-        // perform the check action
         await locator.uncheck();
     }
 
@@ -183,7 +179,6 @@ export abstract class BaseLocator {
             timeout,
         });
 
-        // perform the check action
         await locatorDragged.dragTo(locatorTarget);
     }
 
