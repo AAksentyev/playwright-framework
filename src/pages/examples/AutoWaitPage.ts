@@ -1,5 +1,4 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { Logger } from '@utils/logger.ts';
 import { BasePage } from '@pages/base/BasePage.ts';
 import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 import { Step } from '@decorators/step.ts';
@@ -12,14 +11,21 @@ import {
 } from '@pages/base/BaseLocatorSettings.t.ts';
 
 // Available durations for the Apply button
-type ApplyDuration = 3 | 5 | 10;
+export type ApplyDuration = 3 | 5 | 10;
+
+export const TargetSelectOptions = {
+    item1: 'Item 1',
+    item2: 'Item 2',
+    item3: 'Item 3',
+} as const;
+
+type TargetSelectOption = (typeof TargetSelectOptions)[keyof typeof TargetSelectOptions];
 
 /**
  * Auto-wait page POM
  *
  */
 export class AutoWaitPage extends BasePage {
-    private currentDuration: number = 0;
     private currentTarget: Locator;
 
     // list of possible target element locators that can be selected from element type select
@@ -38,6 +44,7 @@ export class AutoWaitPage extends BasePage {
 
         // button is the default selected locator.
         this.currentTarget = this.targetElements.button;
+        this.heatmapStateName = 'button';
     }
 
     /**
@@ -72,6 +79,15 @@ export class AutoWaitPage extends BasePage {
     }
 
     /**
+     * Return the operation status div locator
+     * can be used to verify that the operations were successful
+     * @returns
+     */
+    public get operationStatusLocator(): Locator {
+        return this.page.locator('div#opstatus');
+    }
+
+    /**
      * Select the input type from the select dropdown
      * and set our currently active target to the selected one
      * @param option
@@ -79,7 +95,9 @@ export class AutoWaitPage extends BasePage {
     @Step('Select element type option')
     public async selectInputType(option: ElementTypeOption) {
         await this.safeSelectOption(this.inputTypeSelectLocator, ElementType[option]);
+
         this.currentTarget = this.targetElements[option];
+        this.heatmapStateName = option;
     }
 
     /**
@@ -106,6 +124,11 @@ export class AutoWaitPage extends BasePage {
         }
     }
 
+    /** return the current expected selected target */
+    public getCurrentTarget(): Locator {
+        return this.currentTarget;
+    }
+
     /**
      * Click the appropriate 'Apply' button with the given duration
      * Page has buttons with 3s, 5s, and 10s option
@@ -120,13 +143,10 @@ export class AutoWaitPage extends BasePage {
 
         await this.safeClick(btnLocator);
 
-        // before we proceed, wait for the action to complete.
+        // before we proceed, wait for the DOM to update after the action
         await this.page
             .getByText(`Target element settings applied for ${duration} seconds.`)
             .waitFor();
-
-        // set the currently selected duration as a class variable for tracking the timeout
-        this.currentDuration = duration;
     }
 
     /**
@@ -136,6 +156,37 @@ export class AutoWaitPage extends BasePage {
      */
     public async getCurrentTargetProperties(): Promise<ElementStates> {
         return await this.getLocatorProperties(this.currentTarget, { native: true });
+    }
+
+    /**
+     * return the expected default state of the target locator
+     * @returns
+     */
+    public getCurrentTargetDefaultProperties(): ElementStates {
+        return {
+            visible: true,
+            enabled: true,
+            editable: true,
+            onTop: true,
+            nonZeroSize: true,
+        };
+    }
+
+    /** Target Locator Actions */
+    public async clickTargetLocator() {
+        await this.safeClick(this.currentTarget);
+    }
+
+    public async fillTargetLocator(value: string, blurAfterFill: boolean = false) {
+        await this.safeFill(this.currentTarget, value);
+
+        // if we need to unfocus after filling the locator
+        // click on the body node
+        if (blurAfterFill) await this.page.locator('body').click();
+    }
+
+    public async selectTargetLocatorOption(opt: TargetSelectOption) {
+        await this.safeSelectOption(this.currentTarget, opt);
     }
 
     /**

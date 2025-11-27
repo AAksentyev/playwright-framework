@@ -76,14 +76,20 @@ export function Interaction(type: InteractionType, locatorPropName?: string) {
 
             // let's capture our locator's bounding box (or null if it's not visible)
             let boundingBox = null;
+            let trackedClassName = null;
             if (await targetLocator.isVisible()) boundingBox = await targetLocator.boundingBox();
 
             // we need to take our screenshot before we perform our action on the page
             if (config.RUN_HEATMAP_REPORT) {
                 const screenshotTracker = getTrackedScreenshots();
+
+                // append heatmapStateName (if it was set) to our classname
+                const state = this.heatmapStateName != null ? `-${this.heatmapStateName}` : '';
+                trackedClassName = `${this.pageObjectName}${state}`;
+
                 // if a screenshot for this page/component is already taken, skip taking it
-                if (!(this.pageObjectName in screenshotTracker))
-                    await takeHeatmapScreenshot(this.root ?? this.page, this.pageObjectName);
+                if (!(trackedClassName in screenshotTracker))
+                    await takeHeatmapScreenshot(this.root ?? this.page, trackedClassName);
             }
 
             // Execute original method
@@ -98,7 +104,7 @@ export function Interaction(type: InteractionType, locatorPropName?: string) {
                     targetLocator, // locator
                     boundingBox, //locator boundingBox
                     type, // interaction type
-                    this.pageObjectName
+                    trackedClassName || this.pageObjectName
                 );
             }
 

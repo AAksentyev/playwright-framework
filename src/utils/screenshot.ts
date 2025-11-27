@@ -55,7 +55,7 @@ export async function takeScreenshot(
     FSHelpers.createPathSafe(dir);
 
     const ext = path.extname(filename) || '.png'; // keep .png or default
-    const normalizedName = filename.replace(/[^a-z0-9-_]/gi, '_');
+    const normalizedName = filename.replace(ext, '').replace(/[^a-z0-9-_]/gi, '_');
 
     const screenshotPath = path.join(dir, `${normalizedName}${ext}`);
     const screenshot = await target.screenshot({

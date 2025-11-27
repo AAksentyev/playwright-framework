@@ -11,6 +11,17 @@ import { BaseLocator } from './BaseLocator.ts';
 export abstract class BasePage extends BaseLocator {
     readonly root: Locator | Page;
 
+    /** **********************************************
+     * a secondary identifier for the child class name
+     * if the state is specified or updated
+     * the heatmap report will take a unique screenshot
+     * for each new state.
+     *
+     * (use when page interface changes and new elements
+     * are being interacted with)
+     * ***********************************************/
+    private HEATMAP_STATE_NAME: string | null;
+
     constructor(
         protected page: Page,
         protected pageName: string,
@@ -18,6 +29,7 @@ export abstract class BasePage extends BaseLocator {
     ) {
         super(page, pageName);
         this.root = this.setRootLocator();
+        this.HEATMAP_STATE_NAME = null;
     }
 
     /**
@@ -50,6 +62,15 @@ export abstract class BasePage extends BaseLocator {
      * ```
      */
     protected abstract get url(): string | null;
+
+    /** Set or get the HEATMAP_STATE_NAME */
+    protected get heatmapStateName(): string | null {
+        return this.HEATMAP_STATE_NAME;
+    }
+
+    protected set heatmapStateName(state: string | null) {
+        this.HEATMAP_STATE_NAME = state;
+    }
 
     /**
      * Checks if the page is fully loaded. Should be implemented by subclasses to define specific conditions that indicate the page is ready for interaction.

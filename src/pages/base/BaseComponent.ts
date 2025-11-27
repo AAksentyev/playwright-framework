@@ -55,6 +55,7 @@ import { BaseLocator } from './BaseLocator.ts';
  */
 export abstract class BaseComponent extends BaseLocator {
     readonly root: Locator;
+    private HEATMAP_STATE_NAME: string | null;
 
     constructor(
         protected page: Page,
@@ -64,6 +65,16 @@ export abstract class BaseComponent extends BaseLocator {
         super(page, componentName);
 
         this.root = this.setRootLocator();
+        this.HEATMAP_STATE_NAME = null;
+    }
+
+    /** Set or get the HEATMAP_STATE_NAME */
+    protected get heatmapStateName(): string | null {
+        return this.HEATMAP_STATE_NAME;
+    }
+
+    protected set heatmapStateName(state: string | null) {
+        this.HEATMAP_STATE_NAME = state;
     }
 
     /**
