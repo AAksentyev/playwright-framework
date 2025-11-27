@@ -1,5 +1,4 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { Logger } from '@utils/logger.ts';
 import { BasePage } from '@pages/base/BasePage.ts';
 import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
 import { Step } from '@decorators/step.ts';

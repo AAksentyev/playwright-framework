@@ -56,11 +56,6 @@ function appendIndicator(text: string, hasRetry: boolean): string {
     return `${append} ${text}`;
 }
 
-function appendRetryIndicator(text: string): string {
-    if (!text.includes(RETRY_INDICATOR)) return `${RETRY_INDICATOR} ${text}`;
-    return text;
-}
-
 /**
  * Run the post-processing actions on the generated allure reports
  */

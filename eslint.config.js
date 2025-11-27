@@ -25,7 +25,8 @@ export default [
                 document: 'readonly',
                 window: 'readonly',
                 URL: 'readonly',
-                BufferEncoding: 'readonly'
+                BufferEncoding: 'readonly',
+                getComputedStyle: 'readonly'
             },
         },
         plugins: {
