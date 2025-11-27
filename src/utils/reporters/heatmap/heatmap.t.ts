@@ -9,6 +9,7 @@ export type InteractionType =
     | 'check'
     | 'uncheck'
     | 'dragdrop'
+    | 'select_option'
     | 'visibility_check';
 
 /** Bounding box for the locator as returned by Locator.boundingBox() */

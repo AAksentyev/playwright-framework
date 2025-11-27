@@ -22,17 +22,17 @@ export class DisabledInputPage extends BasePage {
     }
 
     /** page header locator */
-    private get pageHeader():Locator {
+    private get pageHeader(): Locator {
         return this.page.getByRole('heading', { name: 'Disabled Input' });
     }
 
     /** Locator for the button on the page */
-    private get buttonLocator():Locator {
+    private get buttonLocator(): Locator {
         return this.page.getByRole('button', { name: 'Enable Edit Field with 5' });
     }
 
     /** locator for the textbox on the page */
-    private get textFieldLocator():Locator {
+    private get textFieldLocator(): Locator {
         return this.page.getByRole('textbox', { name: 'Edit Field' });
     }
 
@@ -42,10 +42,7 @@ export class DisabledInputPage extends BasePage {
      */
     @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
-        await expect(
-            this.pageHeader,
-            `Disabled Input header should be visible`
-        ).toBeVisible();
+        await expect(this.pageHeader, `Disabled Input header should be visible`).toBeVisible();
     }
 
     /**

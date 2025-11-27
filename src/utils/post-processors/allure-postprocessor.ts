@@ -15,7 +15,7 @@ const RESULTS_DIR: string = path.join(REPORTS_PATH, 'allure-results');
 const INDICATORS: string[] = ['⚠️'];
 
 // Indicator in logs that the Retry indicator was triggered
-const RETRY_INDICATOR: string = "🔄";
+const RETRY_INDICATOR: string = '🔄';
 
 /**
  * Read the attachment
@@ -47,12 +47,12 @@ function textHasRetry(text: string): boolean {
  * @param text
  * @returns
  */
-function appendIndicator(text: string, hasRetry:boolean): string {
+function appendIndicator(text: string, hasRetry: boolean): string {
     const append = `
-            ${!text.includes('⚠️') ? '⚠️':''} 
-            ${hasRetry && !text.includes('🔄') ? '🔄':''} 
+            ${!text.includes('⚠️') ? '⚠️' : ''} 
+            ${hasRetry && !text.includes('🔄') ? '🔄' : ''} 
         `;
-    
+
     return `${append} ${text}`;
 }
 
@@ -86,7 +86,7 @@ export default function processAllureResults() {
             if (textHasWarning(log)) {
                 hasWarning = true;
                 hasRetry = textHasRetry(log);
-                
+
                 results.push({
                     suite: json.fullName?.split(/[:→]/)?.[0] ?? 'Unknown Suite',
                     test: json.name,
@@ -96,7 +96,6 @@ export default function processAllureResults() {
         }
 
         if (hasWarning) {
-            
             // Append ⚠️ to test name if a warning was found
             json.name = appendIndicator(json.name, hasRetry);
 

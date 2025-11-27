@@ -21,16 +21,16 @@ export class TextInputPage extends BasePage {
     }
 
     /** page header */
-    private get pageHeader():Locator {
-        return this.page.getByRole('heading', { name: 'Text Input' })
+    private get pageHeader(): Locator {
+        return this.page.getByRole('heading', { name: 'Text Input' });
     }
     /** Locator for the textbox on the page */
-    private get textboxLocator():Locator {
+    private get textboxLocator(): Locator {
         return this.page.getByRole('textbox', { name: 'Set New Button Name' });
     }
 
     /** Locator for the button on the page */
-    private get buttonLocator():Locator {
+    private get buttonLocator(): Locator {
         return this.page.locator('#updatingButton');
     }
     /**
@@ -39,10 +39,7 @@ export class TextInputPage extends BasePage {
      */
     @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
-        await expect(
-            this.pageHeader,
-            `Text Input header should be visible`
-        ).toBeVisible();
+        await expect(this.pageHeader, `Text Input header should be visible`).toBeVisible();
     }
 
     /**
