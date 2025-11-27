@@ -87,10 +87,7 @@ export class SessionManager {
     public async validateSession(username: string): Promise<boolean> {
         const session = this.sessions[username];
 
-        if (!session) {
-            Logger.warn('No active session found');
-            return false;
-        }
+        if (!session) return false;
 
         // Don't check too frequently
         if (Date.now() - session.lastChecked < SessionManager.SESSION_CHECK_INTERVAL) {
