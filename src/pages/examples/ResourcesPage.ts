@@ -35,8 +35,8 @@ export class ResourcesPage extends BasePage {
     }
 
     /** page header */
-    private get pageHeader():Locator {
-        return this.page.getByRole('heading', { name: 'Resources' })
+    private get pageHeader(): Locator {
+        return this.page.getByRole('heading', { name: 'Resources' });
     }
     /**
      * Condition(s) to wait for when navigating to the page or waiting for it to load
@@ -44,10 +44,7 @@ export class ResourcesPage extends BasePage {
      */
     @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
-        await expect(
-            this.pageHeader,
-            `Resources header should be visible`
-        ).toBeVisible();
+        await expect(this.pageHeader, `Resources header should be visible`).toBeVisible();
     }
 
     /**

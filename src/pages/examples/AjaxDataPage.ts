@@ -25,13 +25,13 @@ export class AjaxDataPage extends BasePage {
         return this.page.locator('#spinner');
     }
     /** Locator for the button on the page */
-    private get ajaxTriggerButton():Locator {
+    private get ajaxTriggerButton(): Locator {
         return this.page.getByRole('button', { name: 'Button Triggering AJAX Request' });
     }
 
     /** page header locator */
-    private get pageHeader():Locator {
-        return this.page.getByRole('heading', { name: 'AJAX Data' })
+    private get pageHeader(): Locator {
+        return this.page.getByRole('heading', { name: 'AJAX Data' });
     }
 
     /** Locator with the contents of the data */
@@ -52,7 +52,7 @@ export class AjaxDataPage extends BasePage {
      * Click the button on the page that changes
      * its label based on the value entered in the textbox
      */
-    public async clickAjaxButton(): Promise<void>  {
+    public async clickAjaxButton(): Promise<void> {
         Logger.debug('Clicking the AJAX trigger button');
         await this.safeClick(this.ajaxTriggerButton);
     }
@@ -61,7 +61,7 @@ export class AjaxDataPage extends BasePage {
      * Wait for the async data to be loaded after clicking the ajaxTriggerButton
      * @param timeout
      */
-    public async waitForAjaxData(timeout: number = 20000): Promise<void>  {
+    public async waitForAjaxData(timeout: number = 20000): Promise<void> {
         await this.spinner.waitFor({ state: 'hidden', timeout });
         await expect(this.ajaxDataContents).toBeVisible();
     }

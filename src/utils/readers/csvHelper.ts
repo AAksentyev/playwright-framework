@@ -61,3 +61,5 @@ export function readCSV<T extends Record<string, any>>(
         return result;
     });
 }
+
+export const toBool = (v: string) => v.trim().toLowerCase() === 'true';

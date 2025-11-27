@@ -29,10 +29,10 @@ test.describe(
 
                 // the authentication/login steps are triggered by our fixture based on the authenticaticed:true
                 // so we can just start performing all of our post-auth test steps right way
-                const ajaxPage:AjaxDataPage = new AjaxDataPage(page);
-                await test.step('Navigating to AJAX page after login steps', async()=>{
+                const ajaxPage: AjaxDataPage = new AjaxDataPage(page);
+                await test.step('Navigating to AJAX page after login steps', async () => {
                     await ajaxPage.navigateToByUrl();
-                })
+                });
             });
         }
     }

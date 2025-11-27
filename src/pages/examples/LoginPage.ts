@@ -22,22 +22,22 @@ export class LoginPage extends BasePage {
     }
 
     /** page header locator */
-    private get pageHeader():Locator {
-        return this.page.getByRole('heading', { name: 'Sample App' })
+    private get pageHeader(): Locator {
+        return this.page.getByRole('heading', { name: 'Sample App' });
     }
 
     /** Locator for the username textbox on the page */
-    private get usernameTextbox():Locator {
+    private get usernameTextbox(): Locator {
         return this.page.getByRole('textbox', { name: 'User Name' });
     }
 
     /** locator for the  password textbox on the page */
-    private get passwordTextbox():Locator {
+    private get passwordTextbox(): Locator {
         return this.page.locator('input[type="password"]');
     }
 
     /** Locator for the Log In button on the page */
-    private get logInButton():Locator {
+    private get logInButton(): Locator {
         return this.page.getByRole('button', { name: 'Log In' });
     }
 
@@ -47,10 +47,7 @@ export class LoginPage extends BasePage {
      */
     @Interaction('visibility_check', 'pageHeader')
     public async waitForPageLoad(): Promise<void> {
-        await expect(
-            this.pageHeader,
-            `Sample App header should be visible`
-        ).toBeVisible();
+        await expect(this.pageHeader, `Sample App header should be visible`).toBeVisible();
     }
 
     /**

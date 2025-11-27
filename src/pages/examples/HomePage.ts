@@ -39,8 +39,8 @@ export class HomePage extends BasePage {
     }
 
     /** page header locator */
-    private get pageHeader():Locator{
-        return this.page.getByRole('heading', { name: 'UI Test Automation Playground' })
+    private get pageHeader(): Locator {
+        return this.page.getByRole('heading', { name: 'UI Test Automation Playground' });
     }
     /**
      * Condition(s) to wait for when navigating to the page or waiting for it to load

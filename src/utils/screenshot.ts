@@ -54,7 +54,10 @@ export async function takeScreenshot(
 ): Promise<{ screenshot: Buffer<ArrayBufferLike>; screenshotPath: string }> {
     FSHelpers.createPathSafe(dir);
 
-    const screenshotPath = path.join(dir, filename);
+    const ext = path.extname(filename) || '.png'; // keep .png or default
+    const normalizedName = filename.replace(/[^a-z0-9-_]/gi, '_');
+
+    const screenshotPath = path.join(dir, `${normalizedName}${ext}`);
     const screenshot = await target.screenshot({
         path: screenshotPath,
         fullPage,
