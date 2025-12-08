@@ -72,16 +72,6 @@ export default class HeatmapReporter implements Reporter {
                 )
             ) as InteractionLog[];
 
-            // read and parse the merged screenshot tracker file that contains our offsets
-            const aggScreenshots = JSON.parse(
-                FSHelpers.readFileSafe(
-                    path.join(
-                        HEATMAP_CONFIG.REPORT_OUTPUT_PATH,
-                        HEATMAP_CONFIG.SCREENSHOTS_FILENAME
-                    )
-                )
-            ) as Record<string, ScreenshotTracker>;
-
             // group our data by the object name
             const grouped = this.groupLogsBy(aggReport, 'pageObjectName');
 
@@ -98,20 +88,12 @@ export default class HeatmapReporter implements Reporter {
                 const summary = this.summarizeEvents(logs);
 
                 /**
-                 * get the x/y offset for the screenshot
-                 * this is necessary when it is not a full-page screenshot but rather
-                 * a component-specific screenshot.
-                 *
-                 * The locator's bounding box is based on its location on the page,
-                 * so the heatmap point needs to be moved relative to the
-                 * __component location__ on the page
+                 * process the data points and create our final heatmap object
+                 * offset our point to be in the middle of the bounding box
                  */
-                const offsets = aggScreenshots[pageObjectName]?.boundingBox;
-
-                // process the data points and create our final heatmap object
                 const points: HeatmapPoints[] = summary.map((log) => ({
-                    x: Math.round(log.boundingBox.x - offsets!.x + log.boundingBox.width / 2),
-                    y: Math.round(log.boundingBox.y - offsets!.y + log.boundingBox.height / 2),
+                    x: Math.round(log.boundingBox.x + log.boundingBox.width / 2),
+                    y: Math.round(log.boundingBox.y + log.boundingBox.height / 2),
                     boundingBox: log.boundingBox,
                     counts: log.counts,
                     value: log.value,
@@ -305,10 +287,12 @@ export default class HeatmapReporter implements Reporter {
         );
     }
 
+    // load the HTML template
     private loadTemplate(templatePath: string): string {
         return FSHelpers.readFileSafe(templatePath);
     }
 
+    // populate the placeholder variables with appropriate data
     private renderTemplate(template: string, variables: Record<string, any>): string {
         return Object.entries(variables).reduce((html, [key, value]) => {
             return html.replace(new RegExp(`{{${key}}}`, 'g'), JSON.stringify(value));
