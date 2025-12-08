@@ -77,7 +77,7 @@ export abstract class BaseLocator {
         await locator.scrollIntoViewIfNeeded();
 
         await locator.click(options);
-        await this.page.waitForLoadState('networkidle');
+        //await this.page.waitForLoadState('networkidle');
     }
 
     /**
