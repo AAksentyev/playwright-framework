@@ -10,6 +10,7 @@ import {
     handleTrafficResults,
     saveWorkerTraffic,
 } from '@utils/reporters/network-monitor/monitor.ts';
+import { HomePage } from '@pages/examples/HomePage.ts';
 
 type BaseFixture = {
     testMonitor: Page; // handle any test-level monitoring and test teardown
@@ -123,6 +124,9 @@ export const test = base.extend<BaseFixture>({
                         Logger.info('Session restored from worker storage.');
                     }
                 }
+            } else {
+                const homePage:HomePage = new HomePage(page);
+                await homePage.navigateToByUrl();
             }
 
             await use(page);
