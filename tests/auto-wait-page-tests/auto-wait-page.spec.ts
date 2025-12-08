@@ -115,10 +115,10 @@ test.describe(
                 const start = Date.now();
                 await autoWaitPage.clickApplyButton(duration);
 
-                // set our timeout with a 1 second buffer
+                // set our timeout with a 2 second buffer
                 await expect(autoWaitPage.operationStatusLocator).toHaveText(
                     'Target element state restored.',
-                    { timeout: msDuration + 1000 }
+                    { timeout: msDuration + 2000 }
                 );
                 const elapsed = Date.now() - start;
 

@@ -5,6 +5,18 @@ import { readCSV } from '@utils/readers/csvHelper.ts';
 import { assertSchema, validateSchema } from '@api/schemaValidator.ts';
 import { ManufacturerYearTest } from '@testdata/types/testdata.t.ts';
 
+
+/**
+ * These example tests show how the API testing functionality was implemented in this framework
+ * and how it can be used
+ * 
+ * The examples show: 
+ *  - Standardized API route configuration
+ *  - Fully typed response structure
+ *  - Data-driven tests and how they can be used with the framework
+ *  - Usage of schema validation
+ */
+
 test.describe('Standalone tests showing parameter usage examples', { tag: [TAG.API] }, async () => {
     /**
      * Example test showing usage of a request that does not require any variables in the path
@@ -194,7 +206,8 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
             }
         });
 
-        test(`Datadriven test with data from an xlsx file`, async () => {
+        // NOTE: not currently implemented due to a vulnerability in the xlsx parsing library
+        //test(`Datadriven test with data from an xlsx file`, async () => {
             // read our test data from a xlsx file. This is type-safe and you can pass
             // any type T to readXLSX to get back a typed array T[] for use in your tests
             // usage is exactly the same as readCSV, but with readXLSX
@@ -209,14 +222,18 @@ test.describe('Datadriven examples', { tag: [TAG.API] }, async () => {
                 // perform any checks here. Omitting status,etc in interest of making examples more compact
                 expect.soft(body.Count).toEqual(expectedRecordCount);
             }*/
-        });
+        //});
     });
 });
 
+
+/**
+ * These APIs have the @ResponseThreshold decorator attached to them.
+ * If the threshold exceeds, the decorator can be configured to either hard fail the test
+ * or simply log a warning
+ */
 test.describe('Response Time Thresholds', { tag: TAG.API }, async () => {
-    // These APIs have the @ResponseThreshold decorator attached to them.
-    // If the threshold exceeds, the decorator can be configured to either hard fail the test
-    // or simply log a warning
+
 
     test(`API that will exceed threshold and hard fail (failing test)`, async ({ request }) => {
         // execute an API call that does not exist
