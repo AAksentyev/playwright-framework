@@ -1,7 +1,6 @@
 import { expect, test } from '@fixtures/base.ts';
 import { TAG } from '@constants/tags.ts';
 import { FOOTER_LINKS, FooterComponent } from '@pages/examples/FooterComponent.ts';
-import { HomePage } from '@pages/examples/HomePage.ts';
 
 /**
  * Footer component testes
