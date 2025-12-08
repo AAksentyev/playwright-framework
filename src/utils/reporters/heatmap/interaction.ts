@@ -77,7 +77,17 @@ export function Interaction(type: InteractionType, locatorPropName?: string) {
             // let's capture our locator's bounding box (or null if it's not visible)
             let boundingBox = null;
             let trackedClassName = null;
-            if (await targetLocator.isVisible()) boundingBox = await targetLocator.boundingBox();
+            if ( await targetLocator.isVisible() ){
+                boundingBox = await targetLocator.boundingBox();
+                
+                // if we're dealing with a COMPONENT object model, we need to offset the bounding box of the locator
+                // to be relevant to the root component in which it is located rather than relevant to the page
+                if ( this.root && 'boundingBox' in this.root && boundingBox ){
+                    const rootBox = await this.root.boundingBox();
+                    boundingBox.x = boundingBox.x - rootBox.x;
+                    boundingBox.y = boundingBox.y - rootBox.y;
+                }
+            } 
 
             // we need to take our screenshot before we perform our action on the page
             if (config.RUN_HEATMAP_REPORT) {
