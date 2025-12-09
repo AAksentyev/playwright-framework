@@ -10,12 +10,12 @@ test.describe('Home Page tests', { tag: [TAG.UI, TAG.WIP] }, async () => {
     test.describe('Image and static text', async()=>{
 
         // perform visual regression on the image
-        test("Rubic's cube image is visible and rendered", async({homePage})=>{
+        test("Rubic's cube image is visible and rendered", async({ homePage })=>{
             await expect(await homePage.getRubicsCubeImage()).toHaveScreenshot('home-page-rubics-cube.png')
         });
 
         // verify static text
-        test("Static text on home page is correct", async({ homePage, page })=>{
+        test("Static text on home page is correct", async({ homePage })=>{
             expect.soft(
                 await homePage.getAlertText(),
                 "Informational alert should have correct text"
@@ -28,7 +28,7 @@ test.describe('Home Page tests', { tag: [TAG.UI, TAG.WIP] }, async () => {
             ).toBe('Quality is not an act, it is a habit.\n\nAristotle');
             
             await expect.soft(
-                page.getByText('Different automation pitfalls appearing in modern web applications are described and emulated below.'),
+                await homePage.getHelperParagraph(),
                 "Informational paragraph text should be visible"
             ).toBeVisible();
         });

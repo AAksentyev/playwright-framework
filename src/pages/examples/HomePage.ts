@@ -110,6 +110,11 @@ export class HomePage extends BasePage {
         return this.page.getByRole('img', { name: 'Responsive image' });
     }
 
+    private get helperParagraphLocator():Locator {
+        return this.page
+        .getByText('Different automation pitfalls appearing in modern web applications are described and emulated below.');
+    }
+
     @Interaction('visibility_check', 'citationLocator')
     public async getCitationText():Promise<string> {
         await expect(this.citationLocator).toBeVisible();
@@ -127,4 +132,12 @@ export class HomePage extends BasePage {
         await expect(this.imageLocator).toBeVisible();
         return this.imageLocator;
     }
+
+    @Interaction('visibility_check', 'helperParagraphLocator')
+    public async getHelperParagraph():Promise<Locator> {
+        await expect(this.helperParagraphLocator).toBeVisible();
+        return this.helperParagraphLocator;
+    }
+
+    
 }
