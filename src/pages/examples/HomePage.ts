@@ -93,4 +93,38 @@ export class HomePage extends BasePage {
     private async waitForSpinner(timeout:number=8000):Promise<void> {
         await this.page.locator('#spinner').waitFor({state: 'hidden', timeout});
     }
+
+
+    //*********************** */
+    // static text and image getters
+    //*********************** */
+    private get citationLocator():Locator {
+        return this.page.locator('#citation');
+    }
+
+    private get alertLocator():Locator {
+        return this.page.getByRole('alert');
+    }
+
+    private get imageLocator():Locator {
+        return this.page.getByRole('img', { name: 'Responsive image' });
+    }
+
+    @Interaction('visibility_check', 'citationLocator')
+    public async getCitationText():Promise<string> {
+        await expect(this.citationLocator).toBeVisible();
+        return await this.citationLocator.innerText();
+    }
+
+    @Interaction('visibility_check', 'alertLocator')
+    public async getAlertText():Promise<string> {
+        await expect(this.alertLocator).toBeVisible();
+        return await this.alertLocator.innerText();
+    }
+
+    @Interaction('visibility_check', 'imageLocator')
+    public async getRubicsCubeImage():Promise<Locator> {
+        await expect(this.imageLocator).toBeVisible();
+        return this.imageLocator;
+    }
 }
