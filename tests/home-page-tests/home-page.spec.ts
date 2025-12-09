@@ -1,12 +1,12 @@
 import { TAG } from '@constants/tags.ts';
 import { expect } from '@fixtures/base.ts';
 import { test } from '@fixtures/home-page.fixture.ts';
-import { HOME_PAGE_LINKS } from '@pages/examples/HomePage.t.ts';
+import { HOME_PAGE_LINKS } from '@pages/examples/HomePage/HomePage.t.ts';
 
 /**
  * Home Page tests
 */
-test.describe('Home Page tests', { tag: [TAG.UI, TAG.WIP] }, async () => {
+test.describe('Home Page tests', { tag: [TAG.UI] }, async () => {
     test.describe('Image and static text', async()=>{
 
         // perform visual regression on the image

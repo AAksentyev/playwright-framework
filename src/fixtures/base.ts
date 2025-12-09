@@ -10,7 +10,7 @@ import {
     handleTrafficResults,
     saveWorkerTraffic,
 } from '@utils/reporters/network-monitor/monitor.ts';
-import { HomePage } from '@pages/examples/HomePage.ts';
+import { HomePage } from '@pages/examples/HomePage/HomePage.ts';
 
 type BaseFixture = {
     testMonitor: Page; // handle any test-level monitoring and test teardown

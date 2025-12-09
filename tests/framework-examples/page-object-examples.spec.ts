@@ -3,10 +3,15 @@ import { ResourcesPage } from '@pages/examples/ResourcesPage.ts';
 import { TextInputPage } from '@pages/examples/TextInputPage.ts';
 import { AjaxDataPage } from '@pages/examples/AjaxDataPage.ts';
 import { TAG } from '@constants/tags.ts';
-import { HomePage } from '@pages/examples/HomePage.ts';
+import { HomePage } from '@pages/examples/HomePage/HomePage.ts';
 import { TopNavigationMenuComponent } from '@pages/examples/TopNavigationMenuComponent.ts';
 
-
+/**
+ * These tests intentionally use the base fixture instead of a dedicated page fixture
+ * to demonstrate different options available in the POM class and their usage
+ * 
+ * The examples also include Component Object Model usage
+ */
 test.describe('Component and Page Object Models', { tag: [TAG.UI] }, async () => {
     test('Component interactions', async ({ page }) => {
         // initialize the home page object model

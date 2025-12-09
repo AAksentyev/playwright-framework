@@ -1,7 +1,7 @@
 import { TAG } from '@constants/tags.ts';
 import { expect, test } from '@fixtures/base.ts';
 import { DisabledInputPage } from '@pages/examples/DisabledInputPage.ts';
-import { HomePage } from '@pages/examples/HomePage.ts';
+import { HomePage } from '@pages/examples/HomePage/HomePage.ts';
 import { Logger } from '@utils/logger.ts';
 
 /**

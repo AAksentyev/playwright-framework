@@ -1,5 +1,5 @@
 import { test as base } from '@fixtures/base.ts';
-import { HomePage } from '@pages/examples/HomePage.ts';
+import { HomePage } from '@pages/examples/HomePage/HomePage.ts';
 
 type HomePageFixture = {
     homePage: HomePage;
