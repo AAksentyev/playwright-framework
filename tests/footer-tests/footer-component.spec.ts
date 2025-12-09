@@ -9,7 +9,7 @@ import { FOOTER_LINKS, FooterComponent } from '@pages/examples/FooterComponent.t
 
 let footerComponent:FooterComponent;
 
-test.describe('Footer tests', { tag: [TAG.UI, '@footer'] }, async () => {
+test.describe('Footer tests', { tag: [TAG.UI] }, async () => {
     test.beforeEach('Set up component', async({page})=>{
         footerComponent = new FooterComponent(page);
     })

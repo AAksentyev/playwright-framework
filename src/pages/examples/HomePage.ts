@@ -3,23 +3,8 @@ import { Logger } from '@utils/logger.ts';
 import { Retry } from '@decorators/actionRetry.ts';
 import { BasePage } from '@pages/base/BasePage.ts';
 import { Interaction } from '@utils/reporters/heatmap/interaction.ts';
+import { AvailableLinks } from './HomePage.t.ts';
 
-/**
- * List of available link names on the page
- * This is not a full list and is just used as an example
- * for making clickPageLink typesafe during compile time
- * so that only available pages show up.
- *
- * @todo externalize to a separate file with appropriate config
- */
-type AvailableLinks =
-    | 'Dynamic ID'
-    | 'AJAX Data'
-    | 'Click'
-    | 'Text Input'
-    | 'Load Delay'
-    | 'Mouse Over'
-    | 'Sample App';
 /**
  * Example Page Object Model using the Playwright site
  * Provides examples on how to implement base classes and decorators
@@ -92,5 +77,67 @@ export class HomePage extends BasePage {
         await this.safeClick(
             this.page.locator('div.container').getByRole('link', { name: linkName, exact: true })
         );
+
+        await this.waitForSpinner();
     }
+
+    /**
+     * Get the href attribute from the link
+     * @param linkName 
+     * @returns 
+     */
+    public async getPageLinkHref(linkName: AvailableLinks): Promise<string | null> {
+        return this.page.locator('div.container').getByRole('link', { name: linkName, exact: true }).getAttribute('href');
+    }
+
+    private async waitForSpinner(timeout:number=8000):Promise<void> {
+        await this.page.locator('#spinner').waitFor({state: 'hidden', timeout});
+    }
+
+
+    //*********************** */
+    // static text and image getters
+    //*********************** */
+    private get citationLocator():Locator {
+        return this.page.locator('#citation');
+    }
+
+    private get alertLocator():Locator {
+        return this.page.getByRole('alert');
+    }
+
+    private get imageLocator():Locator {
+        return this.page.getByRole('img', { name: 'Responsive image' });
+    }
+
+    private get helperParagraphLocator():Locator {
+        return this.page
+        .getByText('Different automation pitfalls appearing in modern web applications are described and emulated below.');
+    }
+
+    @Interaction('visibility_check', 'citationLocator')
+    public async getCitationText():Promise<string> {
+        await expect(this.citationLocator).toBeVisible();
+        return await this.citationLocator.innerText();
+    }
+
+    @Interaction('visibility_check', 'alertLocator')
+    public async getAlertText():Promise<string> {
+        await expect(this.alertLocator).toBeVisible();
+        return await this.alertLocator.innerText();
+    }
+
+    @Interaction('visibility_check', 'imageLocator')
+    public async getRubicsCubeImage():Promise<Locator> {
+        await expect(this.imageLocator).toBeVisible();
+        return this.imageLocator;
+    }
+
+    @Interaction('visibility_check', 'helperParagraphLocator')
+    public async getHelperParagraph():Promise<Locator> {
+        await expect(this.helperParagraphLocator).toBeVisible();
+        return this.helperParagraphLocator;
+    }
+
+    
 }
