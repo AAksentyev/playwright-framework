@@ -1,7 +1,7 @@
 import { mockRequest, unmockRequest } from "@api/apiMocking.ts";
 import { TAG } from "@constants/tags.ts";
 import { test } from "@fixtures/base.ts";
-import { HomePage } from "@pages/examples/HomePage.ts";
+import { HomePage } from "@pages/examples/HomePage/HomePage.ts";
 import { TopNavigationMenuComponent } from "@pages/examples/TopNavigationMenuComponent.ts";
 import { Logger } from "@utils/logger.ts";
 
